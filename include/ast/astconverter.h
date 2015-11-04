@@ -3,7 +3,7 @@
 
 #include "ast/ast.h"
 #include "ast/rootast.h"
-#include "core/rawrowswriter.h"
+#include "core/hammer.h"
 #include "rapidjson/document.h"
 #include <memory>
 

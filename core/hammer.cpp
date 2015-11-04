@@ -1,17 +1,17 @@
-#include "core/rawrowswriter.h"
+#include "core/hammer.h"
 #include <core/fleshtoken.h>
 #include <core/bonetoken.h>
 #include <core/soultoken.h>
 
 #include <cassert>
 
-RawRowsWriter::RawRowsWriter(RawRows &rawRows) :
+Hammer::Hammer(Tokens &rawRows) :
     rawRows(rawRows)
 {
 
 }
 
-void RawRowsWriter::write(const Ast &value)
+void Hammer::write(const Ast &value)
 {
     switch (value.getType()) {
     case Ast::Type::ROOT:
@@ -32,13 +32,13 @@ void RawRowsWriter::write(const Ast &value)
     }
 }
 
-void RawRowsWriter::writeScalar(const ScalarAst &scalar)
+void Hammer::writeScalar(const ScalarAst &scalar)
 {
     rawRows.insert(new FleshToken(&scalar));
     rawRows.newLine();
 }
 
-void RawRowsWriter::writeObject(const ListAst &object)
+void Hammer::writeObject(const ListAst &object)
 {
     rawRows.insert(new SoulToken(&object, Token::Role::BEGIN));
 
@@ -68,7 +68,7 @@ void RawRowsWriter::writeObject(const ListAst &object)
     rawRows.insert(new SoulToken(&object, Token::Role::END));
 }
 
-void RawRowsWriter::writeArray(const ListAst &array)
+void Hammer::writeArray(const ListAst &array)
 {
     rawRows.insert(new SoulToken(&array, Token::Role::BEGIN));
 
@@ -91,7 +91,7 @@ void RawRowsWriter::writeArray(const ListAst &array)
 }
 
 
-void RawRowsWriter::indent(const Ast *master)
+void Hammer::indent(const Ast *master)
 {
     if (indentLevel > 0) {
         Token *t = new BoneToken(master, std::string(indentLevel, '\t'));

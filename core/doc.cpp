@@ -34,7 +34,7 @@ void Doc::load()
     std::unique_ptr<Ast> a(new ScalarAst(Ast::Type::SCALAR, "\"haha\""));
     root.at(0).insert(1, a);
 
-    RawRowsWriter writer(rawRows);
+    Hammer writer(rawRows);
     writer.write(root);
     rawRows.seek(&root.at(0));
     rawRows.light();

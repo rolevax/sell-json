@@ -1,14 +1,14 @@
-#include "core/rawrows.h"
+#include "core/tokens.h"
 #include <QDebug>
 #include <iostream>
 
 #include <cassert>
 
-RawRows::RawRows()
+Tokens::Tokens()
 {
 }
 
-void RawRows::seek(ssize_t nextR, ssize_t nextC)
+void Tokens::seek(ssize_t nextR, ssize_t nextC)
 {
     if (nextR >= 0) {
         assert(size_t(nextR) <= rows.size());
@@ -34,7 +34,7 @@ void RawRows::seek(ssize_t nextR, ssize_t nextC)
  *   - if no token under r, c, search start from previous token
  *   - if hint == 0, do zigzag bi-dir search from curr r,c(locality)
  */
-void RawRows::seek(const Ast *inner)
+void Tokens::seek(const Ast *inner)
 {
     for (auto rit = rows.begin(); rit != rows.end(); ++rit) {
         for (auto cit = rit->begin(); cit != rit->end(); ++cit) {
@@ -50,14 +50,42 @@ void RawRows::seek(const Ast *inner)
     assert(false && "seek: inner not found");
 }
 
-void RawRows::light()
+void Tokens::seek(const Ast *outer, size_t inner)
 {
-    if (r == rows.size()) {
-        throw 2016; // TODO
-    } else if (c == rows[r].size()) {
-        throw 2016; // TODO
+    if (inner < outer->size())  {
+        seek(&outer->at(inner));
+    } else if (inner == outer->size()){
+        // TODO: Ast::isList(Type)
+        assert(outer->getType() == Ast::Type::ARRAY
+               || outer->getType() == Ast::Type::OBJECT);
+        // TODO XXX
+        /*
+         * when press 'i' to insert, use this seek() to locate the
+         * first token behind the previous token which does not
+         * belong to the previous token (next to end/flesh)
+         * skip separator token of parent AST if any.
+         *
+         * don't consider map insert for now. that's not in JSON anyway.
+         * simply forbid point to end in a map ast (Pair of JSON)
+         * don't consider root insert.
+         * root's (only) child can be only changed or deleted.
+         *
+         * plan: impl Hammer, regression test. then insert.
+         * Tokens::Tokens(Hammer)
+         * vector<vector<Token>> Hammer::hit(Ast)
+         *   - return a well-indented vector<vector<>>
+         *   - indent level calculated by distance to root
+         *   - main logic about recursive indent management
+         * Tokens::insert(Ast) { insert(hammer(ast)); } very simple.
+         */
+        ///seek(&outer->at(inner - 1));
+    } else {
+        throw -123;
     }
+}
 
+void Tokens::light()
+{
     assert(r < rows.size() && c < rows[r].size());
 
     const Token& under = *rows[r][c];
@@ -111,13 +139,13 @@ void RawRows::light()
         ob->observeLight(lbr, lbc, ler, lec, r, c, y, x);
 }
 
-void RawRows::newLine()
+void Tokens::newLine()
 {
     seek(r + 1, 0);
     rows.emplace(rows.begin() + r);
 }
 
-void RawRows::insert(Token *token)
+void Tokens::insert(Token *token)
 {
     if (r == rows.size()) // new row
         rows.emplace_back();
@@ -130,7 +158,7 @@ void RawRows::insert(Token *token)
     seek(STAY, c + 1);
 }
 
-void RawRows::print()
+void Tokens::print()
 {
     std::cout << "Print from rawRows:" << std::endl;
     for (const auto &row : rows) {
@@ -141,7 +169,7 @@ void RawRows::print()
     std::cout << "End of rawRows print" << std::endl;
 }
 
-void RawRows::registerObserver(RawRowsObserver *ob)
+void Tokens::registerObserver(RawRowsObserver *ob)
 {
     observers.push_back(ob);
 }

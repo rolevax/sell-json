@@ -1,5 +1,5 @@
-#ifndef RAWROWS_H
-#define RAWROWS_H
+#ifndef TOKENS_H
+#define TOKENS_H
 
 #include "token.h"
 #include "rawrowsobserver.h"
@@ -9,17 +9,18 @@
  *    - lightable region := Flesh | Begin...End
  *    - when removing a lightable region, clean all 'outside bone' tabs
  */
-class RawRows
+class Tokens
 {
 public:
     const static int STAY = -1;
-    RawRows();
+    Tokens();
 
-    RawRows(const RawRows&) = delete;
-    RawRows &operator=(const RawRows&) = delete;
+    Tokens(const Tokens&) = delete;
+    Tokens &operator=(const Tokens&) = delete;
 
     void seek(ssize_t nextR, ssize_t nextC);
     void seek(const Ast *inner);
+    void seek(const Ast *outer, size_t inner);
     void light();
     void newLine();
     void insert(Token *token);
@@ -34,4 +35,4 @@ private:
     size_t c = 0;
 };
 
-#endif // RAWROWS_H
+#endif // TOKENS_H

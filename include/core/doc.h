@@ -1,7 +1,7 @@
 #ifndef DOC_H
 #define DOC_H
 
-#include "core/rawrows.h"
+#include "core/tokens.h"
 #include "ast/ast.h"
 #include "ast/rootast.h"
 #include "mode/mode.h"
@@ -32,7 +32,7 @@ private:
 private:
     std::unique_ptr<std::stack<std::shared_ptr<Mode>>> modeStack;
     RootAst root;
-    RawRows rawRows;
+    Tokens rawRows;
     Ast *outer = &root;
     size_t inner = 0;
 };
