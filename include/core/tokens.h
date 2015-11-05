@@ -1,8 +1,9 @@
 #ifndef TOKENS_H
 #define TOKENS_H
 
+#include "hammer.h"
 #include "token.h"
-#include "rawrowsobserver.h"
+#include "tokensobserver.h"
 #include <vector>
 
 /* TokenSystem: {Bone tab}Flesh | {Bone tab}Begin...[newline]End
@@ -21,16 +22,21 @@ public:
     void seek(ssize_t nextR, ssize_t nextC);
     void seek(const Ast *inner);
     void seek(const Ast *outer, size_t inner);
+    void suck();
     void light();
     void newLine();
-    void insert(Token *token);
+    void write(Token *token);
+    void insert(const Ast &ast);
+    void erase(size_t br, size_t bc, size_t er, size_t ec);
+    void remove();
     void print();
 
-    void registerObserver(RawRowsObserver *ob);
+    void registerObserver(TokensObserver *ob);
 
 private:
+    Hammer hammer;
     std::vector<std::vector<std::unique_ptr<Token>>> rows;
-    std::vector<RawRowsObserver*> observers;
+    std::vector<TokensObserver*> observers;
     size_t r = 0;
     size_t c = 0;
 };

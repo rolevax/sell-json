@@ -89,6 +89,10 @@ Item {
         list.move(nextRow, nextCol);
     }
 
+    function newRow() {
+        list.newRow();
+    }
+
     function insert(token) {
         list.insert(token);
     }

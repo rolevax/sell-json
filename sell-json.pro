@@ -41,7 +41,6 @@ HEADERS += \
     include/mode/viewmode.h \
     include/core/doc.h \
     include/core/token.h \
-    include/core/rawrowsobserver.h \
     include/ast/ast.h \
     include/ast/listast.h \
     include/ast/mapast.h \
@@ -55,5 +54,6 @@ HEADERS += \
     include/core/fleshtoken.h \
     include/core/soultoken.h \
     include/core/tokens.h \
-    include/core/hammer.h
+    include/core/hammer.h \
+    include/core/tokensobserver.h
 

@@ -1,30 +1,30 @@
 #ifndef HAMMER_H
 #define HAMMER_H
 
-#include "core/tokens.h"
 #include "ast/scalarast.h"
 #include "ast/listast.h"
 #include "ast/mapast.h"
 
+class Tokens;
+
 class Hammer
 {
 public:
-    Hammer(Tokens &rawRows);
+    Hammer(Tokens &tokens);
 
     Hammer(const Hammer&) = delete;
     Hammer &operator=(const Hammer&) = delete;
 
-    void write(const Ast &value);
+    void write(const Ast &ast);
+
+private:
     void writeScalar(const ScalarAst &scalar);
     void writeObject(const ListAst &object);
     void writeArray(const ListAst &array);
-
-private:
     void indent(const Ast *master);
 
 private:
-    Tokens &rawRows;
-    int indentLevel = 0;
+    Tokens &tokens;
 };
 
 #endif // HAMMER_H

@@ -4,8 +4,10 @@
 
 #include <cassert>
 
-Tokens::Tokens()
+Tokens::Tokens() :
+    hammer(*this)
 {
+    rows.emplace_back();
 }
 
 void Tokens::seek(ssize_t nextR, ssize_t nextC)
@@ -52,36 +54,23 @@ void Tokens::seek(const Ast *inner)
 
 void Tokens::seek(const Ast *outer, size_t inner)
 {
-    if (inner < outer->size())  {
-        seek(&outer->at(inner));
-    } else if (inner == outer->size()){
-        // TODO: Ast::isList(Type)
-        assert(outer->getType() == Ast::Type::ARRAY
-               || outer->getType() == Ast::Type::OBJECT);
-        // TODO XXX
+    assert(inner < outer->size());
+    seek(&outer->at(inner));
+}
+
+void Tokens::suck()
+{
+    if (r == rows.size() || c == rows[r].size())
+        return;
+    // TODO
         /*
-         * when press 'i' to insert, use this seek() to locate the
+         * when press 'i' to insert, use this suck() to locate the
          * first token behind the previous token which does not
          * belong to the previous token (next to end/flesh)
          * skip separator token of parent AST if any.
-         *
-         * don't consider map insert for now. that's not in JSON anyway.
-         * simply forbid point to end in a map ast (Pair of JSON)
-         * don't consider root insert.
-         * root's (only) child can be only changed or deleted.
-         *
-         * plan: impl Hammer, regression test. then insert.
-         * Tokens::Tokens(Hammer)
-         * vector<vector<Token>> Hammer::hit(Ast)
-         *   - return a well-indented vector<vector<>>
-         *   - indent level calculated by distance to root
-         *   - main logic about recursive indent management
-         * Tokens::insert(Ast) { insert(hammer(ast)); } very simple.
+         *   ---> just for skipping leading tabs
+         *         ---> can't include tabs behind begin, because of flesh
          */
-        ///seek(&outer->at(inner - 1));
-    } else {
-        throw -123;
-    }
 }
 
 void Tokens::light()
@@ -141,21 +130,86 @@ void Tokens::light()
 
 void Tokens::newLine()
 {
+    bool chop = r < rows.size() && c < rows[r].size();
     seek(r + 1, 0);
     rows.emplace(rows.begin() + r);
+    for (auto ob : observers)
+        ob->observeNewRow();
+
+    if (chop) {
+        // TODO re-design newline() and insert.
+        // (for the total system, including qml)
+        // row insertion should be explicity reported
+        // p.s. press enter is the only way to create new row.
+    }
 }
 
-void Tokens::insert(Token *token)
+void Tokens::write(Token *token)
 {
-    if (r == rows.size()) // new row
-        rows.emplace_back();
-
     std::vector<std::unique_ptr<Token>> &row = rows[r];
     row.emplace(row.begin() + c, token);
     for (auto ob : observers)
         ob->observeInsert(*token);
 
     seek(STAY, c + 1);
+}
+
+void Tokens::insert(const Ast &ast)
+{
+    hammer.write(ast);
+}
+
+void Tokens::erase(size_t br, size_t bc, size_t er, size_t ec)
+{
+    assert(br < rows.size() && bc < rows[br].size());
+    assert(er < rows.size() && ec < rows[er].size());
+    assert(br <= er);
+
+    if (br == er) {
+        auto it = rows[br].begin();
+        rows[br].erase(it + bc, it + ec + 1);
+        if (rows[br].empty())
+            rows.erase(rows.begin() + br);
+    } else {
+        auto endIt = rows[er].begin();
+        rows[er].erase(endIt, endIt + ec + 1);
+        if (rows[er].empty())
+            rows.erase(rows.begin() + er);
+
+        if (br + 1 < er) // more than 2 rows
+            rows.erase(rows.begin() + br + 1, rows.begin() + er);
+
+        rows[br].erase(rows[br].begin() + bc, rows[br].end());
+        if (rows[br].empty())
+            rows.erase(rows.begin() + br);
+    }
+}
+
+void Tokens::remove()
+{
+    assert(r < rows.size() && c < rows[r].size());
+    Token::Role role = rows[r][c]->getRole();
+    assert(role == Token::Role::BEGIN || role == Token::Role::FLESH);
+
+    const Ast *target = rows[r][c]->getAst();
+    // TODO: optmz
+    int br = r, bc = c, er = -1, ec;
+    for (auto rit = rows.begin(); rit != rows.end(); ++rit) {
+        for (auto cit = rit->begin(); cit != rit->end(); ++cit) {
+            const Ast *ast = (*cit)->getAst();
+            if (ast == target && (*cit)->getRole() == Token::Role::END) {
+                er = rit - rows.begin();
+                ec = cit - rit->begin();
+                break;
+            }
+        }
+    }
+    assert(er != -1);
+
+    // check leading tab token
+    if (bc - 1 >= 0 && rows[br][bc - 1]->getAst() == target)
+        --bc;
+    erase(br, bc, er, ec);
 }
 
 void Tokens::print()
@@ -169,7 +223,7 @@ void Tokens::print()
     std::cout << "End of rawRows print" << std::endl;
 }
 
-void Tokens::registerObserver(RawRowsObserver *ob)
+void Tokens::registerObserver(TokensObserver *ob)
 {
     observers.push_back(ob);
 }

@@ -22,17 +22,18 @@ public:
     void load();
     void keyboard(char key);
 
-    void registerRawRowsObserver(RawRowsObserver *ob);
+    void registerRawRowsObserver(TokensObserver *ob);
 
 private:
     void fuckIn();
     void damnOut();
     void jackKick(int step);
+    void insert();
 
 private:
     std::unique_ptr<std::stack<std::shared_ptr<Mode>>> modeStack;
     RootAst root;
-    Tokens rawRows;
+    Tokens tokens;
     Ast *outer = &root;
     size_t inner = 0;
 };

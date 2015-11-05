@@ -13,6 +13,11 @@ void PRawRows::observeInsert(const Token &token)
     emit inserted(createTokenVar(token));
 }
 
+void PRawRows::observeNewRow()
+{
+    emit newRow();
+}
+
 void PRawRows::observeCoord(size_t r, size_t c)
 {
     emit coorded(r, c);

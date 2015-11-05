@@ -3,7 +3,9 @@
 #include "mode/viewmode.h"
 #include "rapidjson/document.h"
 #include "rapidjson/prettywriter.h"
+
 #include <QDebug>
+#include <iostream>
 
 Doc::Doc() :
     modeStack(new std::stack<std::shared_ptr<Mode>>)
@@ -19,7 +21,12 @@ void Doc::load()
                        "\"name\": \"you\","
                        "\"age\": 18,"
                        "\"fucked\": true"
-                       "}]";
+                       "},"
+                       "123,"
+                       "[34, 79, 90],"
+                       "[],"
+                       "9.75"
+                       "]";
     rapidjson::Document d;
     d.Parse(json);
     rapidjson::StringBuffer sb;
@@ -30,14 +37,10 @@ void Doc::load()
     AstConverter ac(root);
     ac.convert(d);
 
-    // test
-    std::unique_ptr<Ast> a(new ScalarAst(Ast::Type::SCALAR, "\"haha\""));
-    root.at(0).insert(1, a);
+    tokens.insert(root);
+    tokens.seek(outer, inner);
+    tokens.light();
 
-    Hammer writer(rawRows);
-    writer.write(root);
-    rawRows.seek(&root.at(0));
-    rawRows.light();
 //    rawRows.print();
 }
 
@@ -57,21 +60,29 @@ void Doc::keyboard(char key)
     case 'd':
         damnOut();
         break;
+    case 'i':
+        insert();
+        break;
     default:
         qDebug() << "Doc: unsupported key in curront mode";
         break;
     }
 }
 
-void Doc::registerRawRowsObserver(RawRowsObserver *ob)
+void Doc::registerRawRowsObserver(TokensObserver *ob)
 {
-    rawRows.registerObserver(ob);
+    tokens.registerObserver(ob);
 }
 
 void Doc::fuckIn()
 {
     if (inner == outer->size()) {
         qDebug() << "end not fuckable";
+        return;
+    }
+
+    if (outer->at(inner).size() == 0) {
+        qDebug() << "empty not fuckable";
         return;
     }
 
@@ -83,10 +94,8 @@ void Doc::fuckIn()
     case Ast::Type::ROOT:
         outer = &outer->at(inner);
         inner = 0;
-        if (outer->size() > 0) { // TODO: point to end cases
-            rawRows.seek(&outer->at(inner));
-            rawRows.light();
-        }
+        tokens.seek(outer, inner);
+        tokens.light();
         break;
     case Ast::Type::KEY:
     case Ast::Type::SCALAR:
@@ -106,8 +115,8 @@ void Doc::damnOut()
     for (size_t i = 0; i < nextOuter->size(); i++)
         if (&nextOuter->at(i) == outer)
             inner = i;
-    rawRows.seek(outer);
-    rawRows.light();
+    tokens.seek(outer);
+    tokens.light();
     outer = nextOuter;
 }
 
@@ -120,7 +129,15 @@ void Doc::jackKick(int step)
     }
     inner = nextInner;
     // TODO: point to end cases
-    rawRows.seek(&outer->at(inner));
-    rawRows.light();
+    tokens.seek(outer, inner);
+    tokens.light();
+}
+
+void Doc::insert()
+{
+    // test
+    std::unique_ptr<Ast> a(new ScalarAst(Ast::Type::SCALAR, "\"haha\""));
+    outer->insert(inner, a);
+    tokens.insert(outer->at(inner));
 }
 

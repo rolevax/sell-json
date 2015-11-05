@@ -16,6 +16,10 @@ Rectangle {
             rawRows.insert(token);
         }
 
+        onNewRow: {
+            rawRows.newRow();
+        }
+
         onCoorded: {
             rawRows.move(r, c);
         }

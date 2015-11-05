@@ -4,7 +4,12 @@ ListView {
     property int row: 0
     property int col: 0
 
-    model: ListModel { id: listModel }
+    model: ListModel {
+        id: listModel
+        ListElement {
+            modelColumns: []
+        }
+    }
 
     delegate: ListView {
         property int rowId: index
@@ -69,10 +74,11 @@ ListView {
     }
 
     function insert(token) {
-        if (row === listModel.count) // new row
-            listModel.insert(row, { modelColumns: [ token ] });
-        else
-            listModel.get(row).modelColumns.insert(col, token);
+        listModel.get(row).modelColumns.insert(col, token);
+    }
+
+    function newRow() {
+        listModel.insert(row, { modelColumns: [] });
     }
 
     function removeRow() {
