@@ -47,19 +47,15 @@ Tokens::Region Tokens::locate(const Ast *tar)
     return res;
 }
 
-void Tokens::suck()
+void Tokens::suck(Region &r)
 {
-    if (r == rows.size() || c == rows[r].size())
-        return;
-    // TODO
-        /*
-         * when press 'i' to insert, use this suck() to locate the
-         * first token behind the previous token which does not
-         * belong to the previous token (next to end/flesh)
-         * skip separator token of parent AST if any.
-         *   ---> just for skipping leading tabs
-         *         ---> can't include tabs behind begin, because of flesh
-         */
+    assert(r.br < rows.size() && r.bc < rows[r.br].size());
+    Token::Role role = rows[r.br][r.bc]->getRole();
+    if (role == Token::Role::BEGIN) {
+        const Ast *ast = rows[r.br][r.bc]->getAst();
+        if (r.bc > 0 && rows[r.br][r.bc - 1]->getAst() == ast)
+            --r.bc; // skip one tab
+    }
 }
 
 void Tokens::light(const Ast *inner)
@@ -107,16 +103,17 @@ void Tokens::insert(const Ast *outer, size_t inner)
 
     if (outer->getType() == Ast::Type::ROOT) {
         hammer.write(*outer, 0, 0);
-    } else if (outer->size() == 1) {
+    } else if (outer->size() == 1) { // was empty before insertion
+        // TODO
         // delete old outer token
         // insert new outer token to outer's outer (until root)
-    } else if (inner == 0) {
+    } else if (inner == 0) { // at very beginning
         Region prevHead = locate(&outer->at(1));
-        // suck prevHead
-        // insert br, bc
+        suck(prevHead);
+        hammer.write(outer->at(inner), prevHead.br, prevHead.bc);
     } else {
         Region ass = locate(&outer->at(inner - 1));
-        // insert ass.er, ass.ec + 1
+        hammer.write(outer->at(inner), ass.er, ass.ec + 1);
     }
 }
 

@@ -15,10 +15,10 @@ class Tokens
 public:
     struct Region
     {
-        int br;
-        int bc;
-        int er;
-        int ec;
+        size_t br;
+        size_t bc;
+        size_t er;
+        size_t ec;
     };
 
     const static int STAY = -1;
@@ -28,7 +28,7 @@ public:
     Tokens &operator=(const Tokens&) = delete;
 
     Region locate(const Ast *tar);
-    void suck();
+    void suck(Region &region);
     void light(const Ast *inner);
     void newLine(size_t r, size_t c);
     void write(Token *token, size_t r, size_t c);
