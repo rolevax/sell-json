@@ -10,9 +10,9 @@ class TokensObserver
 public:
     TokensObserver() = default;
 
-    virtual void observeCoord(size_t /*r*/, size_t /*c*/) {}
-    virtual void observeNewRow() {}
-    virtual void observeInsert(const Token &/*token*/) {}
+    virtual void observeNewLine(size_t /*r*/, size_t /*c*/) {}
+    virtual void observeInsert(const Token &/*token*/,
+                               size_t /*r*/, size_t /*c*/) {}
     virtual void observeLight(size_t /*lbr*/, size_t /*lbc*/,
                               size_t /*ler*/, size_t /*lec*/,
                               size_t /*hbr*/, size_t /*hbc*/,

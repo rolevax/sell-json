@@ -37,11 +37,10 @@ void Doc::load()
     AstConverter ac(root);
     ac.convert(d);
 
-    tokens.insert(root);
-    tokens.seek(outer, inner);
-    tokens.light();
+    tokens.insert(outer, inner);
+//    tokens.light(&outer->at(inner));
 
-//    rawRows.print();
+    tokens.print();
 }
 
 void Doc::keyboard(char key)
@@ -94,8 +93,7 @@ void Doc::fuckIn()
     case Ast::Type::ROOT:
         outer = &outer->at(inner);
         inner = 0;
-        tokens.seek(outer, inner);
-        tokens.light();
+        tokens.light(&outer->at(inner));
         break;
     case Ast::Type::KEY:
     case Ast::Type::SCALAR:
@@ -115,8 +113,7 @@ void Doc::damnOut()
     for (size_t i = 0; i < nextOuter->size(); i++)
         if (&nextOuter->at(i) == outer)
             inner = i;
-    tokens.seek(outer);
-    tokens.light();
+    tokens.light(outer);
     outer = nextOuter;
 }
 
@@ -129,8 +126,7 @@ void Doc::jackKick(int step)
     }
     inner = nextInner;
     // TODO: point to end cases
-    tokens.seek(outer, inner);
-    tokens.light();
+    tokens.light(&outer->at(inner));
 }
 
 void Doc::insert()
@@ -138,6 +134,6 @@ void Doc::insert()
     // test
     std::unique_ptr<Ast> a(new ScalarAst(Ast::Type::SCALAR, "\"haha\""));
     outer->insert(inner, a);
-    tokens.insert(outer->at(inner));
+    tokens.insert(outer, inner);
 }
 

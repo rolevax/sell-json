@@ -15,13 +15,17 @@ public:
     Hammer(const Hammer&) = delete;
     Hammer &operator=(const Hammer&) = delete;
 
-    void write(const Ast &ast);
+    void write(const Ast &ast, size_t r, size_t c);
 
 private:
-    void writeScalar(const ScalarAst &scalar);
-    void writeObject(const ListAst &object);
-    void writeArray(const ListAst &array);
-    void indent(const Ast *master);
+    void write(Token *token, size_t &r, size_t &c);
+    void newLine(size_t &r, size_t &c);
+
+    void writeGeneral(const Ast &ast, size_t &r, size_t &c);
+    void writeScalar(const ScalarAst &scalar, size_t &r, size_t &c);
+    void writeObject(const ListAst &object, size_t &r, size_t &c);
+    void writeArray(const ListAst &array, size_t &r, size_t &c);
+    void indent(const Ast *master, size_t &r, size_t &c);
 
 private:
     Tokens &tokens;

@@ -12,20 +12,38 @@ Hammer::Hammer(Tokens &tokens) :
 
 }
 
-void Hammer::write(const Ast &ast)
+void Hammer::write(const Ast &ast, size_t r, size_t c)
+{
+    writeGeneral(ast, r, c);
+}
+
+void Hammer::write(Token *token, size_t &r, size_t &c)
+{
+    tokens.write(token, r, c);
+    ++c;
+}
+
+void Hammer::newLine(size_t &r, size_t &c)
+{
+    tokens.newLine(r, c);
+    ++r;
+    c = 0;
+}
+
+void Hammer::writeGeneral(const Ast &ast, size_t &r, size_t &c)
 {
     switch (ast.getType()) {
     case Ast::Type::ROOT:
-        write(ast.at(0));
+        writeGeneral(ast.at(0), r, c);
         break;
     case Ast::Type::ARRAY:
-        writeArray(dynamic_cast<const ListAst&>(ast));
+        writeArray(dynamic_cast<const ListAst&>(ast), r, c);
         break;
     case Ast::Type::OBJECT:
-        writeObject(dynamic_cast<const ListAst&>(ast));
+        writeObject(dynamic_cast<const ListAst&>(ast), r, c);
         break;
     case Ast::Type::SCALAR:
-        writeScalar(dynamic_cast<const ScalarAst&>(ast));
+        writeScalar(dynamic_cast<const ScalarAst&>(ast), r, c);
         break;
     default:
         throw -2;
@@ -33,61 +51,61 @@ void Hammer::write(const Ast &ast)
     }
 }
 
-void Hammer::writeScalar(const ScalarAst &scalar)
+void Hammer::writeScalar(const ScalarAst &scalar, size_t &r, size_t &c)
 {
-    tokens.write(new FleshToken(&scalar));
-    tokens.newLine();
+    write(new FleshToken(&scalar), r, c);
+    newLine(r, c);
 }
 
-void Hammer::writeObject(const ListAst &object)
+void Hammer::writeObject(const ListAst &object, size_t &r, size_t &c)
 {
-    tokens.write(new SoulToken(&object, Token::Role::BEGIN));
+    write(new SoulToken(&object, Token::Role::BEGIN), r, c);
 
-    tokens.write(new BoneToken(&object, "{"));
-    tokens.newLine();
+    write(new BoneToken(&object, "{"), r, c);
+    newLine(r, c);
 
     for (size_t i = 0; i < object.size(); i++) {
         const Ast &pair_ = object.at(i);
         assert(pair_.getType() == Ast::Type::PAIR);
         const MapAst &pair = dynamic_cast<const MapAst&>(pair_);
 
-        indent(&pair);
-        tokens.write(new SoulToken(&pair, Token::Role::BEGIN));
+        indent(&pair, r, c);
+        write(new SoulToken(&pair, Token::Role::BEGIN), r, c);
         const ScalarAst &key = dynamic_cast<const ScalarAst&>(pair.at(0));
-        tokens.write(new FleshToken(&key));
-        tokens.write(new BoneToken(&pair, ": "));
-        write(pair.at(1));
-        tokens.write(new SoulToken(&pair, Token::Role::END));
+        write(new FleshToken(&key), r, c);
+        write(new BoneToken(&pair, ": "), r, c);
+        writeGeneral(pair.at(1), r, c);
+        write(new SoulToken(&pair, Token::Role::END), r, c);
     }
 
-    indent(&object);
-    tokens.write(new BoneToken(&object, "}"));
-    tokens.newLine();
+    indent(&object, r, c);
+    write(new BoneToken(&object, "}"), r, c);
+    newLine(r, c);
 
-    tokens.write(new SoulToken(&object, Token::Role::END));
+    write(new SoulToken(&object, Token::Role::END), r, c);
 }
 
-void Hammer::writeArray(const ListAst &array)
+void Hammer::writeArray(const ListAst &array, size_t &r, size_t &c)
 {
-    tokens.write(new SoulToken(&array, Token::Role::BEGIN));
+    write(new SoulToken(&array, Token::Role::BEGIN), r, c);
 
-    tokens.write(new BoneToken(&array, "["));
-    tokens.newLine();
+    write(new BoneToken(&array, "["), r, c);
+    newLine(r, c);
 
     size_t size = array.size();
     for (size_t i = 0; i < size; i++) {
-        indent(&array.at(i));
-        write(array.at(i));
+        indent(&array.at(i), r, c);
+        writeGeneral(array.at(i), r, c);
     }
 
-    indent(&array);
-    tokens.write(new BoneToken(&array, "]"));
-    tokens.newLine();
+    indent(&array, r, c);
+    write(new BoneToken(&array, "]"), r, c);
+    newLine(r, c);
 
-    tokens.write(new SoulToken(&array, Token::Role::END));
+    write(new SoulToken(&array, Token::Role::END), r, c);
 }
 
-void Hammer::indent(const Ast *master)
+void Hammer::indent(const Ast *master, size_t &r, size_t &c)
 {
     int level = 0;
     const Ast *a = &master->getParent();
@@ -98,7 +116,7 @@ void Hammer::indent(const Ast *master)
 
     if (level > 0) {
         Token *t = new BoneToken(master, std::string(level, '\t'));
-        tokens.write(t);
+        write(t, r, c);
     }
 }
 

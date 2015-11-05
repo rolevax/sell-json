@@ -13,20 +13,26 @@
 class Tokens
 {
 public:
+    struct Region
+    {
+        int br;
+        int bc;
+        int er;
+        int ec;
+    };
+
     const static int STAY = -1;
     Tokens();
 
     Tokens(const Tokens&) = delete;
     Tokens &operator=(const Tokens&) = delete;
 
-    void seek(ssize_t nextR, ssize_t nextC);
-    void seek(const Ast *inner);
-    void seek(const Ast *outer, size_t inner);
+    Region locate(const Ast *tar);
     void suck();
-    void light();
-    void newLine();
-    void write(Token *token);
-    void insert(const Ast &ast);
+    void light(const Ast *inner);
+    void newLine(size_t r, size_t c);
+    void write(Token *token, size_t r, size_t c);
+    void insert(const Ast *outer, size_t inner);
     void erase(size_t br, size_t bc, size_t er, size_t ec);
     void remove();
     void print();

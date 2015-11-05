@@ -85,16 +85,12 @@ Item {
         down.y = endPos.y;
     }
 
-    function move(nextRow, nextCol) {
-        list.move(nextRow, nextCol);
+    function newLine(r, c) {
+        list.newLine(r, c);
     }
 
-    function newRow() {
-        list.newRow();
-    }
-
-    function insert(token) {
-        list.insert(token);
+    function insert(token, r, c) {
+        list.insert(token, r, c);
     }
 }
 

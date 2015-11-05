@@ -13,15 +13,11 @@ Rectangle {
         id: pRawRows
 
         onInserted: {
-            rawRows.insert(token);
+            rawRows.insert(token, r, c);
         }
 
-        onNewRow: {
-            rawRows.newRow();
-        }
-
-        onCoorded: {
-            rawRows.move(r, c);
+        onNewLine: {
+            rawRows.newLine(r, c);
         }
 
         onLighted: {

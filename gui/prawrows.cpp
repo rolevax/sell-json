@@ -8,19 +8,14 @@ PRawRows::PRawRows(QObject *parent) :
 
 }
 
-void PRawRows::observeInsert(const Token &token)
+void PRawRows::observeInsert(const Token &token, size_t r, size_t c)
 {
-    emit inserted(createTokenVar(token));
+    emit inserted(createTokenVar(token), r, c);
 }
 
-void PRawRows::observeNewRow()
+void PRawRows::observeNewLine(size_t r, size_t c)
 {
-    emit newRow();
-}
-
-void PRawRows::observeCoord(size_t r, size_t c)
-{
-    emit coorded(r, c);
+    emit newLine(r, c);
 }
 
 void PRawRows::observeLight(size_t lbr, size_t lbc,

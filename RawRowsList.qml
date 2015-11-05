@@ -1,9 +1,6 @@
 import QtQuick 2.5
 
 ListView {
-    property int row: 0
-    property int col: 0
-
     model: ListModel {
         id: listModel
         ListElement {
@@ -64,21 +61,13 @@ ListView {
         return token;
     }
 
-    function move(nextRow, nextCol) {
-        var maxRow = listModel.count;
-        row = nextRow > maxRow ? maxRow : (nextRow < 0 ? 0 : nextRow);
-
-        var maxCol = row === maxRow ? 0
-                                    : listModel.get(row).modelColumns.count;
-        col = nextCol > maxCol ? maxCol : (nextCol < 0 ? 0 : nextCol);
+    function insert(token, r, c) {
+        listModel.get(r).modelColumns.insert(c, token);
     }
 
-    function insert(token) {
-        listModel.get(row).modelColumns.insert(col, token);
-    }
-
-    function newRow() {
-        listModel.insert(row, { modelColumns: [] });
+    function newLine(r, c) {
+        // TODO
+        listModel.insert(r + 1, { modelColumns: [] });
     }
 
     function removeRow() {

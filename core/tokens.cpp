@@ -10,52 +10,41 @@ Tokens::Tokens() :
     rows.emplace_back();
 }
 
-void Tokens::seek(ssize_t nextR, ssize_t nextC)
+Tokens::Region Tokens::locate(const Ast *tar)
 {
-    if (nextR >= 0) {
-        assert(size_t(nextR) <= rows.size());
-        r = nextR;
-    }
+    if (tar->getType() == Ast::Type::ROOT)
+        return { 0, 0, 0, 0 };
 
-    if (nextC >= 0) {
-        assert(nextC == 0 ||
-               (r < rows.size() && size_t(nextC) <= rows[r].size()));
-        c = nextC;
-    }
+    Region res;
+    bool found = false;
 
-    for (auto ob : observers)
-        ob->observeCoord(r, c);
-}
-
-/**
- * @brief RawRows::seek locate at BEGIN or FLESH by inner
- * @param inner
- */
-/* TODO
- * Optmz RawRows::seek(Ast *inner, int hint = -1/0/1)
- *   - if no token under r, c, search start from previous token
- *   - if hint == 0, do zigzag bi-dir search from curr r,c(locality)
- */
-void Tokens::seek(const Ast *inner)
-{
     for (auto rit = rows.begin(); rit != rows.end(); ++rit) {
         for (auto cit = rit->begin(); cit != rit->end(); ++cit) {
-            if ((*cit)->getAst() == inner
-                    && ((*cit)->getRole() == Token::Role::BEGIN
-                        || (*cit)->getRole() == Token::Role::FLESH)) {
-                seek(rit - rows.begin(), cit - rit->begin());
-                qDebug() << "seeked at " << r << c;
-                return;
+            const Ast *a = (*cit)->getAst();
+            if (a == tar) {
+                Token::Role role = (*cit)->getRole();
+                if (role == Token::Role::FLESH) {
+                    res.br = rit - rows.begin();
+                    res.bc = cit - rit->begin();
+                    res.er = res.br;
+                    res.ec = res.bc;
+                    found = true;
+                    break;
+                } else if (role == Token::Role::BEGIN) {
+                    res.br = rit - rows.begin();
+                    res.bc = cit - rit->begin();
+                } else if (role == Token::Role::END) {
+                    res.er = rit - rows.begin();
+                    res.ec = cit - rit->begin();
+                    found = true;
+                    break;
+                }
             }
         }
     }
-    assert(false && "seek: inner not found");
-}
 
-void Tokens::seek(const Ast *outer, size_t inner)
-{
-    assert(inner < outer->size());
-    seek(&outer->at(inner));
+    assert(found);
+    return res;
 }
 
 void Tokens::suck()
@@ -73,68 +62,27 @@ void Tokens::suck()
          */
 }
 
-void Tokens::light()
+void Tokens::light(const Ast *inner)
 {
-    assert(r < rows.size() && c < rows[r].size());
-
-    const Token& under = *rows[r][c];
-    assert(under.getRole() == Token::Role::BEGIN
-           || under.getRole() == Token::Role::FLESH);
-
-    size_t y = r, x = c;
-    if (under.getRole() == Token::Role::BEGIN) {
-        const Ast *ast = under.getAst();
-        for (auto rit = rows.begin() + r; rit != rows.end(); ++rit) {
-            // TODO (optmz): use cit = begin+c in first row
-            for (auto cit = rit->begin(); cit != rit->end(); ++cit) {
-                if ((*cit)->getAst() == ast
-                        && (*cit)->getRole() == Token::Role::END) {
-                    y = rit - rows.begin();
-                    x = cit - rit->begin();
-                    break;
-                }
-            }
-        }
-        assert(y != r || x != c);
-    }
-
-    Ast *outer = &under.getAst()->getParent();
+    Region in = locate(inner);
+    Ast *outer = &inner->getParent();
     if (outer->getType() == Ast::Type::ROOT) {
         for (auto ob : observers)
-            ob->observeLight(0, 0, 0, 0, r, c, y, x);
-        return;
+            ob->observeLight(0, 0, 0, 0, in.br, in.bc, in.er, in.ec);
+    } else {
+        Region out = locate(outer);
+        for (auto ob : observers)
+            ob->observeLight(out.br, out.bc, out.er, out.ec,
+                             in.br, in.bc, in.er, in.ec);
     }
-    // TODO: optmz
-    int lbr = -1, lbc, ler = -1, lec;
-    for (auto rit = rows.begin(); rit != rows.end(); ++rit) {
-        for (auto cit = rit->begin(); cit != rit->end(); ++cit) {
-            const Ast *ast = (*cit)->getAst();
-            if (ast == outer) {
-                if ((*cit)->getRole() == Token::Role::BEGIN) {
-                    lbr = rit - rows.begin();
-                    lbc = cit - rit->begin();
-                } else if ((*cit)->getRole() == Token::Role::END) {
-                    ler = rit - rows.begin();
-                    lec = cit - rit->begin();
-                    break;
-                }
-            }
-        }
-    }
-
-    assert(lbr != -1 && ler != -1);
-
-    for (auto ob : observers)
-        ob->observeLight(lbr, lbc, ler, lec, r, c, y, x);
 }
 
-void Tokens::newLine()
+void Tokens::newLine(size_t r, size_t c)
 {
     bool chop = r < rows.size() && c < rows[r].size();
-    seek(r + 1, 0);
-    rows.emplace(rows.begin() + r);
+    rows.emplace(rows.begin() + r + 1);
     for (auto ob : observers)
-        ob->observeNewRow();
+        ob->observeNewLine(r, c);
 
     if (chop) {
         // TODO re-design newline() and insert.
@@ -144,19 +92,32 @@ void Tokens::newLine()
     }
 }
 
-void Tokens::write(Token *token)
+void Tokens::write(Token *token, size_t r, size_t c)
 {
+    assert(r < rows.size() && c <= rows[r].size());
     std::vector<std::unique_ptr<Token>> &row = rows[r];
     row.emplace(row.begin() + c, token);
     for (auto ob : observers)
-        ob->observeInsert(*token);
-
-    seek(STAY, c + 1);
+        ob->observeInsert(*token, r, c);
 }
 
-void Tokens::insert(const Ast &ast)
+void Tokens::insert(const Ast *outer, size_t inner)
 {
-    hammer.write(ast);
+    assert(outer->size() > 0);
+
+    if (outer->getType() == Ast::Type::ROOT) {
+        hammer.write(*outer, 0, 0);
+    } else if (outer->size() == 1) {
+        // delete old outer token
+        // insert new outer token to outer's outer (until root)
+    } else if (inner == 0) {
+        Region prevHead = locate(&outer->at(1));
+        // suck prevHead
+        // insert br, bc
+    } else {
+        Region ass = locate(&outer->at(inner - 1));
+        // insert ass.er, ass.ec + 1
+    }
 }
 
 void Tokens::erase(size_t br, size_t bc, size_t er, size_t ec)
@@ -220,7 +181,7 @@ void Tokens::print()
             std::cout << t->getText();
         std::cout << std::endl;
     }
-    std::cout << "End of rawRows print" << std::endl;
+    std::cout << "End of rawRows print. Last \\n is external" << std::endl;
 }
 
 void Tokens::registerObserver(TokensObserver *ob)
