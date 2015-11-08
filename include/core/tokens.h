@@ -6,9 +6,9 @@
 #include "tokensobserver.h"
 #include <vector>
 
-/* TokenSystem: {Bone tab}Flesh | {Bone tab}Begin...[newline]End
- *    - lightable region := Flesh | Begin...End
- *    - when removing a lightable region, clean all 'outside bone' tabs
+/* TokenGroup     := [Bone tab] LightableGroup
+ * LightableGroup := Begin Flesh [newline] End
+ *                 | Begin TokenGroup {TokenGroup} [newline] End
  */
 class Tokens
 {

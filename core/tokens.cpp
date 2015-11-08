@@ -23,14 +23,7 @@ Tokens::Region Tokens::locate(const Ast *tar)
             const Ast *a = (*cit)->getAst();
             if (a == tar) {
                 Token::Role role = (*cit)->getRole();
-                if (role == Token::Role::FLESH) {
-                    res.br = rit - rows.begin();
-                    res.bc = cit - rit->begin();
-                    res.er = res.br;
-                    res.ec = res.bc;
-                    found = true;
-                    break;
-                } else if (role == Token::Role::BEGIN) {
+                if (role == Token::Role::BEGIN) {
                     res.br = rit - rows.begin();
                     res.bc = cit - rit->begin();
                 } else if (role == Token::Role::END) {
@@ -73,19 +66,22 @@ void Tokens::light(const Ast *inner)
     }
 }
 
+/*
+ * observer should also do the move-rest-of-line job
+ * should do that with remove + re-insert to reuse code?
+ */
 void Tokens::newLine(size_t r, size_t c)
 {
-    bool chop = r < rows.size() && c < rows[r].size();
+    assert(r < rows.size() && c <= rows[r].size());
     rows.emplace(rows.begin() + r + 1);
+    auto &newRow = rows[r + 1];
+    newRow.insert(newRow.end(),
+                  std::make_move_iterator(rows[r].begin() + c),
+                  std::make_move_iterator(rows[r].end()));
+    rows[r].erase(rows[r].begin() + c, rows[r].end());
+
     for (auto ob : observers)
         ob->observeNewLine(r, c);
-
-    if (chop) {
-        // TODO re-design newline() and insert.
-        // (for the total system, including qml)
-        // row insertion should be explicity reported
-        // p.s. press enter is the only way to create new row.
-    }
 }
 
 void Tokens::write(Token *token, size_t r, size_t c)

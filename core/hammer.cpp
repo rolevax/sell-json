@@ -53,12 +53,16 @@ void Hammer::writeGeneral(const Ast &ast, size_t &r, size_t &c)
 
 void Hammer::writeScalar(const ScalarAst &scalar, size_t &r, size_t &c)
 {
+    indent(&scalar, r, c);
+    write(new SoulToken(&scalar, Token::Role::BEGIN), r, c);
     write(new FleshToken(&scalar), r, c);
     newLine(r, c);
+    write(new SoulToken(&scalar, Token::Role::END), r, c);
 }
 
 void Hammer::writeObject(const ListAst &object, size_t &r, size_t &c)
 {
+    indent(&object, r, c);
     write(new SoulToken(&object, Token::Role::BEGIN), r, c);
 
     write(new BoneToken(&object, "{"), r, c);
@@ -69,6 +73,7 @@ void Hammer::writeObject(const ListAst &object, size_t &r, size_t &c)
         assert(pair_.getType() == Ast::Type::PAIR);
         const MapAst &pair = dynamic_cast<const MapAst&>(pair_);
 
+        // TODO: there should be a writePair
         indent(&pair, r, c);
         write(new SoulToken(&pair, Token::Role::BEGIN), r, c);
         const ScalarAst &key = dynamic_cast<const ScalarAst&>(pair.at(0));
@@ -87,6 +92,7 @@ void Hammer::writeObject(const ListAst &object, size_t &r, size_t &c)
 
 void Hammer::writeArray(const ListAst &array, size_t &r, size_t &c)
 {
+    indent(&array, r, c);
     write(new SoulToken(&array, Token::Role::BEGIN), r, c);
 
     write(new BoneToken(&array, "["), r, c);
@@ -94,7 +100,6 @@ void Hammer::writeArray(const ListAst &array, size_t &r, size_t &c)
 
     size_t size = array.size();
     for (size_t i = 0; i < size; i++) {
-        indent(&array.at(i), r, c);
         writeGeneral(array.at(i), r, c);
     }
 
@@ -107,10 +112,17 @@ void Hammer::writeArray(const ListAst &array, size_t &r, size_t &c)
 
 void Hammer::indent(const Ast *master, size_t &r, size_t &c)
 {
+    if (master->getType() == Ast::Type::KEY)
+        return;
+
     int level = 0;
     const Ast *a = &master->getParent();
+    if (a->getType() == Ast::Type::PAIR)
+        return;
+
     while (a->getType() != Ast::Type::ROOT) {
-        ++level;
+        if (a->getType() != Ast::Type::PAIR)
+            ++level;
         a = &a->getParent();
     }
 

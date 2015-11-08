@@ -135,5 +135,7 @@ void Doc::insert()
     std::unique_ptr<Ast> a(new ScalarAst(Ast::Type::SCALAR, "\"haha\""));
     outer->insert(inner, a);
     tokens.insert(outer, inner);
+    ++inner;
+    tokens.light(&outer->at(inner));
 }
 

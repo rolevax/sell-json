@@ -66,8 +66,13 @@ ListView {
     }
 
     function newLine(r, c) {
-        // TODO
         listModel.insert(r + 1, { modelColumns: [] });
+        var prevRow = listModel.get(r).modelColumns;
+        for (var i = c; i < prevRow.count; i++) {
+            var token = prevRow.get(i);
+            listModel.get(r + 1).modelColumns.insert(i - c, token);
+        }
+        prevRow.remove(c, prevRow.count - c);
     }
 
     function removeRow() {
