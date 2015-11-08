@@ -2,9 +2,11 @@ SELL - Source Editor at Language Level
 --------------------------------------
 
 This implementation is experimental, 
-and the code was written with my feet. 
+and the basic functionalities are still under development. 
+The code was written with my feet. 
 
 SELL is an **AST oriented structural source code editor**. 
+Currently it supports editing JSON only. 
 
 Features:
 
@@ -14,8 +16,4 @@ Features:
 * Tree level operations as first class citizens. 
 * Stack based temporary location bookmarking. 
 
-Currently SELL supports JSON only. 
-In the future it will adapt to arbitrary tree-like language. 
-
-Using Qt and RapidJSON.
 
