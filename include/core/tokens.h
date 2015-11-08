@@ -13,14 +13,6 @@
 class Tokens
 {
 public:
-    struct Region
-    {
-        size_t br;
-        size_t bc;
-        size_t er;
-        size_t ec;
-    };
-
     const static int STAY = -1;
     Tokens();
 
@@ -33,8 +25,8 @@ public:
     void newLine(size_t r, size_t c);
     void write(Token *token, size_t r, size_t c);
     void insert(const Ast *outer, size_t inner);
-    void erase(size_t br, size_t bc, size_t er, size_t ec);
-    void remove();
+    void erase(const Region &r);
+    void remove(const Ast *outer, size_t inner);
     void print();
 
     void registerObserver(TokensObserver *ob);
@@ -43,8 +35,6 @@ private:
     Hammer hammer;
     std::vector<std::vector<std::unique_ptr<Token>>> rows;
     std::vector<TokensObserver*> observers;
-    size_t r = 0;
-    size_t c = 0;
 };
 
 #endif // TOKENS_H

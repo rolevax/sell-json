@@ -1,3 +1,4 @@
+#include "core/tokens.h"
 #include "gui/prawrows.h"
 
 #include "QDebug"
@@ -8,9 +9,14 @@ PRawRows::PRawRows(QObject *parent) :
 
 }
 
-void PRawRows::observeInsert(const Token &token, size_t r, size_t c)
+void PRawRows::observeWrite(const Token &token, size_t r, size_t c)
 {
-    emit inserted(createTokenVar(token), r, c);
+    emit written(createTokenVar(token), r, c);
+}
+
+void PRawRows::observeErase(const Region &r)
+{
+    emit erased(r.br, r.bc, r.er, r.ec);
 }
 
 void PRawRows::observeNewLine(size_t r, size_t c)

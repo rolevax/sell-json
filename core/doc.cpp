@@ -62,6 +62,9 @@ void Doc::keyboard(char key)
     case 'i':
         insert();
         break;
+    case 'x':
+        remove();
+        break;
     default:
         qDebug() << "Doc: unsupported key in curront mode";
         break;
@@ -120,22 +123,41 @@ void Doc::damnOut()
 void Doc::jackKick(int step)
 {
     size_t nextInner = ssize_t(inner) + step;
-    if (nextInner >= outer->size()) { // TODO: pointtoend
+    if (nextInner >= outer->size()) {
         qDebug() << "jackKick: out of range: " << nextInner;
         return;
     }
     inner = nextInner;
-    // TODO: point to end cases
     tokens.light(&outer->at(inner));
 }
 
 void Doc::insert()
 {
+    if (outer->getType() != Ast::Type::ARRAY)
+        return; // TODO: also enable Object
     // test
     std::unique_ptr<Ast> a(new ScalarAst(Ast::Type::SCALAR, "\"haha\""));
     outer->insert(inner, a);
     tokens.insert(outer, inner);
     ++inner;
+    tokens.light(&outer->at(inner));
+}
+
+void Doc::remove()
+{
+    if (outer->getType() != Ast::Type::ARRAY
+            && outer->getType() != Ast::Type::OBJECT) {
+        qDebug() << "unremovable outer";
+        return; // TODO: allow removing child of root
+    }
+    tokens.remove(outer, inner);
+    outer->remove(inner);
+    if (inner == outer->size()) {
+        if (inner > 0)
+            --inner;
+        else
+            damnOut(); // TODO: remove child of root case
+    }
     tokens.light(&outer->at(inner));
 }
 

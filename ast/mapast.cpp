@@ -13,7 +13,7 @@ MapAst::MapAst(Type t) :
 
 size_t MapAst::size() const
 {
-    // TODO: dummy, consider carefully (last empty child?)
+    // TODO: might not strictly equal to container size
     return subtrees.size();
 }
 
@@ -24,10 +24,7 @@ Ast &MapAst::at(size_t pos) const
 
 void MapAst::doInsert(size_t pos, std::unique_ptr<Ast> &child)
 {
-    // TODO: impl subtype func?
-    // Type t(child->getType());
-    // assert(t == Type::VALUE || t == keys[pos]);
-    // TODO: leave blank if jump insert (need?)
+    // TODO: subtype: assert(t is of type key[pos]);
     subtrees.insert(subtrees.begin() + pos, std::move(child));
 }
 

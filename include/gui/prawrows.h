@@ -12,7 +12,8 @@ class PRawRows : public QObject, public TokensObserver
 public:
     explicit PRawRows(QObject *parent = 0);
 
-    void observeInsert(const Token &token, size_t r, size_t c) override;
+    void observeWrite(const Token &token, size_t r, size_t c) override;
+    void observeErase(const Region &r) override;
     void observeNewLine(size_t r, size_t c) override;
     void observeLight(size_t lbr, size_t lbc,
                       size_t ler, size_t lec,
@@ -20,7 +21,8 @@ public:
                       size_t her, size_t hec) override;
 
 signals:
-    void inserted(const QVariant &token, int r, int c);
+    void written(const QVariant &token, int r, int c);
+    void erased(int br, int bc, int er, int ec);
     void newLine(int r, int c);
     void lighted(int lbr, int lbc, int ler, int lec,
                  int hbr, int hbc, int her, int hec);

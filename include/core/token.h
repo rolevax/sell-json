@@ -4,6 +4,14 @@
 #include "ast/ast.h"
 #include <string>
 
+struct Region
+{
+    size_t br;
+    size_t bc;
+    size_t er;
+    size_t ec;
+};
+
 class Token
 {
 public:

@@ -25,6 +25,12 @@ Ast &RootAst::at(size_t pos) const
     return *subtree;
 }
 
+std::unique_ptr<Ast> RootAst::remove(size_t pos)
+{
+    (void) pos;
+    throw 444; // TODO
+}
+
 void RootAst::doInsert(size_t pos, std::unique_ptr<Ast> &child)
 {
     assert(pos == 0 && !present);

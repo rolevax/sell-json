@@ -14,13 +14,19 @@ const std::string &ScalarAst::getText() const
 
 size_t ScalarAst::size() const
 {
-    return 0; // TODO: raise?
+    return 0;
 }
 
 Ast &ScalarAst::at(size_t pos) const
 {
     (void) pos;
     throw -1; // TODO
+}
+
+std::unique_ptr<Ast> ScalarAst::remove(size_t pos)
+{
+    (void) pos;
+    throw 445; // TODO
 }
 
 void ScalarAst::doInsert(size_t pos, std::unique_ptr<Ast> &child)

@@ -10,7 +10,7 @@ Tokens::Tokens() :
     rows.emplace_back();
 }
 
-Tokens::Region Tokens::locate(const Ast *tar)
+Region Tokens::locate(const Ast *tar)
 {
     if (tar->getType() == Ast::Type::ROOT)
         return { 0, 0, 0, 0 };
@@ -90,7 +90,7 @@ void Tokens::write(Token *token, size_t r, size_t c)
     std::vector<std::unique_ptr<Token>> &row = rows[r];
     row.emplace(row.begin() + c, token);
     for (auto ob : observers)
-        ob->observeInsert(*token, r, c);
+        ob->observeWrite(*token, r, c);
 }
 
 void Tokens::insert(const Ast *outer, size_t inner)
@@ -113,57 +113,42 @@ void Tokens::insert(const Ast *outer, size_t inner)
     }
 }
 
-void Tokens::erase(size_t br, size_t bc, size_t er, size_t ec)
+void Tokens::erase(const Region &r)
 {
-    assert(br < rows.size() && bc < rows[br].size());
-    assert(er < rows.size() && ec < rows[er].size());
-    assert(br <= er);
+    assert(r.br < rows.size() && r.bc < rows[r.br].size());
+    assert(r.er < rows.size() && r.ec < rows[r.er].size());
+    assert(r.br <= r.er);
 
-    if (br == er) {
-        auto it = rows[br].begin();
-        rows[br].erase(it + bc, it + ec + 1);
-        if (rows[br].empty())
-            rows.erase(rows.begin() + br);
+    if (r.br == r.er) {
+        auto it = rows[r.br].begin();
+        rows[r.br].erase(it + r.bc, it + r.ec + 1);
+        if (rows[r.br].empty())
+            rows.erase(rows.begin() + r.br);
     } else {
-        auto endIt = rows[er].begin();
-        rows[er].erase(endIt, endIt + ec + 1);
-        if (rows[er].empty())
-            rows.erase(rows.begin() + er);
+        auto endIt = rows[r.er].begin();
+        rows[r.er].erase(endIt, endIt + r.ec + 1);
+        if (rows[r.er].empty())
+            rows.erase(rows.begin() + r.er);
 
-        if (br + 1 < er) // more than 2 rows
-            rows.erase(rows.begin() + br + 1, rows.begin() + er);
+        if (r.br + 1 < r.er) // more than 2 rows
+            rows.erase(rows.begin() + r.br + 1, rows.begin() + r.er);
 
-        rows[br].erase(rows[br].begin() + bc, rows[br].end());
-        if (rows[br].empty())
-            rows.erase(rows.begin() + br);
+        rows[r.br].erase(rows[r.br].begin() + r.bc, rows[r.br].end());
+        if (rows[r.br].empty())
+            rows.erase(rows.begin() + r.br);
     }
+
+    for (auto ob : observers)
+        ob->observeErase(r);
 }
 
-void Tokens::remove()
+void Tokens::remove(const Ast *outer, size_t inner)
 {
-    assert(r < rows.size() && c < rows[r].size());
-    Token::Role role = rows[r][c]->getRole();
-    assert(role == Token::Role::BEGIN || role == Token::Role::FLESH);
+    assert(inner < outer->size());
 
-    const Ast *target = rows[r][c]->getAst();
-    // TODO: optmz
-    int br = r, bc = c, er = -1, ec;
-    for (auto rit = rows.begin(); rit != rows.end(); ++rit) {
-        for (auto cit = rit->begin(); cit != rit->end(); ++cit) {
-            const Ast *ast = (*cit)->getAst();
-            if (ast == target && (*cit)->getRole() == Token::Role::END) {
-                er = rit - rows.begin();
-                ec = cit - rit->begin();
-                break;
-            }
-        }
-    }
-    assert(er != -1);
-
-    // check leading tab token
-    if (bc - 1 >= 0 && rows[br][bc - 1]->getAst() == target)
-        --bc;
-    erase(br, bc, er, ec);
+    Region r = locate(&outer->at(inner));
+    suck(r);
+    erase(r);
 }
 
 void Tokens::print()

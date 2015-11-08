@@ -12,8 +12,12 @@ Rectangle {
     PRawRows {
         id: pRawRows
 
-        onInserted: {
+        onWritten: {
             rawRows.insert(token, r, c);
+        }
+
+        onErased: {
+            rawRows.erase(br, bc, er, ec);
         }
 
         onNewLine: {

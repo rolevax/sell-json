@@ -11,6 +11,8 @@ class PigAst : public Ast
 public:
     PigAst(Type t);
 
+    std::unique_ptr<Ast> remove(size_t pos) override;
+
 protected:
     std::vector<std::unique_ptr<Ast>> subtrees;
 };

@@ -20,6 +20,7 @@ public:
     void setParent(Ast *p);
 
     void insert(size_t pos, std::unique_ptr<Ast> &child);
+    virtual std::unique_ptr<Ast> remove(size_t pos) = 0;
     virtual size_t size() const = 0;
     virtual Ast &at(size_t pos) const = 0;
 

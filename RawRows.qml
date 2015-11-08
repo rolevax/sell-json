@@ -92,5 +92,9 @@ Item {
     function insert(token, r, c) {
         list.insert(token, r, c);
     }
+
+    function erase(br, bc, er, ec) {
+        list.erase(br, bc, er, ec);
+    }
 }
 

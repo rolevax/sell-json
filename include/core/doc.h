@@ -29,6 +29,7 @@ private:
     void damnOut();
     void jackKick(int step);
     void insert();
+    void remove();
 
 private:
     std::unique_ptr<std::stack<std::shared_ptr<Mode>>> modeStack;
