@@ -23,6 +23,7 @@ public:
     void suck(Region &region);
     void light(const Ast *inner);
     void newLine(size_t r, size_t c);
+    void mergeLine(size_t r);
     void write(Token *token, size_t r, size_t c);
     void insert(const Ast *outer, size_t inner);
     void erase(const Region &r);

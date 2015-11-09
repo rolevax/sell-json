@@ -75,6 +75,14 @@ ListView {
         prevRow.remove(c, prevRow.count - c);
     }
 
+    function mergeLine(r) {
+        var prevLine = listModel.get(r - 1).modelColumns;
+        var currLine = listModel.get(r).modelColumns;
+        for (var i = 0; i < currLine.count; i++)
+            prevLine.append(currLine.get(i));
+        listModel.remove(r, 1);
+    }
+
     function erase(br, bc, er, ec) {
         if (br === er) {
             listModel.get(br).modelColumns.remove(bc, ec - bc + 1);
@@ -83,8 +91,6 @@ ListView {
         } else {
             // remove tokens in the last row
             listModel.get(er).modelColumns.remove(0, ec + 1);
-            if (listModel.get(er).modelColumns.count === 0)
-                listModel.remove(er, 1);
 
             if (br + 1 < er) // remove tokens in the middle rows
                 listModel.remove(br + 1, (er - 1) - (br + 1) + 1);
@@ -92,8 +98,9 @@ ListView {
             // remove tokens in the first row
             var ct = listModel.get(br).modelColumns.count;
             listModel.get(br).modelColumns.remove(bc, ct - bc);
-            if (listModel.get(br).modelColumns.count === 0)
-                listModel.remove(br, 1);
+
+            if (br + 1 < listModel.count)
+                mergeLine(br + 1);
         }
     }
 }

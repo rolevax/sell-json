@@ -84,6 +84,16 @@ void Tokens::newLine(size_t r, size_t c)
         ob->observeNewLine(r, c);
 }
 
+void Tokens::mergeLine(size_t r)
+{
+    assert(r > 0 && r < rows.size());
+    auto &prevRow = rows[r - 1];
+    prevRow.insert(prevRow.end(),
+                   std::make_move_iterator(rows[r].begin()),
+                   std::make_move_iterator(rows[r].end()));
+    rows.erase(rows.begin() + r);
+}
+
 void Tokens::write(Token *token, size_t r, size_t c)
 {
     assert(r < rows.size() && c <= rows[r].size());
@@ -122,20 +132,21 @@ void Tokens::erase(const Region &r)
     if (r.br == r.er) {
         auto it = rows[r.br].begin();
         rows[r.br].erase(it + r.bc, it + r.ec + 1);
-        if (rows[r.br].empty())
-            rows.erase(rows.begin() + r.br);
     } else {
+        // remove inside the last line
         auto endIt = rows[r.er].begin();
         rows[r.er].erase(endIt, endIt + r.ec + 1);
         if (rows[r.er].empty())
             rows.erase(rows.begin() + r.er);
 
-        if (r.br + 1 < r.er) // more than 2 rows
+        if (r.br + 1 < r.er) // remove internal lines
             rows.erase(rows.begin() + r.br + 1, rows.begin() + r.er);
 
+        // remove inside the first line
         rows[r.br].erase(rows[r.br].begin() + r.bc, rows[r.br].end());
-        if (rows[r.br].empty())
-            rows.erase(rows.begin() + r.br);
+
+        if (r.br + 1 < rows.size())
+            mergeLine(r.br + 1);
     }
 
     for (auto ob : observers)
