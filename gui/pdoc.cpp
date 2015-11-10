@@ -21,6 +21,8 @@ void PDoc::keyboard(int key)
              << "(" << key << ")" << " pressed. ";
     if (Qt::Key_A <= key && key <= Qt::Key_Z) {
         doc->keyboard('a' + (key - Qt::Key_A));
+    } else if (Qt::Key_Space == key) {
+        doc->keyboard(' ');
     } else {
         qDebug() << "PDoc: unsupported key pressed";
     }

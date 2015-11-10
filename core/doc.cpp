@@ -8,6 +8,7 @@
 
 Doc::Doc()
 {
+    modes.push(Mode::VIEW);
 }
 
 void Doc::load()
@@ -41,6 +42,34 @@ void Doc::load()
 
 void Doc::keyboard(char key)
 {
+    assert(modes.size() > 0);
+    switch (modes.top()) {
+    case Mode::VIEW:
+        keyView(key);
+        break;
+    case Mode::INPUT_SCALAR:
+        /* TODO XXX
+         * do single scalar insert first.
+         *   - no gui input behaviors
+         *   - focus a text field on the scalar
+         * then impl' list insert mode
+         * then impl' type selection menu
+         * stack gui effects
+         */
+        keyInput(key);
+        break;
+    default:
+        throw 999; // TODO search all 'throw'
+    }
+}
+
+void Doc::registerRawRowsObserver(TokensObserver *ob)
+{
+    tokens.registerObserver(ob);
+}
+
+void Doc::keyView(char key)
+{
     switch (key) {
     case 'j':
         jackKick(+1);
@@ -55,20 +84,30 @@ void Doc::keyboard(char key)
         damnOut();
         break;
     case 'i':
-        insert();
+        modes.push(Mode::INPUT_SCALAR);
+//        insert();
         break;
     case 'x':
         remove();
         break;
     default:
-        qDebug() << "Doc: unsupported key in curront mode";
+        qDebug() << "Doc: unsupported key in view mode";
         break;
     }
 }
 
-void Doc::registerRawRowsObserver(TokensObserver *ob)
+void Doc::keyInput(char key)
 {
-    tokens.registerObserver(ob);
+    (void) key;
+    switch (key) {
+    case ' ':
+        modes.pop();
+        insert();
+        break;
+    default:
+        qDebug() << "Doc::keyInput() unspported key";
+        break;
+    }
 }
 
 void Doc::fuckIn()
@@ -134,7 +173,8 @@ void Doc::insert()
     std::unique_ptr<Ast> a(new ScalarAst(Ast::Type::SCALAR, "\"haha\""));
     outer->insert(inner, a);
     tokens.insert(outer, inner);
-    ++inner;
+    // TODO: should move focus only in outer = list
+    //++inner;
     tokens.light(&outer->at(inner));
 }
 

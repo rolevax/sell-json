@@ -28,7 +28,7 @@ Ast &RootAst::at(size_t pos) const
 std::unique_ptr<Ast> RootAst::remove(size_t pos)
 {
     (void) pos;
-    throw 444; // TODO
+    throw 444;
 }
 
 void RootAst::doInsert(size_t pos, std::unique_ptr<Ast> &child)

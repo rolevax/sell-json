@@ -20,19 +20,19 @@ size_t ScalarAst::size() const
 Ast &ScalarAst::at(size_t pos) const
 {
     (void) pos;
-    throw -1; // TODO
+    throw -1;
 }
 
 std::unique_ptr<Ast> ScalarAst::remove(size_t pos)
 {
     (void) pos;
-    throw 445; // TODO
+    throw 445;
 }
 
 void ScalarAst::doInsert(size_t pos, std::unique_ptr<Ast> &child)
 {
     (void) pos;
     (void) child;
-    throw -1; // TODO
+    throw -1;
 }
 
