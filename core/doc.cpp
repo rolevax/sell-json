@@ -1,17 +1,13 @@
 #include "core/doc.h"
 #include "ast/astconverter.h"
-#include "mode/viewmode.h"
 #include "rapidjson/document.h"
 #include "rapidjson/prettywriter.h"
 
 #include <QDebug>
 #include <iostream>
 
-Doc::Doc() :
-    modeStack(new std::stack<std::shared_ptr<Mode>>)
+Doc::Doc()
 {
-    std::shared_ptr<Mode> baseMode{new ViewMode};
-    this->modeStack->push(baseMode);
 }
 
 void Doc::load()
@@ -45,7 +41,6 @@ void Doc::load()
 
 void Doc::keyboard(char key)
 {
-//    this->modeStack->top()->execute(key);
     switch (key) {
     case 'j':
         jackKick(+1);

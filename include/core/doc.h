@@ -4,11 +4,10 @@
 #include "core/tokens.h"
 #include "ast/ast.h"
 #include "ast/rootast.h"
-#include "mode/mode.h"
 #include <memory>
 #include <stack>
 
-/* TODO RawRows::dark()
+/* TODO Tokens::dark()
  *   - trigger when root has no child (new doc/all deleted)
  */
 class Doc
@@ -32,7 +31,6 @@ private:
     void remove();
 
 private:
-    std::unique_ptr<std::stack<std::shared_ptr<Mode>>> modeStack;
     RootAst root;
     Tokens tokens;
     Ast *outer = &root;

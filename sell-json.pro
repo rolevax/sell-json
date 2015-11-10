@@ -15,8 +15,6 @@ SOURCES += main.cpp \
     ast/listast.cpp \
     ast/mapast.cpp \
     ast/astconverter.cpp \
-    mode/mode.cpp \
-    mode/viewmode.cpp \
     ast/scalarast.cpp \
     ast/rootast.cpp \
     ast/pigast.cpp \
@@ -37,8 +35,6 @@ include(deployment.pri)
 INCLUDEPATH += "include"
 
 HEADERS += \
-    include/mode/mode.h \
-    include/mode/viewmode.h \
     include/core/doc.h \
     include/core/token.h \
     include/ast/ast.h \
