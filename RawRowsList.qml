@@ -76,7 +76,8 @@ ListView {
             var token = prevRow.get(i);
             listModel.get(r + 1).modelColumns.insert(i - c, token);
         }
-        prevRow.remove(c, prevRow.count - c);
+        if (c !== prevRow.count)
+            prevRow.remove(c, prevRow.count - c);
     }
 
     function mergeLine(r) {

@@ -16,6 +16,7 @@ public:
     virtual void observeErase(const Region &/*r*/) {}
     virtual void observeUpdateFlesh(size_t /*r*/, size_t /*c*/,
                                     const Token &/*t*/) {}
+    virtual void observeSetHotLight(bool /*b*/) {}
     virtual void observeLight(size_t /*lbr*/, size_t /*lbc*/,
                               size_t /*ler*/, size_t /*lec*/,
                               size_t /*hbr*/, size_t /*hbc*/,

@@ -87,6 +87,7 @@ void Doc::keyView(char key)
     case 'i':
         modes.push(Mode::INPUT_SCALAR);
         insert();
+        tokens.setHotLight(true);
         break;
     case 'x':
         remove();
@@ -103,12 +104,14 @@ void Doc::keyInput(char key)
     switch (key) {
     case ' ':
         modes.pop();
+        tokens.setHotLight(false);
         break;
     default:
         assert(outer->at(inner).getType() == Ast::Type::SCALAR);
         ScalarAst &scalar = static_cast<ScalarAst&>(outer->at(inner));
         scalar.append(key);
         tokens.updateScalar(outer, inner);
+        tokens.light(&outer->at(inner));
         break;
     }
 }
@@ -173,7 +176,7 @@ void Doc::insert()
     if (outer->getType() != Ast::Type::ARRAY)
         return; // TODO: also enable Object
     // test
-    std::unique_ptr<Ast> a(new ScalarAst(Ast::Type::SCALAR, "i"));
+    std::unique_ptr<Ast> a(new ScalarAst(Ast::Type::SCALAR, ""));
     outer->insert(inner, a);
     tokens.insert(outer, inner);
     // TODO: should move focus only in outer = list

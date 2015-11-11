@@ -10,6 +10,79 @@ Tokens::Tokens() :
     rows.emplace_back();
 }
 
+void Tokens::setHotLight(bool b)
+{
+    for (auto ob : observers)
+        ob->observeSetHotLight(b);
+}
+
+void Tokens::light(const Ast *inner)
+{
+    Region in = locate(inner);
+    Ast *outer = &inner->getParent();
+    if (outer->getType() == Ast::Type::ROOT) {
+        for (auto ob : observers)
+            ob->observeLight(0, 0, 0, 0, in.br, in.bc, in.er, in.ec);
+    } else {
+        Region out = locate(outer);
+        for (auto ob : observers)
+            ob->observeLight(out.br, out.bc, out.er, out.ec,
+                             in.br, in.bc, in.er, in.ec);
+    }
+}
+
+void Tokens::insert(const Ast *outer, size_t inner)
+{
+    assert(outer->size() > 0);
+
+    if (outer->getType() == Ast::Type::ROOT) {
+        hammer.write(*outer, 0, 0);
+    } else if (outer->size() == 1) { // was empty before insertion
+        // TODO
+        // delete old outer token
+        // insert new outer token to outer's outer (until root)
+    } else if (inner == 0) { // at very beginning
+        Region prevHead = locate(&outer->at(1));
+        suck(prevHead);
+        hammer.write(outer->at(inner), prevHead.br, prevHead.bc);
+    } else {
+        Region ass = locate(&outer->at(inner - 1));
+        hammer.write(outer->at(inner), ass.er, ass.ec + 1);
+    }
+}
+
+void Tokens::remove(const Ast *outer, size_t inner)
+{
+    assert(inner < outer->size());
+
+    Region r = locate(&outer->at(inner));
+    suck(r);
+    erase(r);
+}
+
+void Tokens::updateScalar(const Ast *outer, size_t inner)
+{
+    assert(outer->at(inner).getType() == Ast::Type::SCALAR);
+    Region r = locate(&outer->at(inner));
+    updateFlesh(r);
+}
+
+void Tokens::print()
+{
+    std::cout << "Print from rawRows:" << std::endl;
+    for (const auto &row : rows) {
+        for (const auto &t : row)
+            std::cout << t->getText();
+        std::cout << std::endl;
+    }
+    std::cout << "End of rawRows print. Last \\n is external" << std::endl;
+}
+
+void Tokens::registerObserver(TokensObserver *ob)
+{
+    observers.push_back(ob);
+}
+
 Region Tokens::locate(const Ast *tar)
 {
     if (tar->getType() == Ast::Type::ROOT)
@@ -51,49 +124,6 @@ void Tokens::suck(Region &r)
     }
 }
 
-void Tokens::light(const Ast *inner)
-{
-    Region in = locate(inner);
-    Ast *outer = &inner->getParent();
-    if (outer->getType() == Ast::Type::ROOT) {
-        for (auto ob : observers)
-            ob->observeLight(0, 0, 0, 0, in.br, in.bc, in.er, in.ec);
-    } else {
-        Region out = locate(outer);
-        for (auto ob : observers)
-            ob->observeLight(out.br, out.bc, out.er, out.ec,
-                             in.br, in.bc, in.er, in.ec);
-    }
-}
-
-/*
- * observer should also do the move-rest-of-line job
- * should do that with remove + re-insert to reuse code?
- */
-void Tokens::newLine(size_t r, size_t c)
-{
-    assert(r < rows.size() && c <= rows[r].size());
-    rows.emplace(rows.begin() + r + 1);
-    auto &newRow = rows[r + 1];
-    newRow.insert(newRow.end(),
-                  std::make_move_iterator(rows[r].begin() + c),
-                  std::make_move_iterator(rows[r].end()));
-    rows[r].erase(rows[r].begin() + c, rows[r].end());
-
-    for (auto ob : observers)
-        ob->observeNewLine(r, c);
-}
-
-void Tokens::mergeLine(size_t r)
-{
-    assert(r > 0 && r < rows.size());
-    auto &prevRow = rows[r - 1];
-    prevRow.insert(prevRow.end(),
-                   std::make_move_iterator(rows[r].begin()),
-                   std::make_move_iterator(rows[r].end()));
-    rows.erase(rows.begin() + r);
-}
-
 void Tokens::write(Token *token, size_t r, size_t c)
 {
     assert(r < rows.size() && c <= rows[r].size());
@@ -101,26 +131,6 @@ void Tokens::write(Token *token, size_t r, size_t c)
     row.emplace(row.begin() + c, token);
     for (auto ob : observers)
         ob->observeWrite(*token, r, c);
-}
-
-void Tokens::insert(const Ast *outer, size_t inner)
-{
-    assert(outer->size() > 0);
-
-    if (outer->getType() == Ast::Type::ROOT) {
-        hammer.write(*outer, 0, 0);
-    } else if (outer->size() == 1) { // was empty before insertion
-        // TODO
-        // delete old outer token
-        // insert new outer token to outer's outer (until root)
-    } else if (inner == 0) { // at very beginning
-        Region prevHead = locate(&outer->at(1));
-        suck(prevHead);
-        hammer.write(outer->at(inner), prevHead.br, prevHead.bc);
-    } else {
-        Region ass = locate(&outer->at(inner - 1));
-        hammer.write(outer->at(inner), ass.er, ass.ec + 1);
-    }
 }
 
 void Tokens::erase(const Region &r)
@@ -153,15 +163,6 @@ void Tokens::erase(const Region &r)
         ob->observeErase(r);
 }
 
-void Tokens::remove(const Ast *outer, size_t inner)
-{
-    assert(inner < outer->size());
-
-    Region r = locate(&outer->at(inner));
-    suck(r);
-    erase(r);
-}
-
 void Tokens::updateFlesh(const Region &r)
 {
     Token &t = *rows[r.br][r.bc + 1];
@@ -170,27 +171,32 @@ void Tokens::updateFlesh(const Region &r)
         ob->observeUpdateFlesh(r.br, r.bc + 1, t);
 }
 
-void Tokens::updateScalar(const Ast *outer, size_t inner)
+/*
+ * observer should also do the move-rest-of-line job
+ * should do that with remove + re-insert to reuse code?
+ */
+void Tokens::newLine(size_t r, size_t c)
 {
-    assert(outer->at(inner).getType() == Ast::Type::SCALAR);
-    Region r = locate(&outer->at(inner));
-    updateFlesh(r);
+    assert(r < rows.size() && c <= rows[r].size());
+    rows.emplace(rows.begin() + r + 1);
+    auto &newRow = rows[r + 1];
+    newRow.insert(newRow.end(),
+                  std::make_move_iterator(rows[r].begin() + c),
+                  std::make_move_iterator(rows[r].end()));
+    rows[r].erase(rows[r].begin() + c, rows[r].end());
+
+    for (auto ob : observers)
+        ob->observeNewLine(r, c);
 }
 
-void Tokens::print()
+void Tokens::mergeLine(size_t r)
 {
-    std::cout << "Print from rawRows:" << std::endl;
-    for (const auto &row : rows) {
-        for (const auto &t : row)
-            std::cout << t->getText();
-        std::cout << std::endl;
-    }
-    std::cout << "End of rawRows print. Last \\n is external" << std::endl;
-}
-
-void Tokens::registerObserver(TokensObserver *ob)
-{
-    observers.push_back(ob);
+    assert(r > 0 && r < rows.size());
+    auto &prevRow = rows[r - 1];
+    prevRow.insert(prevRow.end(),
+                   std::make_move_iterator(rows[r].begin()),
+                   std::make_move_iterator(rows[r].end()));
+    rows.erase(rows.begin() + r);
 }
 
 

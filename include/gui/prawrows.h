@@ -20,12 +20,14 @@ public:
                       size_t ler, size_t lec,
                       size_t hbr, size_t hbc,
                       size_t her, size_t hec) override;
+    void observeSetHotLight(bool b) override;
 
 signals:
     void written(const QVariant &token, int r, int c);
     void erased(int br, int bc, int er, int ec);
     void fleshUpdated(int r, int c, const QVariant &token);
     void newLine(int r, int c);
+    void hotLightSet(bool b);
     void lighted(int lbr, int lbc, int ler, int lec,
                  int hbr, int hbc, int her, int hec);
 

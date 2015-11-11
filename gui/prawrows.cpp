@@ -37,6 +37,11 @@ void PRawRows::observeLight(size_t lbr, size_t lbc,
     emit lighted(lbr, lbc, ler, lec, hbr, hbc, her, hec);
 }
 
+void PRawRows::observeSetHotLight(bool b)
+{
+    emit hotLightSet(b);
+}
+
 QVariant PRawRows::createTokenVar(const Token &token)
 {
     QVariantMap map;

@@ -43,9 +43,22 @@ Item {
         color: highLightDown.color
     }
 
+    Rectangle {
+        id: hotLight
+        anchors.left: highLightUp.right
+        anchors.top: highLightUp.top
+        width: 10; height: 20
+        color: "#EE3333"
+        visible: false
+    }
+
     RawRowsList {
         id: list
         anchors.fill: parent
+    }
+
+    function setHotLight(b) {
+        hotLight.visible = b;
     }
 
     function light(high, br, bc, er, ec) {
@@ -78,7 +91,7 @@ Item {
         }
 
         up.x = beginPos.x;
-        up.width = rightMost - up.x;
+        up.width = Math.max(0, rightMost - up.x);
         up.y = beginPos.y;
         down.x = leftMost;
         down.width = endPos.x - down.x;

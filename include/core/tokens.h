@@ -19,20 +19,25 @@ public:
     Tokens(const Tokens&) = delete;
     Tokens &operator=(const Tokens&) = delete;
 
-    Region locate(const Ast *tar);
-    void suck(Region &region);
+    void setHotLight(bool b);
     void light(const Ast *inner);
-    void newLine(size_t r, size_t c);
-    void mergeLine(size_t r);
-    void write(Token *token, size_t r, size_t c);
     void insert(const Ast *outer, size_t inner);
-    void erase(const Region &r);
     void remove(const Ast *outer, size_t inner);
-    void updateFlesh(const Region &r);
     void updateScalar(const Ast *outer, size_t inner);
     void print();
 
     void registerObserver(TokensObserver *ob);
+
+    friend class Hammer;
+
+private:
+    Region locate(const Ast *tar);
+    void suck(Region &region);
+    void write(Token *token, size_t r, size_t c);
+    void erase(const Region &r);
+    void updateFlesh(const Region &r);
+    void newLine(size_t r, size_t c);
+    void mergeLine(size_t r);
 
 private:
     Hammer hammer;

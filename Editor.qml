@@ -28,6 +28,10 @@ Rectangle {
             rawRows.newLine(r, c);
         }
 
+        onHotLightSet: {
+            rawRows.setHotLight(b);
+        }
+
         onLighted: {
             rawRows.light(false, lbr, lbc, ler, lec);
             rawRows.light(true, hbr, hbc, her, hec);
