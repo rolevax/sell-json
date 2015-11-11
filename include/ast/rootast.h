@@ -8,7 +8,7 @@ class RootAst : public Ast
 public:
     RootAst();
 
-    bool isPresent() const;
+    bool present() const;
 
     size_t size() const override;
     Ast &at(size_t pos) const override;
@@ -20,7 +20,6 @@ protected:
 
 private:
     std::unique_ptr<Ast> subtree = nullptr;
-    bool present = false;
 };
 
 #endif // ROOTAST_H

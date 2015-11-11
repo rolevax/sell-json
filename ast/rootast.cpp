@@ -9,19 +9,19 @@ RootAst::RootAst() :
     root = this;
 }
 
-bool RootAst::isPresent() const
+bool RootAst::present() const
 {
-    return present;
+    return subtree != nullptr;
 }
 
 size_t RootAst::size() const
 {
-    return present ? 1 : 0;
+    return present() ? 1 : 0;
 }
 
 Ast &RootAst::at(size_t pos) const
 {
-    assert(pos == 0 && present);
+    assert(pos == 0 && present());
     return *subtree;
 }
 
@@ -33,7 +33,7 @@ std::unique_ptr<Ast> RootAst::remove(size_t pos)
 
 size_t RootAst::indexOf(const Ast *child) const
 {
-    if (present && subtree.get() == child)
+    if (subtree && subtree.get() == child)
         return 0;
     else
         return -1;
@@ -41,8 +41,7 @@ size_t RootAst::indexOf(const Ast *child) const
 
 void RootAst::doInsert(size_t pos, std::unique_ptr<Ast> &child)
 {
-    assert(pos == 0 && !present);
+    assert(!present() && pos == 0);
     subtree = std::move(child);
-    present = true;
 }
 

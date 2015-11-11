@@ -14,7 +14,7 @@ Doc::Doc()
 
 void Doc::load()
 {
-    assert(!root.isPresent());
+    assert(!root.present());
     const char *json = "[{"
                        "\"name\": \"you\","
                        "\"age\": 18,"
@@ -112,10 +112,14 @@ void Doc::keyView(char key)
         damnOut();
         break;
     case 'a':
-        ++inner;
+        if (outer->getType() == Ast::Type::OBJECT
+                || outer->getType() == Ast::Type::ARRAY)
+            ++inner;
         /* fall-through */
     case 'i':
-        push(Mode::INPUT_SCALAR);
+        if (outer->getType() == Ast::Type::OBJECT
+                || outer->getType() == Ast::Type::ARRAY)
+            push(Mode::INPUT_SCALAR);
         break;
     case 'x':
         remove();

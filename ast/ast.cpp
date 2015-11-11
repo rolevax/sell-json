@@ -28,10 +28,35 @@ void Ast::insert(size_t pos, std::unique_ptr<Ast> &child)
     doInsert(pos, child);
 }
 
+std::unique_ptr<Ast> Ast::remove(size_t pos)
+{
+    (void) pos;
+    throw 2048;
+}
+
+size_t Ast::size() const
+{
+    return 0;
+}
+
+Ast &Ast::at(size_t pos) const
+{
+    (void) pos;
+    throw 2048;
+}
+
 size_t Ast::indexOf(const Ast *child) const
 {
     (void) child;
     return -1;
 }
+
+void Ast::doInsert(size_t pos, std::unique_ptr<Ast> &child)
+{
+    (void) pos;
+    (void) child;
+    throw 2048;
+}
+
 
 
