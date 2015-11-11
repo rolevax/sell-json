@@ -29,6 +29,11 @@ std::unique_ptr<Ast> ScalarAst::remove(size_t pos)
     throw 445;
 }
 
+void ScalarAst::append(char c)
+{
+    text += c;
+}
+
 void ScalarAst::doInsert(size_t pos, std::unique_ptr<Ast> &child)
 {
     (void) pos;

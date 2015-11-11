@@ -85,7 +85,7 @@ void Doc::keyView(char key)
         break;
     case 'i':
         modes.push(Mode::INPUT_SCALAR);
-//        insert();
+        insert();
         break;
     case 'x':
         remove();
@@ -102,10 +102,13 @@ void Doc::keyInput(char key)
     switch (key) {
     case ' ':
         modes.pop();
-        insert();
         break;
     default:
-        qDebug() << "Doc::keyInput() unspported key";
+        assert(outer->at(inner).getType() == Ast::Type::SCALAR);
+        ScalarAst &scalar = static_cast<ScalarAst&>(outer->at(inner));
+        scalar.append(key);
+        tokens.remove(outer, inner);
+        tokens.insert(outer, inner);
         break;
     }
 }
@@ -170,7 +173,7 @@ void Doc::insert()
     if (outer->getType() != Ast::Type::ARRAY)
         return; // TODO: also enable Object
     // test
-    std::unique_ptr<Ast> a(new ScalarAst(Ast::Type::SCALAR, "\"haha\""));
+    std::unique_ptr<Ast> a(new ScalarAst(Ast::Type::SCALAR, "i"));
     outer->insert(inner, a);
     tokens.insert(outer, inner);
     // TODO: should move focus only in outer = list
