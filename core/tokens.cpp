@@ -33,19 +33,21 @@ void Tokens::light(const Ast *inner)
 
 void Tokens::insert(const Ast *outer, size_t inner)
 {
-    assert(outer->size() > 0);
+    assert(outer->size() > 0 && inner < outer->size());
 
-    if (outer->getType() == Ast::Type::ROOT) {
+    if (outer->getType() == Ast::Type::ROOT) { // outer is root
         hammer.write(*outer, 0, 0);
     } else if (outer->size() == 1) { // was empty before insertion
-        // TODO
-        // delete old outer token
-        // insert new outer token to outer's outer (until root)
+        Ast *parent = &outer->getParent();
+        size_t outerIndex = parent->indexOf(outer);
+        remove(parent, outerIndex);
+        insert(parent, outerIndex);
+        /* recursion terminates when outer is root */
     } else if (inner == 0) { // at very beginning
         Region prevHead = locate(&outer->at(1));
         suck(prevHead);
         hammer.write(outer->at(inner), prevHead.br, prevHead.bc);
-    } else {
+    } else { // internal or very end
         Region ass = locate(&outer->at(inner - 1));
         hammer.write(outer->at(inner), ass.er, ass.ec + 1);
     }

@@ -28,4 +28,10 @@ void Ast::insert(size_t pos, std::unique_ptr<Ast> &child)
     doInsert(pos, child);
 }
 
+size_t Ast::indexOf(const Ast *child) const
+{
+    (void) child;
+    return -1;
+}
+
 

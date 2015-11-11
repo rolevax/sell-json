@@ -69,6 +69,33 @@ void Doc::registerRawRowsObserver(TokensObserver *ob)
     tokens.registerObserver(ob);
 }
 
+void Doc::push(Mode mode)
+{
+    modes.push(mode);
+    switch (mode) {
+    case Mode::VIEW:
+        break;
+    case Mode::INPUT_SCALAR:
+        insert();
+        tokens.setHotLight(true);
+        break;
+    }
+}
+
+void Doc::pop()
+{
+    Mode poped = modes.top();
+    modes.pop();
+
+    switch (poped) {
+    case Mode::VIEW:
+        break;
+    case Mode::INPUT_SCALAR:
+        tokens.setHotLight(false);
+        break;
+    }
+}
+
 void Doc::keyView(char key)
 {
     switch (key) {
@@ -84,10 +111,11 @@ void Doc::keyView(char key)
     case 'd':
         damnOut();
         break;
+    case 'a':
+        ++inner;
+        /* fall-through */
     case 'i':
-        modes.push(Mode::INPUT_SCALAR);
-        insert();
-        tokens.setHotLight(true);
+        push(Mode::INPUT_SCALAR);
         break;
     case 'x':
         remove();
@@ -103,8 +131,7 @@ void Doc::keyInput(char key)
     (void) key;
     switch (key) {
     case ' ':
-        modes.pop();
-        tokens.setHotLight(false);
+        pop();
         break;
     default:
         assert(outer->at(inner).getType() == Ast::Type::SCALAR);
@@ -118,29 +145,33 @@ void Doc::keyInput(char key)
 
 void Doc::fuckIn()
 {
-    if (inner == outer->size()) {
-        qDebug() << "end not fuckable";
+    assert(inner < outer->size());
+
+    Ast &focus = outer->at(inner);
+    Ast::Type type = focus.getType();
+
+    if (focus.size() == 0) {
+        if (type == Ast::Type::OBJECT || type == Ast::Type::ARRAY) {
+            outer = &focus;
+            inner = 0;
+            // TODO: change to general insert menu
+            push(Mode::INPUT_SCALAR);
+        }
         return;
     }
 
-    if (outer->at(inner).size() == 0) {
-        qDebug() << "empty not fuckable";
-        return;
-    }
-
-    Ast::Type type = outer->at(inner).getType();
     switch (type) {
     case Ast::Type::ARRAY:
     case Ast::Type::OBJECT:
     case Ast::Type::PAIR:
     case Ast::Type::ROOT:
-        outer = &outer->at(inner);
+        outer = &focus;
         inner = 0;
         tokens.light(&outer->at(inner));
         break;
     case Ast::Type::KEY:
     case Ast::Type::SCALAR:
-        qDebug() << "unfuckable inner node";
+        assert("size of key or scalar should be 0" && false);
         break;
     }
 }
@@ -153,9 +184,7 @@ void Doc::damnOut()
     }
 
     Ast *nextOuter = &outer->getParent();
-    for (size_t i = 0; i < nextOuter->size(); i++)
-        if (&nextOuter->at(i) == outer)
-            inner = i;
+    inner = nextOuter->indexOf(outer);
     tokens.light(outer);
     outer = nextOuter;
 }

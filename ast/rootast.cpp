@@ -31,6 +31,14 @@ std::unique_ptr<Ast> RootAst::remove(size_t pos)
     throw 444;
 }
 
+size_t RootAst::indexOf(const Ast *child) const
+{
+    if (present && subtree.get() == child)
+        return 0;
+    else
+        return -1;
+}
+
 void RootAst::doInsert(size_t pos, std::unique_ptr<Ast> &child)
 {
     assert(pos == 0 && !present);

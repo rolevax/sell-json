@@ -29,6 +29,8 @@ public:
     void registerRawRowsObserver(TokensObserver *ob);
 
 private:
+    void push(Mode mode);
+    void pop();
     void keyView(char key);
     void keyInput(char key);
 
