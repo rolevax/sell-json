@@ -72,15 +72,7 @@ void Hammer::writeObject(const ListAst &object, size_t &r, size_t &c)
         const Ast &pair_ = object.at(i);
         assert(pair_.getType() == Ast::Type::PAIR);
         const MapAst &pair = dynamic_cast<const MapAst&>(pair_);
-
-        // TODO: there should be a writePair
-        indent(&pair, r, c);
-        write(new SoulToken(&pair, Token::Role::BEGIN), r, c);
-        const ScalarAst &key = dynamic_cast<const ScalarAst&>(pair.at(0));
-        write(new FleshToken(&key), r, c);
-        write(new BoneToken(&pair, ": "), r, c);
-        writeGeneral(pair.at(1), r, c);
-        write(new SoulToken(&pair, Token::Role::END), r, c);
+        writePair(pair, r, c);
     }
 
     indent(&object, r, c);
@@ -108,6 +100,23 @@ void Hammer::writeArray(const ListAst &array, size_t &r, size_t &c)
     newLine(r, c);
 
     write(new SoulToken(&array, Token::Role::END), r, c);
+}
+
+void Hammer::writePair(const MapAst &pair, size_t &r, size_t &c)
+{
+    indent(&pair, r, c);
+    write(new SoulToken(&pair, Token::Role::BEGIN), r, c);
+
+    const ScalarAst *key = dynamic_cast<const ScalarAst*>(&pair.at(0));
+    write(new SoulToken(key, Token::Role::BEGIN), r, c);
+    write(new FleshToken(key), r, c);
+    write(new SoulToken(key, Token::Role::END), r, c);
+
+    write(new BoneToken(&pair, ": "), r, c);
+
+    writeGeneral(pair.at(1), r, c);
+
+    write(new SoulToken(&pair, Token::Role::END), r, c);
 }
 
 void Hammer::indent(const Ast *master, size_t &r, size_t &c)

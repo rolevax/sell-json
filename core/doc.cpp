@@ -162,12 +162,8 @@ void Doc::damnOut()
 
 void Doc::jackKick(int step)
 {
-    size_t nextInner = ssize_t(inner) + step;
-    if (nextInner >= outer->size()) {
-        qDebug() << "jackKick: out of range: " << nextInner;
-        return;
-    }
-    inner = nextInner;
+    size_t size = outer->size();
+    inner = (ssize_t(inner + size) + step) % size;
     tokens.light(&outer->at(inner));
 }
 

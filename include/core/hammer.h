@@ -25,6 +25,7 @@ private:
     void writeScalar(const ScalarAst &scalar, size_t &r, size_t &c);
     void writeObject(const ListAst &object, size_t &r, size_t &c);
     void writeArray(const ListAst &array, size_t &r, size_t &c);
+    void writePair(const MapAst &pair, size_t &r, size_t &c);
     void indent(const Ast *master, size_t &r, size_t &c);
 
 private:

@@ -94,7 +94,7 @@ Item {
         up.width = Math.max(0, rightMost - up.x);
         up.y = beginPos.y;
         down.x = leftMost;
-        down.width = endPos.x - down.x;
+        down.width = Math.max(0, endPos.x - down.x);
         down.y = endPos.y;
     }
 

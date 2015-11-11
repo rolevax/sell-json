@@ -8,7 +8,6 @@ MapAst::MapAst(Type t) :
     // Supporting only JSON for now.
     assert(t == Type::PAIR);
     keys = { Type::KEY, Type::SCALAR };
-    subtrees.resize(2);
 }
 
 size_t MapAst::size() const
