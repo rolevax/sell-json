@@ -3,6 +3,7 @@
 #include "rapidjson/document.h"
 #include "rapidjson/prettywriter.h"
 
+#include <chrono>
 #include <QDebug>
 #include <iostream>
 
@@ -107,8 +108,7 @@ void Doc::keyInput(char key)
         assert(outer->at(inner).getType() == Ast::Type::SCALAR);
         ScalarAst &scalar = static_cast<ScalarAst&>(outer->at(inner));
         scalar.append(key);
-        tokens.remove(outer, inner);
-        tokens.insert(outer, inner);
+        tokens.updateScalar(outer, inner);
         break;
     }
 }

@@ -14,6 +14,8 @@ public:
     virtual void observeWrite(const Token &/*token*/,
                                size_t /*r*/, size_t /*c*/) {}
     virtual void observeErase(const Region &/*r*/) {}
+    virtual void observeUpdateFlesh(size_t /*r*/, size_t /*c*/,
+                                    const Token &/*t*/) {}
     virtual void observeLight(size_t /*lbr*/, size_t /*lbc*/,
                               size_t /*ler*/, size_t /*lec*/,
                               size_t /*hbr*/, size_t /*hbc*/,

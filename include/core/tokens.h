@@ -28,6 +28,8 @@ public:
     void insert(const Ast *outer, size_t inner);
     void erase(const Region &r);
     void remove(const Ast *outer, size_t inner);
+    void updateFlesh(const Region &r);
+    void updateScalar(const Ast *outer, size_t inner);
     void print();
 
     void registerObserver(TokensObserver *ob);

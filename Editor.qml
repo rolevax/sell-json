@@ -20,6 +20,10 @@ Rectangle {
             rawRows.erase(br, bc, er, ec);
         }
 
+        onFleshUpdated: {
+            rawRows.update(r, c, token);
+        }
+
         onNewLine: {
             rawRows.newLine(r, c);
         }

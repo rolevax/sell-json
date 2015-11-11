@@ -93,6 +93,10 @@ Item {
         list.insert(token, r, c);
     }
 
+    function update(r, c, token) {
+        list.update(r, c, token);
+    }
+
     function erase(br, bc, er, ec) {
         list.erase(br, bc, er, ec);
     }

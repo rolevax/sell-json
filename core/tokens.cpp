@@ -162,6 +162,21 @@ void Tokens::remove(const Ast *outer, size_t inner)
     erase(r);
 }
 
+void Tokens::updateFlesh(const Region &r)
+{
+    Token &t = *rows[r.br][r.bc + 1];
+    assert(t.getRole() == Token::Role::FLESH);
+    for (auto ob : observers)
+        ob->observeUpdateFlesh(r.br, r.bc + 1, t);
+}
+
+void Tokens::updateScalar(const Ast *outer, size_t inner)
+{
+    assert(outer->at(inner).getType() == Ast::Type::SCALAR);
+    Region r = locate(&outer->at(inner));
+    updateFlesh(r);
+}
+
 void Tokens::print()
 {
     std::cout << "Print from rawRows:" << std::endl;

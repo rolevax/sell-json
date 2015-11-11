@@ -19,6 +19,11 @@ void PRawRows::observeErase(const Region &r)
     emit erased(r.br, r.bc, r.er, r.ec);
 }
 
+void PRawRows::observeUpdateFlesh(size_t r, size_t c, const Token &t)
+{
+    emit fleshUpdated(r, c, createTokenVar(t));
+}
+
 void PRawRows::observeNewLine(size_t r, size_t c)
 {
     emit newLine(r, c);

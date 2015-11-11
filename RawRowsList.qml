@@ -65,6 +65,10 @@ ListView {
         listModel.get(r).modelColumns.insert(c, token);
     }
 
+    function update(r, c, token) {
+        listModel.get(r).modelColumns.set(c, token);
+    }
+
     function newLine(r, c) {
         listModel.insert(r + 1, { modelColumns: [] });
         var prevRow = listModel.get(r).modelColumns;
