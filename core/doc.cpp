@@ -21,9 +21,8 @@ void Doc::load()
                        "\"fucked\": true"
                        "},"
                        "123,"
-                       "[34, 79, 90],"
-                       "[],"
-                       "9.75"
+                       "[34, 79, [98, 23], 90],"
+                       "[],{},9.88"
                        "]";
     rapidjson::Document d;
     d.Parse(json);
@@ -50,9 +49,8 @@ void Doc::keyboard(char key)
         break;
     case Mode::INPUT_SCALAR:
         /* TODO XXX
-         * do single scalar insert first.
-         *   - no gui input behaviors
-         *   - focus a text field on the scalar
+         * then impl' map (pair) insert mode
+         *   - design 'StemAst' or sth? not needed?
          * then impl' list insert mode
          * then impl' type selection menu
          * stack gui effects
@@ -204,7 +202,6 @@ void Doc::insert()
 {
     if (outer->getType() != Ast::Type::ARRAY)
         return; // TODO: also enable Object
-    // test
     std::unique_ptr<Ast> a(new ScalarAst(Ast::Type::SCALAR, ""));
     outer->insert(inner, a);
     tokens.insert(outer, inner);
@@ -223,10 +220,14 @@ void Doc::remove()
     tokens.remove(outer, inner);
     outer->remove(inner);
     if (inner == outer->size()) {
-        if (inner > 0)
+        if (inner > 0) {
             --inner;
-        else
+        } else { // outer became empty
             damnOut(); // TODO: remove child of root case
+            // re-insert to generate special empty text look
+            tokens.remove(outer, inner);
+            tokens.insert(outer, inner);
+        }
     }
     tokens.light(&outer->at(inner));
 }

@@ -65,18 +65,23 @@ void Hammer::writeObject(const ListAst &object, size_t &r, size_t &c)
     indent(&object, r, c);
     write(new SoulToken(&object, Token::Role::BEGIN), r, c);
 
-    write(new BoneToken(&object, "{"), r, c);
-    newLine(r, c);
+    size_t size = object.size();
+    if (size > 0) {
+        write(new BoneToken(&object, "{"), r, c);
+        newLine(r, c);
 
-    for (size_t i = 0; i < object.size(); i++) {
-        const Ast &pair_ = object.at(i);
-        assert(pair_.getType() == Ast::Type::PAIR);
-        const MapAst &pair = dynamic_cast<const MapAst&>(pair_);
-        writePair(pair, r, c);
+        for (size_t i = 0; i < object.size(); i++) {
+            const Ast &pair_ = object.at(i);
+            assert(pair_.getType() == Ast::Type::PAIR);
+            const MapAst &pair = dynamic_cast<const MapAst&>(pair_);
+            writePair(pair, r, c);
+        }
+
+        indent(&object, r, c);
+        write(new BoneToken(&object, "}"), r, c);
+    } else {
+        write(new BoneToken(&object, "{}"), r, c);
     }
-
-    indent(&object, r, c);
-    write(new BoneToken(&object, "}"), r, c);
     newLine(r, c);
 
     write(new SoulToken(&object, Token::Role::END), r, c);
@@ -87,16 +92,20 @@ void Hammer::writeArray(const ListAst &array, size_t &r, size_t &c)
     indent(&array, r, c);
     write(new SoulToken(&array, Token::Role::BEGIN), r, c);
 
-    write(new BoneToken(&array, "["), r, c);
-    newLine(r, c);
-
     size_t size = array.size();
-    for (size_t i = 0; i < size; i++) {
-        writeGeneral(array.at(i), r, c);
-    }
+    if (size > 0) {
+        write(new BoneToken(&array, "["), r, c);
+        newLine(r, c);
 
-    indent(&array, r, c);
-    write(new BoneToken(&array, "]"), r, c);
+        for (size_t i = 0; i < size; i++) {
+            writeGeneral(array.at(i), r, c);
+        }
+
+        indent(&array, r, c);
+        write(new BoneToken(&array, "]"), r, c);
+    } else {
+        write(new BoneToken(&array, "[]"), r, c);
+    }
     newLine(r, c);
 
     write(new SoulToken(&array, Token::Role::END), r, c);
