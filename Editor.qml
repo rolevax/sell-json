@@ -46,7 +46,7 @@ Rectangle {
     property var doc: "global str"
 
     Keys.onPressed: {
-        pDoc.keyboard(event.modifiers + event.key);
+        pDoc.keyboard(event.text, event.modifiers);
             //changeBox.visible = true;
         event.accepted = true;
     }

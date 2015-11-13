@@ -1,6 +1,7 @@
 #include "gui/pdoc.h"
 #include <Qt>
 #include <QKeySequence>
+#include <QChar>
 
 #include <QDebug>
 
@@ -15,17 +16,11 @@ void PDoc::load()
     doc->load();
 }
 
-void PDoc::keyboard(int key)
+void PDoc::keyboard(QString key, int modifier)
 {
-    qDebug() << "PDoc: key " << QKeySequence(key).toString()
-             << "(" << key << ")" << " pressed. ";
-    if (Qt::Key_A <= key && key <= Qt::Key_Z) {
-        doc->keyboard('a' + (key - Qt::Key_A));
-    } else if (Qt::Key_Space == key) {
-        doc->keyboard(' ');
-    } else {
-        qDebug() << "PDoc: unsupported key pressed";
-    }
+    qDebug() << "PDoc: key:" << key << " mod:" << modifier;
+    if (key.size() > 0)
+        doc->keyboard(key.at(0).toLatin1());
 }
 
 int PDoc::output()

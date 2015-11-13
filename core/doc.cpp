@@ -50,15 +50,24 @@ void Doc::keyboard(char key)
     case Mode::TYPE_MENU:
         keyMenu(key);
         break;
-    case Mode::INPUT_SCALAR:
-        /* TODO XXX
-         * then impl' map (pair) insert mode
-         *   - design 'StemAst' or sth? not needed?
-         * then impl' list insert mode
+    case Mode::INPUT_STRING:
+        /*
+         * TODO XXX
          * then impl' type selection menu
+         *   - press space at menu to regret/terminate
+         *       - recover inner to a legal place
+         *   - show menu in gui
+         *       - send string to qml. if empty string, close menu
+         * then impl' map (pair) insert mode
+         *   - menu provide types according to outer
+         *       - array->any, object->pair, key->string
+         *   - everything is fine grained, do autoxx later
          * stack gui effects
          */
-        keyInput(key);
+        keyInputString(key);
+        break;
+    case Mode::INPUT_NUMBER:
+        keyInputNumber(key);
         break;
     default:
         throw 999; // TODO search all 'throw'
@@ -78,8 +87,14 @@ void Doc::push(Mode mode)
         break;
     case Mode::TYPE_MENU:
         break;
-    case Mode::INPUT_SCALAR:
+    case Mode::INPUT_STRING:
         insert(Ast::Type::SCALAR);
+        tokens.light(&outer->at(inner));
+        tokens.setHotLight(true);
+        break;
+    case Mode::INPUT_NUMBER:
+        insert(Ast::Type::SCALAR);
+        tokens.light(&outer->at(inner));
         tokens.setHotLight(true);
         break;
     }
@@ -94,10 +109,12 @@ void Doc::pop()
     case Mode::VIEW:
         break;
     case Mode::TYPE_MENU:
-        push(Mode::INPUT_SCALAR);
         break;
-    case Mode::INPUT_SCALAR:
+    case Mode::INPUT_STRING:
+    case Mode::INPUT_NUMBER:
         tokens.setHotLight(false);
+        break;
+    default:
         break;
     }
 }
@@ -136,7 +153,7 @@ void Doc::keyView(char key)
     }
 }
 
-void Doc::keyInput(char key)
+void Doc::keyInputString(char key)
 {
     switch (key) {
     case ' ':
@@ -152,11 +169,51 @@ void Doc::keyInput(char key)
     }
 }
 
+void Doc::keyInputNumber(char key)
+{
+    assert(outer->at(inner).getType() == Ast::Type::SCALAR);
+
+    if (' ' == key) {
+        pop();
+        return;
+    }
+
+    char input;
+    if ('0' <= key && key <= '9')
+        input = key;
+    else if ('u' == key)
+        input = '4';
+    else if ('i' == key)
+        input = '5';
+    else if ('o' == key)
+        input = '6';
+    else if ('j' == key)
+        input = '1';
+    else if ('k' == key)
+        input = '2';
+    else if ('l' == key)
+        input = '3';
+    else if ('m' == key)
+        input = '0';
+    else
+        return;
+
+    ScalarAst &scalar = static_cast<ScalarAst&>(outer->at(inner));
+    scalar.append(input);
+    tokens.updateScalar(outer, inner);
+    tokens.light(&outer->at(inner));
+}
+
 void Doc::keyMenu(char key)
 {
     switch (key) {
     case 's':
         pop();
+        push(Mode::INPUT_STRING);
+        break;
+    case 'n':
+        pop();
+        push(Mode::INPUT_NUMBER);
         break;
     default:
         break;
@@ -175,7 +232,7 @@ void Doc::fuckIn()
             outer = &focus;
             inner = 0;
             // TODO: change to general insert menu
-            push(Mode::INPUT_SCALAR);
+            push(Mode::INPUT_STRING);
         }
         return;
     }
