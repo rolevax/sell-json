@@ -9,7 +9,7 @@
 
 enum class Mode
 {
-    VIEW, INPUT_SCALAR,
+    VIEW, TYPE_MENU, INPUT_SCALAR,
 };
 
 /* TODO Tokens::dark()
@@ -33,11 +33,12 @@ private:
     void pop();
     void keyView(char key);
     void keyInput(char key);
+    void keyMenu(char key);
 
     void fuckIn();
     void damnOut();
     void jackKick(int step);
-    void insert();
+    void insert(Ast::Type type);
     void remove();
 
 private:

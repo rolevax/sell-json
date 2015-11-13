@@ -16,7 +16,7 @@ public:
     size_t indexOf(const Ast *child) const override;
 
 protected:
-    void doInsert(size_t pos, std::unique_ptr<Ast> &child) override;
+    void doInsert(size_t pos, Ast *child) override;
 
 private:
     std::unique_ptr<Ast> subtree = nullptr;

@@ -19,14 +19,14 @@ public:
     Ast &getParent() const;
     void setParent(Ast *p);
 
-    void insert(size_t pos, std::unique_ptr<Ast> &child);
+    void insert(size_t pos, Ast *child);
     virtual std::unique_ptr<Ast> remove(size_t pos);
     virtual size_t size() const;
     virtual Ast &at(size_t pos) const;
     virtual size_t indexOf(const Ast *child) const;
 
 protected:
-    virtual void doInsert(size_t pos, std::unique_ptr<Ast> &child);
+    virtual void doInsert(size_t pos, Ast *child);
 
 protected:
     Type type;

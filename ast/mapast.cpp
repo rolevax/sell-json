@@ -21,9 +21,9 @@ Ast &MapAst::at(size_t pos) const
     return *subtrees[pos];
 }
 
-void MapAst::doInsert(size_t pos, std::unique_ptr<Ast> &child)
+void MapAst::doInsert(size_t pos, Ast *child)
 {
     // TODO: subtype: assert(t is of type key[pos]);
-    subtrees.insert(subtrees.begin() + pos, std::move(child));
+    subtrees.emplace(subtrees.begin() + pos, std::move(child));
 }
 

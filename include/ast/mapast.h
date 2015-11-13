@@ -12,7 +12,7 @@ public:
     Ast &at(size_t pos) const override;
 
 protected:
-    void doInsert(size_t pos, std::unique_ptr<Ast> &child) override;
+    void doInsert(size_t pos, Ast *child) override;
 
 private:
     std::vector<Type> keys;

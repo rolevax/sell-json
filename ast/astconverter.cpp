@@ -69,7 +69,7 @@ bool AstConverter::String(const AstConverter::Ch *str,
 
 bool AstConverter::StartObject()
 {
-    std::unique_ptr<Ast> obj(new ListAst(Ast::Type::OBJECT));
+    Ast *obj = new ListAst(Ast::Type::OBJECT);
     outer->insert(inner, obj);
     outer = &outer->at(inner);
     inner = 0;
@@ -83,8 +83,8 @@ bool AstConverter::Key(const AstConverter::Ch *str,
     (void) copy;
     (void) length;
 
-    std::unique_ptr<Ast> map(new MapAst(Ast::Type::PAIR));
-    std::unique_ptr<Ast> key(new ScalarAst(Ast::Type::KEY, str));
+    Ast *map = new MapAst(Ast::Type::PAIR);
+    Ast *key = new ScalarAst(Ast::Type::KEY, str);
     map->insert(0, key);
 
     assert(outer->getType() == Ast::Type::OBJECT);
@@ -107,7 +107,7 @@ bool AstConverter::EndObject(rapidjson::SizeType memberCount)
 
 bool AstConverter::StartArray()
 {
-    std::unique_ptr<Ast> ast(new ListAst(Ast::Type::ARRAY));
+    Ast *ast = new ListAst(Ast::Type::ARRAY);
     outer->insert(inner, ast);
     outer = &outer->at(inner);
     inner = 0;
@@ -127,7 +127,7 @@ bool AstConverter::EndArray(rapidjson::SizeType elementCount)
 
 void AstConverter::convertScalar(const std::string &text)
 {
-    std::unique_ptr<Ast> scalar(new ScalarAst(Ast::Type::SCALAR, text));
+    Ast *scalar = new ScalarAst(Ast::Type::SCALAR, text);
     outer->insert(inner, scalar);
     if (outer->getType() == Ast::Type::ARRAY) {
         ++inner;

@@ -16,8 +16,8 @@ Ast &ListAst::at(size_t pos) const
     return *subtrees[pos];
 }
 
-void ListAst::doInsert(size_t pos, std::unique_ptr<Ast> &child)
+void ListAst::doInsert(size_t pos, Ast *child)
 {
-    subtrees.insert(subtrees.begin() + pos, std::move(child));
+    subtrees.emplace(subtrees.begin() + pos, child);
 }
 

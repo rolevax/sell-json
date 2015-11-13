@@ -22,7 +22,7 @@ void Ast::setParent(Ast *p)
     root = parent->root;
 }
 
-void Ast::insert(size_t pos, std::unique_ptr<Ast> &child)
+void Ast::insert(size_t pos, Ast *child)
 {
     child->setParent(this);
     doInsert(pos, child);
@@ -51,7 +51,7 @@ size_t Ast::indexOf(const Ast *child) const
     return -1;
 }
 
-void Ast::doInsert(size_t pos, std::unique_ptr<Ast> &child)
+void Ast::doInsert(size_t pos, Ast *child)
 {
     (void) pos;
     (void) child;

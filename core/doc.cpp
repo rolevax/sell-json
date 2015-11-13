@@ -47,6 +47,9 @@ void Doc::keyboard(char key)
     case Mode::VIEW:
         keyView(key);
         break;
+    case Mode::TYPE_MENU:
+        keyMenu(key);
+        break;
     case Mode::INPUT_SCALAR:
         /* TODO XXX
          * then impl' map (pair) insert mode
@@ -73,8 +76,10 @@ void Doc::push(Mode mode)
     switch (mode) {
     case Mode::VIEW:
         break;
+    case Mode::TYPE_MENU:
+        break;
     case Mode::INPUT_SCALAR:
-        insert();
+        insert(Ast::Type::SCALAR);
         tokens.setHotLight(true);
         break;
     }
@@ -87,6 +92,9 @@ void Doc::pop()
 
     switch (poped) {
     case Mode::VIEW:
+        break;
+    case Mode::TYPE_MENU:
+        push(Mode::INPUT_SCALAR);
         break;
     case Mode::INPUT_SCALAR:
         tokens.setHotLight(false);
@@ -117,7 +125,7 @@ void Doc::keyView(char key)
     case 'i':
         if (outer->getType() == Ast::Type::OBJECT
                 || outer->getType() == Ast::Type::ARRAY)
-            push(Mode::INPUT_SCALAR);
+            push(Mode::TYPE_MENU);
         break;
     case 'x':
         remove();
@@ -130,7 +138,6 @@ void Doc::keyView(char key)
 
 void Doc::keyInput(char key)
 {
-    (void) key;
     switch (key) {
     case ' ':
         pop();
@@ -141,6 +148,17 @@ void Doc::keyInput(char key)
         scalar.append(key);
         tokens.updateScalar(outer, inner);
         tokens.light(&outer->at(inner));
+        break;
+    }
+}
+
+void Doc::keyMenu(char key)
+{
+    switch (key) {
+    case 's':
+        pop();
+        break;
+    default:
         break;
     }
 }
@@ -198,16 +216,28 @@ void Doc::jackKick(int step)
     tokens.light(&outer->at(inner));
 }
 
-void Doc::insert()
+void Doc::insert(Ast::Type type)
 {
-    if (outer->getType() != Ast::Type::ARRAY)
-        return; // TODO: also enable Object
-    std::unique_ptr<Ast> a(new ScalarAst(Ast::Type::SCALAR, ""));
+    Ast *a;
+
+    switch (type) {
+    case Ast::Type::PAIR:
+        a = new MapAst(Ast::Type::PAIR);
+        a->insert(0, new ScalarAst(Ast::Type::KEY, ""));
+        a->insert(1, new ScalarAst(Ast::Type::SCALAR, ""));
+        break;
+    case Ast::Type::SCALAR:
+        a = new ScalarAst(Ast::Type::SCALAR, "");
+        break;
+    default:
+        qDebug() << "insert type: untreated outer type";
+        break;
+    }
+
+    assert(a != nullptr);
+
     outer->insert(inner, a);
     tokens.insert(outer, inner);
-    // TODO: should move focus only in outer = list
-    //++inner;
-    tokens.light(&outer->at(inner));
 }
 
 void Doc::remove()

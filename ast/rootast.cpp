@@ -39,9 +39,9 @@ size_t RootAst::indexOf(const Ast *child) const
         return -1;
 }
 
-void RootAst::doInsert(size_t pos, std::unique_ptr<Ast> &child)
+void RootAst::doInsert(size_t pos, Ast *child)
 {
     assert(!present() && pos == 0);
-    subtree = std::move(child);
+    subtree.reset(child);
 }
 
