@@ -53,6 +53,15 @@ void Doc::keyboard(char key)
     case Mode::INPUT_STRING:
         /*
          * TODO XXX
+         * make modes objects, because modes are too diversely stateful
+         *   - Modes has full control to Doc. just for modulization.
+         *   - combine pop();push() into one pop()
+         *      - MenuMode::leave(nextMode) do that.
+         *        pop self in doc, and push next (kind of 'delete this')
+         *        (since dangerous for memory, can Mode::leave(),
+         *        don't trust subclasses)
+         *   - ViewMode has bookmarked inner, outer;
+         *     MenuMode has append:bool
          * then impl' type selection menu
          *   - press space at menu to regret/terminate
          *       - recover inner to a legal place
@@ -207,6 +216,9 @@ void Doc::keyInputNumber(char key)
 void Doc::keyMenu(char key)
 {
     switch (key) {
+    case ' ':
+        pop();
+        break;
     case 's':
         pop();
         push(Mode::INPUT_STRING);

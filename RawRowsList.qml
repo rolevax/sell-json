@@ -26,6 +26,7 @@ ListView {
                 id: token
                 text: modelText
                 color: "white"
+                font.family: "Monospace"
                 font.pixelSize: 20
             }
         }
