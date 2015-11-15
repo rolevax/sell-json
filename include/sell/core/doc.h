@@ -4,13 +4,9 @@
 #include "sell/core/tokens.h"
 #include "sell/ast/ast.h"
 #include "sell/ast/rootast.h"
+#include "sell/mode/mode.h"
 #include <memory>
 #include <stack>
-
-enum class Mode
-{
-    VIEW, TYPE_MENU, INPUT_STRING, INPUT_NUMBER
-};
 
 /* TODO Tokens::dark()
  *   - trigger when root has no child (new doc/all deleted)
@@ -29,7 +25,7 @@ public:
     void registerRawRowsObserver(TokensObserver *ob);
 
 private:
-    void push(Mode mode);
+    void push(Mode::Type modeType);
     void pop();
     void keyView(char key);
     void keyInputString(char key);

@@ -23,7 +23,8 @@ SOURCES += main.cpp \
     core/fleshtoken.cpp \
     core/soultoken.cpp \
     core/tokens.cpp \
-    core/hammer.cpp
+    core/hammer.cpp \
+    mode/mode.cpp
 
 RESOURCES += qml.qrc
 
@@ -52,5 +53,6 @@ HEADERS += \
     include/sell/core/soultoken.h \
     include/sell/core/tokens.h \
     include/sell/core/hammer.h \
-    include/sell/core/tokensobserver.h
+    include/sell/core/tokensobserver.h \
+    include/sell/mode/mode.h
 

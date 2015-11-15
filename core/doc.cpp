@@ -9,7 +9,7 @@
 
 Doc::Doc()
 {
-    modes.push(Mode::VIEW);
+    modes.push(Mode(Mode::Type::VIEW));
 }
 
 void Doc::load()
@@ -43,14 +43,14 @@ void Doc::load()
 void Doc::keyboard(char key)
 {
     assert(modes.size() > 0);
-    switch (modes.top()) {
-    case Mode::VIEW:
+    switch (modes.top().getType()) {
+    case Mode::Type::VIEW:
         keyView(key);
         break;
-    case Mode::TYPE_MENU:
+    case Mode::Type::MENU:
         keyMenu(key);
         break;
-    case Mode::INPUT_STRING:
+    case Mode::Type::INPUT_STRING:
         /*
          * TODO XXX
          * make modes objects, because modes are too diversely stateful
@@ -75,7 +75,7 @@ void Doc::keyboard(char key)
          */
         keyInputString(key);
         break;
-    case Mode::INPUT_NUMBER:
+    case Mode::Type::INPUT_NUMBER:
         keyInputNumber(key);
         break;
     default:
@@ -88,20 +88,20 @@ void Doc::registerRawRowsObserver(TokensObserver *ob)
     tokens.registerObserver(ob);
 }
 
-void Doc::push(Mode mode)
+void Doc::push(Mode::Type modeType)
 {
-    modes.push(mode);
-    switch (mode) {
-    case Mode::VIEW:
+    modes.push(Mode(modeType));
+    switch (modeType) {
+    case Mode::Type::VIEW:
         break;
-    case Mode::TYPE_MENU:
+    case Mode::Type::MENU:
         break;
-    case Mode::INPUT_STRING:
+    case Mode::Type::INPUT_STRING:
         insert(Ast::Type::SCALAR);
         tokens.light(&outer->at(inner));
         tokens.setHotLight(true);
         break;
-    case Mode::INPUT_NUMBER:
+    case Mode::Type::INPUT_NUMBER:
         insert(Ast::Type::SCALAR);
         tokens.light(&outer->at(inner));
         tokens.setHotLight(true);
@@ -114,13 +114,13 @@ void Doc::pop()
     Mode poped = modes.top();
     modes.pop();
 
-    switch (poped) {
-    case Mode::VIEW:
+    switch (poped.getType()) {
+    case Mode::Type::VIEW:
         break;
-    case Mode::TYPE_MENU:
+    case Mode::Type::MENU:
         break;
-    case Mode::INPUT_STRING:
-    case Mode::INPUT_NUMBER:
+    case Mode::Type::INPUT_STRING:
+    case Mode::Type::INPUT_NUMBER:
         tokens.setHotLight(false);
         break;
     default:
@@ -151,7 +151,7 @@ void Doc::keyView(char key)
     case 'i':
         if (outer->getType() == Ast::Type::OBJECT
                 || outer->getType() == Ast::Type::ARRAY)
-            push(Mode::TYPE_MENU);
+            push(Mode::Type::MENU);
         break;
     case 'x':
         remove();
@@ -221,11 +221,11 @@ void Doc::keyMenu(char key)
         break;
     case 's':
         pop();
-        push(Mode::INPUT_STRING);
+        push(Mode::Type::INPUT_STRING);
         break;
     case 'n':
         pop();
-        push(Mode::INPUT_NUMBER);
+        push(Mode::Type::INPUT_NUMBER);
         break;
     default:
         break;
@@ -244,7 +244,7 @@ void Doc::fuckIn()
             outer = &focus;
             inner = 0;
             // TODO: change to general insert menu
-            push(Mode::INPUT_STRING);
+            push(Mode::Type::INPUT_STRING);
         }
         return;
     }
