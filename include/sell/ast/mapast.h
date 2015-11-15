@@ -1,7 +1,7 @@
 #ifndef MAPAST_H
 #define MAPAST_H
 
-#include "ast/pigast.h"
+#include "sell/ast/pigast.h"
 
 class MapAst : public PigAst
 {

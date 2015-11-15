@@ -1,8 +1,8 @@
-#include "core/hammer.h"
-#include "core/tokens.h"
-#include "core/fleshtoken.h"
-#include "core/bonetoken.h"
-#include "core/soultoken.h"
+#include "sell/core/hammer.h"
+#include "sell/core/tokens.h"
+#include "sell/core/fleshtoken.h"
+#include "sell/core/bonetoken.h"
+#include "sell/core/soultoken.h"
 
 #include <cassert>
 

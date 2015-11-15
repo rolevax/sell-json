@@ -1,5 +1,5 @@
-#include "core/doc.h"
-#include "ast/astconverter.h"
+#include "sell/core/doc.h"
+#include "sell/ast/astconverter.h"
 #include "rapidjson/document.h"
 #include "rapidjson/prettywriter.h"
 

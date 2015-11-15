@@ -1,8 +1,9 @@
-#include "core/tokens.h"
+#include "sell/core/tokens.h"
+#include <cassert>
+
 #include <QDebug>
 #include <iostream>
 
-#include <cassert>
 
 Tokens::Tokens() :
     hammer(*this)

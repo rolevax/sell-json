@@ -1,7 +1,7 @@
 #ifndef BONETOKEN_H
 #define BONETOKEN_H
 
-#include "core/token.h"
+#include "sell/core/token.h"
 
 class BoneToken : public Token
 {

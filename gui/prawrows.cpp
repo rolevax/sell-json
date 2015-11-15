@@ -1,5 +1,5 @@
-#include "core/tokens.h"
-#include "gui/prawrows.h"
+#include "sell/core/tokens.h"
+#include "sell/gui/prawrows.h"
 
 #include "QDebug"
 

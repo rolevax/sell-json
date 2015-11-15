@@ -1,4 +1,4 @@
-#include "ast/scalarast.h"
+#include "sell/ast/scalarast.h"
 
 ScalarAst::ScalarAst(Type t, const std::string &text) :
     Ast(t),

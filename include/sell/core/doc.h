@@ -1,9 +1,9 @@
 #ifndef DOC_H
 #define DOC_H
 
-#include "core/tokens.h"
-#include "ast/ast.h"
-#include "ast/rootast.h"
+#include "sell/core/tokens.h"
+#include "sell/ast/ast.h"
+#include "sell/ast/rootast.h"
 #include <memory>
 #include <stack>
 

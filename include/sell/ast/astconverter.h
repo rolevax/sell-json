@@ -1,9 +1,9 @@
 #ifndef ASTCONVERTER_H
 #define ASTCONVERTER_H
 
-#include "ast/ast.h"
-#include "ast/rootast.h"
-#include "core/hammer.h"
+#include "sell/ast/ast.h"
+#include "sell/ast/rootast.h"
+#include "sell/core/hammer.h"
 #include "rapidjson/document.h"
 #include <memory>
 

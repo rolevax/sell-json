@@ -36,21 +36,21 @@ include(deployment.pri)
 INCLUDEPATH += "include"
 
 HEADERS += \
-    include/core/doc.h \
-    include/core/token.h \
-    include/ast/ast.h \
-    include/ast/listast.h \
-    include/ast/mapast.h \
-    include/ast/astconverter.h \
-    include/gui/pdoc.h \
-    include/gui/prawrows.h \
-    include/ast/scalarast.h \
-    include/ast/rootast.h \
-    include/ast/pigast.h \
-    include/core/bonetoken.h \
-    include/core/fleshtoken.h \
-    include/core/soultoken.h \
-    include/core/tokens.h \
-    include/core/hammer.h \
-    include/core/tokensobserver.h
+    include/sell/core/doc.h \
+    include/sell/core/token.h \
+    include/sell/ast/ast.h \
+    include/sell/ast/listast.h \
+    include/sell/ast/mapast.h \
+    include/sell/ast/astconverter.h \
+    include/sell/gui/pdoc.h \
+    include/sell/gui/prawrows.h \
+    include/sell/ast/scalarast.h \
+    include/sell/ast/rootast.h \
+    include/sell/ast/pigast.h \
+    include/sell/core/bonetoken.h \
+    include/sell/core/fleshtoken.h \
+    include/sell/core/soultoken.h \
+    include/sell/core/tokens.h \
+    include/sell/core/hammer.h \
+    include/sell/core/tokensobserver.h
 

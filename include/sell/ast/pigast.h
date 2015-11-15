@@ -1,8 +1,8 @@
 #ifndef PIGAST_H
 #define PIGAST_H
 
-#include "core/bonetoken.h"
-#include "ast/ast.h"
+#include "sell/core/bonetoken.h"
+#include "sell/ast/ast.h"
 #include <vector>
 #include <memory>
 

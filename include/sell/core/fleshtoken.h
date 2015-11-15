@@ -1,8 +1,8 @@
 #ifndef FLESHTOKEN_H
 #define FLESHTOKEN_H
 
-#include "core/token.h"
-#include "ast/scalarast.h"
+#include "sell/core/token.h"
+#include "sell/ast/scalarast.h"
 
 class FleshToken : public Token
 {

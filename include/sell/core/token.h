@@ -1,7 +1,7 @@
 #ifndef TOKEN_H
 #define TOKEN_H
 
-#include "ast/ast.h"
+#include "sell/ast/ast.h"
 #include <string>
 
 struct Region

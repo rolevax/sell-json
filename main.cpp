@@ -3,8 +3,8 @@
 #include <QQmlContext>
 #include <QtQml>
 
-#include "gui/pdoc.h"
-#include "gui/prawrows.h"
+#include "sell/gui/pdoc.h"
+#include "sell/gui/prawrows.h"
 
 int main(int argc, char *argv[])
 {

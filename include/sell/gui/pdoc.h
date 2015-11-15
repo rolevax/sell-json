@@ -3,8 +3,8 @@
 
 #include <QObject>
 #include <memory>
-#include "core/doc.h"
-#include "prawrows.h"
+#include "sell/core/doc.h"
+#include "sell/gui/prawrows.h"
 
 class PDoc : public QObject
 {

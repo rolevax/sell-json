@@ -1,7 +1,7 @@
-#include "ast/astconverter.h"
-#include "ast/scalarast.h"
-#include "ast/listast.h"
-#include "ast/mapast.h"
+#include "sell/ast/astconverter.h"
+#include "sell/ast/scalarast.h"
+#include "sell/ast/listast.h"
+#include "sell/ast/mapast.h"
 
 #include <qdebug.h>
 

@@ -1,7 +1,7 @@
 #ifndef PRAWROWS_H
 #define PRAWROWS_H
 
-#include "core/tokensobserver.h"
+#include "sell/core/tokensobserver.h"
 #include <QObject>
 #include <QVariantList>
 #include <QVariantMap>
