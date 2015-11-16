@@ -1,4 +1,6 @@
 #include "sell/core/doc.h"
+#include "sell/mode/viewmode.h"
+#include "sell/mode/menumode.h"
 #include "sell/ast/astconverter.h"
 #include "rapidjson/document.h"
 #include "rapidjson/prettywriter.h"
@@ -9,7 +11,7 @@
 
 Doc::Doc()
 {
-    modes.emplace(new Mode(Mode::Type::VIEW, *this));
+    modes.emplace(new ViewMode(*this));
 }
 
 void Doc::load()
@@ -40,46 +42,24 @@ void Doc::load()
     tokens.print();
 }
 
+/*
+ * TODO XXX
+ * MenuMode has append:bool
+ * then impl' type selection menu
+ *   - press space at menu to regret/terminate
+ *       - recover inner to a legal place
+ *   - show menu in gui
+ *       - send string to qml. if empty string, close menu
+ * then impl' map (pair) insert mode
+ *   - menu provide types according to outer
+ *       - array->any, object->pair, key->string
+ *   - everything is fine grained, do autoxx later
+ * stack gui effects
+ */
 void Doc::keyboard(char key)
 {
     assert(modes.size() > 0);
-    switch (modes.top()->getType()) {
-    case Mode::Type::VIEW:
-        keyView(key);
-        break;
-    case Mode::Type::MENU:
-        keyMenu(key);
-        break;
-    case Mode::Type::INPUT_STRING:
-        /*
-         * TODO XXX
-         * make modes objects
-         *   - combine pop();push() into one pop()
-         *      - MenuMode::leave(nextMode) do that.
-         *        pop self in doc, and push next (kind of 'delete this')
-         *        (since dangerous for memory, can Mode::leave(),
-         *        don't trust subclasses)
-         *   - ViewMode has bookmarked inner, outer;
-         *     MenuMode has append:bool
-         * then impl' type selection menu
-         *   - press space at menu to regret/terminate
-         *       - recover inner to a legal place
-         *   - show menu in gui
-         *       - send string to qml. if empty string, close menu
-         * then impl' map (pair) insert mode
-         *   - menu provide types according to outer
-         *       - array->any, object->pair, key->string
-         *   - everything is fine grained, do autoxx later
-         * stack gui effects
-         */
-        keyInputString(key);
-        break;
-    case Mode::Type::INPUT_NUMBER:
-        keyInputNumber(key);
-        break;
-    default:
-        throw 999; // TODO search all 'throw'
-    }
+    modes.top()->keyboard(key);
 }
 
 void Doc::registerRawRowsObserver(TokensObserver *ob)
@@ -87,148 +67,17 @@ void Doc::registerRawRowsObserver(TokensObserver *ob)
     tokens.registerObserver(ob);
 }
 
-void Doc::push(Mode::Type modeType)
+void Doc::push(Mode *mode)
 {
-    modes.emplace(new Mode(modeType, *this));
-    switch (modeType) {
-    case Mode::Type::VIEW:
-        break;
-    case Mode::Type::MENU:
-        break;
-    case Mode::Type::INPUT_STRING:
-        insert(Ast::Type::SCALAR);
-        tokens.light(&outer->at(inner));
-        tokens.setHotLight(true);
-        break;
-    case Mode::Type::INPUT_NUMBER:
-        insert(Ast::Type::SCALAR);
-        tokens.light(&outer->at(inner));
-        tokens.setHotLight(true);
-        break;
-    }
+    modes.emplace(mode);
+    modes.top()->onPushed();
 }
 
 void Doc::pop()
 {
-    std::unique_ptr<Mode> poped = std::move(modes.top());
+    std::unique_ptr<Mode> popped = std::move(modes.top());
     modes.pop();
-
-    switch (poped->getType()) {
-    case Mode::Type::VIEW:
-        break;
-    case Mode::Type::MENU:
-        break;
-    case Mode::Type::INPUT_STRING:
-    case Mode::Type::INPUT_NUMBER:
-        tokens.setHotLight(false);
-        break;
-    default:
-        break;
-    }
-}
-
-void Doc::keyView(char key)
-{
-    switch (key) {
-    case 'j':
-        jackKick(+1);
-        break;
-    case 'k':
-        jackKick(-1);
-        break;
-    case 'f':
-        fuckIn();
-        break;
-    case 'd':
-        damnOut();
-        break;
-    case 'a':
-        if (outer->getType() == Ast::Type::OBJECT
-                || outer->getType() == Ast::Type::ARRAY)
-            ++inner;
-        /* fall-through */
-    case 'i':
-        if (outer->getType() == Ast::Type::OBJECT
-                || outer->getType() == Ast::Type::ARRAY)
-            push(Mode::Type::MENU);
-        break;
-    case 'x':
-        remove();
-        break;
-    default:
-        qDebug() << "Doc: unsupported key in view mode";
-        break;
-    }
-}
-
-void Doc::keyInputString(char key)
-{
-    switch (key) {
-    case ' ':
-        pop();
-        break;
-    default:
-        assert(outer->at(inner).getType() == Ast::Type::SCALAR);
-        ScalarAst &scalar = static_cast<ScalarAst&>(outer->at(inner));
-        scalar.append(key);
-        tokens.updateScalar(outer, inner);
-        tokens.light(&outer->at(inner));
-        break;
-    }
-}
-
-void Doc::keyInputNumber(char key)
-{
-    assert(outer->at(inner).getType() == Ast::Type::SCALAR);
-
-    if (' ' == key) {
-        pop();
-        return;
-    }
-
-    char input;
-    if ('0' <= key && key <= '9')
-        input = key;
-    else if ('u' == key)
-        input = '4';
-    else if ('i' == key)
-        input = '5';
-    else if ('o' == key)
-        input = '6';
-    else if ('j' == key)
-        input = '1';
-    else if ('k' == key)
-        input = '2';
-    else if ('l' == key)
-        input = '3';
-    else if ('m' == key)
-        input = '0';
-    else
-        return;
-
-    ScalarAst &scalar = static_cast<ScalarAst&>(outer->at(inner));
-    scalar.append(input);
-    tokens.updateScalar(outer, inner);
-    tokens.light(&outer->at(inner));
-}
-
-void Doc::keyMenu(char key)
-{
-    switch (key) {
-    case ' ':
-        pop();
-        break;
-    case 's':
-        pop();
-        push(Mode::Type::INPUT_STRING);
-        break;
-    case 'n':
-        pop();
-        push(Mode::Type::INPUT_NUMBER);
-        break;
-    default:
-        break;
-    }
+    popped->onPopped();
 }
 
 void Doc::fuckIn()
@@ -243,7 +92,7 @@ void Doc::fuckIn()
             outer = &focus;
             inner = 0;
             // TODO: change to general insert menu
-            push(Mode::Type::INPUT_STRING);
+            push(new MenuMode(*this));
         }
         return;
     }

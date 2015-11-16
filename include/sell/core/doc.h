@@ -24,13 +24,11 @@ public:
 
     void registerRawRowsObserver(TokensObserver *ob);
 
+    friend class Mode;
+
 private:
-    void push(Mode::Type modeType);
+    void push(Mode *mode);
     void pop();
-    void keyView(char key);
-    void keyInputString(char key);
-    void keyInputNumber(char key);
-    void keyMenu(char key);
 
     void fuckIn();
     void damnOut();
