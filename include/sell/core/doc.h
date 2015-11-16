@@ -39,7 +39,7 @@ private:
     void remove();
 
 private:
-    std::stack<Mode> modes;
+    std::stack<std::unique_ptr<Mode>> modes;
     RootAst root;
     Tokens tokens;
     Ast *outer = &root;

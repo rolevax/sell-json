@@ -9,7 +9,7 @@
 
 Doc::Doc()
 {
-    modes.push(Mode(Mode::Type::VIEW));
+    modes.emplace(new Mode(Mode::Type::VIEW, *this));
 }
 
 void Doc::load()
@@ -43,7 +43,7 @@ void Doc::load()
 void Doc::keyboard(char key)
 {
     assert(modes.size() > 0);
-    switch (modes.top().getType()) {
+    switch (modes.top()->getType()) {
     case Mode::Type::VIEW:
         keyView(key);
         break;
@@ -53,8 +53,7 @@ void Doc::keyboard(char key)
     case Mode::Type::INPUT_STRING:
         /*
          * TODO XXX
-         * make modes objects, because modes are too diversely stateful
-         *   - Modes has full control to Doc. just for modulization.
+         * make modes objects
          *   - combine pop();push() into one pop()
          *      - MenuMode::leave(nextMode) do that.
          *        pop self in doc, and push next (kind of 'delete this')
@@ -90,7 +89,7 @@ void Doc::registerRawRowsObserver(TokensObserver *ob)
 
 void Doc::push(Mode::Type modeType)
 {
-    modes.push(Mode(modeType));
+    modes.emplace(new Mode(modeType, *this));
     switch (modeType) {
     case Mode::Type::VIEW:
         break;
@@ -111,10 +110,10 @@ void Doc::push(Mode::Type modeType)
 
 void Doc::pop()
 {
-    Mode poped = modes.top();
+    std::unique_ptr<Mode> poped = std::move(modes.top());
     modes.pop();
 
-    switch (poped.getType()) {
+    switch (poped->getType()) {
     case Mode::Type::VIEW:
         break;
     case Mode::Type::MENU:

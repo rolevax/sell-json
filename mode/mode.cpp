@@ -1,7 +1,8 @@
 #include "sell/mode/mode.h"
 
-Mode::Mode(Type type) :
-    type(type)
+Mode::Mode(Type type, Doc &doc) :
+    type(type),
+    doc(doc)
 {
 
 }
