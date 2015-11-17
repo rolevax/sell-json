@@ -6,9 +6,12 @@
 class MenuMode : public Mode
 {
 public:
-    MenuMode(Doc &doc);
+    MenuMode(Doc &doc, bool append);
 
     void keyboard(char key) override;
+
+private:
+    bool append;
 };
 
 #endif // MENUMODE_H

@@ -24,14 +24,10 @@ void ViewMode::keyboard(char key)
         damnOut();
         break;
     case 'a':
-        if (outer->getType() == Ast::Type::OBJECT
-                || outer->getType() == Ast::Type::ARRAY)
-            ++inner;
-        /* fall-through */
     case 'i':
         if (outer->getType() == Ast::Type::OBJECT
                 || outer->getType() == Ast::Type::ARRAY)
-            push(new MenuMode(doc));
+            push(new MenuMode(doc, 'a' == key));
         break;
     case 'x':
         remove();

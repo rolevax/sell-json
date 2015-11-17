@@ -44,16 +44,12 @@ void Doc::load()
 
 /*
  * TODO XXX
- * MenuMode has append:bool
- * then impl' type selection menu
- *   - press space at menu to regret/terminate
- *       - recover inner to a legal place
- *   - show menu in gui
- *       - send string to qml. if empty string, close menu
+ * show menu in gui
+ *   - send string to qml. if empty string, close menu
  * then impl' map (pair) insert mode
  *   - menu provide types according to outer
  *       - array->any, object->pair, key->string
- *   - everything is fine grained, do autoxx later
+ *   - insert empty-complete, impl' autoxxx later
  * stack gui effects
  */
 void Doc::keyboard(char key)
@@ -92,7 +88,7 @@ void Doc::fuckIn()
             outer = &focus;
             inner = 0;
             // TODO: change to general insert menu
-            push(new MenuMode(*this));
+            push(new MenuMode(*this, false));
         }
         return;
     }
