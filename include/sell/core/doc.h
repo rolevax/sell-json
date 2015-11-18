@@ -8,6 +8,8 @@
 #include <memory>
 #include <stack>
 
+class PDoc;
+
 /* TODO Tokens::dark()
  *   - trigger when root has no child (new doc/all deleted)
  */
@@ -23,6 +25,7 @@ public:
     void keyboard(char key);
 
     void registerRawRowsObserver(TokensObserver *ob);
+    void registerObserver(PDoc *ob);
 
     friend class Mode;
 
@@ -35,6 +38,7 @@ private:
     void jackKick(int step);
     void insert(Ast::Type type);
     void remove();
+    void showMenu(const char *text);
 
 private:
     std::stack<std::unique_ptr<Mode>> modes;
@@ -42,6 +46,7 @@ private:
     Tokens tokens;
     Ast *outer = &root;
     size_t inner = 0;
+    PDoc *ob = nullptr;
 };
 
 #endif // DOC_H

@@ -5,6 +5,8 @@
 #include "rapidjson/document.h"
 #include "rapidjson/prettywriter.h"
 
+#include "sell/gui/pdoc.h"
+
 #include <chrono>
 #include <QDebug>
 #include <iostream>
@@ -44,8 +46,6 @@ void Doc::load()
 
 /*
  * TODO XXX
- * show menu in gui
- *   - send string to qml. if empty string, close menu
  * then impl' map (pair) insert mode
  *   - menu provide types according to outer
  *       - array->any, object->pair, key->string
@@ -61,6 +61,11 @@ void Doc::keyboard(char key)
 void Doc::registerRawRowsObserver(TokensObserver *ob)
 {
     tokens.registerObserver(ob);
+}
+
+void Doc::registerObserver(PDoc *ob)
+{
+    this->ob = ob;
 }
 
 void Doc::push(Mode *mode)
@@ -173,5 +178,11 @@ void Doc::remove()
         }
     }
     tokens.light(&outer->at(inner));
+}
+
+void Doc::showMenu(const char *text)
+{
+    if (ob != nullptr)
+        ob->observeMenu(text);
 }
 

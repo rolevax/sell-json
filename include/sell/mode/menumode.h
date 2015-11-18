@@ -9,6 +9,8 @@ public:
     MenuMode(Doc &doc, bool append);
 
     void keyboard(char key) override;
+    void onPushed() override;
+    void onPopped() override;
 
 private:
     bool append;

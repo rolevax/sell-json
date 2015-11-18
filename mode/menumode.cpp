@@ -30,4 +30,14 @@ void MenuMode::keyboard(char key)
     }
 }
 
+void MenuMode::onPushed()
+{
+    showMenu("s: string\nn: number\nspace: back");
+}
+
+void MenuMode::onPopped()
+{
+    showMenu("");
+}
+
 

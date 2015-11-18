@@ -48,3 +48,8 @@ void Mode::remove()
     doc.remove();
 }
 
+void Mode::showMenu(const char *text)
+{
+    doc.showMenu(text);
+}
+

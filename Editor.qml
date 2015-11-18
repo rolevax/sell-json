@@ -7,7 +7,18 @@ Rectangle {
     color: "#222233"
     focus: true
 
-    PDoc { id: pDoc }
+    PDoc {
+        id: pDoc
+
+        onMenu: {
+            if (text === "") {
+                menu.visible = false;
+            } else {
+                menuText.text = text;
+                menu.visible = true;
+            }
+        }
+    }
 
     PRawRows {
         id: pRawRows
@@ -47,25 +58,19 @@ Rectangle {
 
     Keys.onPressed: {
         pDoc.keyboard(event.text, event.modifiers);
-            //changeBox.visible = true;
         event.accepted = true;
     }
 
     Rectangle {
-        id: changeBox
+        id: menu
         width: 200; height: 100
         anchors.centerIn: parent
-        color: "yellow"
+        color: "#AAAA11"
         visible: false
-        focus: visible
-        Keys.onPressed: {
-            if (event.key === Qt.Key_S) {
-                rawRows.removeRow();
-                rawRows.insertRow("add str");
-                visible = false;
-                frame.focus = true;
-            }
-            event.accepted = true;
+        Text {
+            id: menuText
+            anchors.centerIn: parent
+            font.pixelSize: 20
         }
     }
 

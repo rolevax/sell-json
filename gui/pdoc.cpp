@@ -9,6 +9,7 @@ PDoc::PDoc(QObject *parent) :
     QObject(parent),
     doc(new Doc)
 {
+    doc->registerObserver(this);
 }
 
 void PDoc::load()
@@ -31,5 +32,11 @@ int PDoc::output()
 void PDoc::attachPRawRows(PRawRows *p)
 {
     doc->registerRawRowsObserver(p);
+}
+
+void PDoc::observeMenu(const char *text)
+{
+    QString s(text);
+    emit menu(s);
 }
 

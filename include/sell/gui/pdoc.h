@@ -16,7 +16,10 @@ public:
     Q_INVOKABLE int output();
     Q_INVOKABLE void attachPRawRows(PRawRows *p);
 
+    void observeMenu(const char *text);
+
 signals:
+    void menu(const QVariant &text);
 
 public slots:
 

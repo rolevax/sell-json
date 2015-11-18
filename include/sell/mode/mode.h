@@ -25,6 +25,7 @@ protected:
     void jackKick(int step);
     void insert(Ast::Type type);
     void remove();
+    void showMenu(const char *text);
 
 protected:
     Mode(Doc &doc);
