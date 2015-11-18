@@ -1,6 +1,8 @@
 import QtQuick 2.0
 
 Item {
+    property alias highLightUp: highLightUp
+
     Rectangle {
         id: lowLightUp
         width: 20; height: 20

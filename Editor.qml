@@ -64,8 +64,9 @@ Rectangle {
     Rectangle {
         id: menu
         width: 200; height: 100
-        anchors.centerIn: parent
-        color: "#AAAA11"
+        x: rawRows.highLightUp.x
+        y: rawRows.highLightUp.y
+        color: "#77CCCCCC"
         visible: false
         Text {
             id: menuText
