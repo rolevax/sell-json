@@ -37,13 +37,16 @@ void Hammer::writeGeneral(const Ast &ast, size_t &r, size_t &c)
         writeGeneral(ast.at(0), r, c);
         break;
     case Ast::Type::ARRAY:
-        writeArray(dynamic_cast<const ListAst&>(ast), r, c);
+        writeArray(static_cast<const ListAst&>(ast), r, c);
         break;
     case Ast::Type::OBJECT:
-        writeObject(dynamic_cast<const ListAst&>(ast), r, c);
+        writeObject(static_cast<const ListAst&>(ast), r, c);
         break;
     case Ast::Type::SCALAR:
-        writeScalar(dynamic_cast<const ScalarAst&>(ast), r, c);
+        writeScalar(static_cast<const ScalarAst&>(ast), r, c);
+        break;
+    case Ast::Type::PAIR:
+        writePair(static_cast<const MapAst&>(ast), r, c);
         break;
     default:
         throw -2;

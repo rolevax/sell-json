@@ -63,10 +63,11 @@ Rectangle {
 
     Rectangle {
         id: menu
-        width: 200; height: 100
+        width: menuText.width + 20;
+        height: menuText.height + 20;
         x: rawRows.highLightUp.x
         y: rawRows.highLightUp.y
-        color: "#77CCCCCC"
+        color: "#88DDDDCC"
         visible: false
         Text {
             id: menuText

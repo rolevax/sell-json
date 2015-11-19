@@ -25,6 +25,18 @@ void MenuMode::keyboard(char key)
             ++inner;
         leave(new NumberInputMode(doc));
         break;
+    case 'a':
+        if (append)
+            ++inner;
+        insert(Ast::Type::ARRAY);
+        leave();
+        break;
+    case 'o':
+        if (append)
+            ++inner;
+        insert(Ast::Type::OBJECT);
+        leave();
+        break;
     default:
         break;
     }
@@ -32,7 +44,18 @@ void MenuMode::keyboard(char key)
 
 void MenuMode::onPushed()
 {
-    showMenu("s: string\nn: number\nspace: back");
+    if (outer->getType() == Ast::Type::OBJECT) {
+        insert(Ast::Type::PAIR);
+        leave();
+        return;
+    }
+
+    const char *text = "s: string\n"
+                       "n: number\n"
+                       "a: array\n"
+                       "o: object\n"
+                       "space: back";
+    showMenu(text);
 }
 
 void MenuMode::onPopped()

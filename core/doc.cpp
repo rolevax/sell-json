@@ -20,13 +20,11 @@ void Doc::load()
 {
     assert(!root.present());
     const char *json = "[{"
-                       "\"name\": \"you\","
-                       "\"age\": 18,"
-                       "\"fucked\": true"
+                       "\"cat\": \"dog\","
+                       "\"horse\": 18,"
+                       "\"pig\": true"
                        "},"
-                       "123,"
-                       "[34, 79, [98, 23], 90],"
-                       "[],{},9.88"
+                       "[],9.88"
                        "]";
     rapidjson::Document d;
     d.Parse(json);
@@ -46,10 +44,6 @@ void Doc::load()
 
 /*
  * TODO XXX
- * then impl' map (pair) insert mode
- *   - menu provide types according to outer
- *       - array->any, object->pair, key->string
- *   - insert empty-complete, impl' autoxxx later
  * stack gui effects
  */
 void Doc::keyboard(char key)
@@ -79,6 +73,8 @@ void Doc::pop()
     std::unique_ptr<Mode> popped = std::move(modes.top());
     modes.pop();
     popped->onPopped();
+    if (inner < outer->size()) // TODO: might be moved to other place
+        tokens.light(&outer->at(inner));
 }
 
 void Doc::fuckIn()
@@ -141,11 +137,17 @@ void Doc::insert(Ast::Type type)
     switch (type) {
     case Ast::Type::PAIR:
         a = new MapAst(Ast::Type::PAIR);
-        a->insert(0, new ScalarAst(Ast::Type::KEY, ""));
-        a->insert(1, new ScalarAst(Ast::Type::SCALAR, ""));
+        a->insert(0, new ScalarAst(Ast::Type::KEY, "key"));
+        a->insert(1, new ScalarAst(Ast::Type::SCALAR, "value"));
         break;
     case Ast::Type::SCALAR:
         a = new ScalarAst(Ast::Type::SCALAR, "");
+        break;
+    case Ast::Type::ARRAY:
+        a = new ListAst(Ast::Type::ARRAY);
+        break;
+    case Ast::Type::OBJECT:
+        a = new ListAst(Ast::Type::OBJECT);
         break;
     default:
         qDebug() << "insert type: untreated outer type";
