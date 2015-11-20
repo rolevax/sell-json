@@ -15,6 +15,7 @@ public:
     virtual void keyboard(char key) = 0;
     virtual void onPushed() {}
     virtual void onPopped() {}
+    virtual const char *name() = 0;
 
 protected:
     void push(Mode *mode);

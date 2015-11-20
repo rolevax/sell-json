@@ -36,7 +36,16 @@ void PDoc::attachPRawRows(PRawRows *p)
 
 void PDoc::observeMenu(const char *text)
 {
-    QString s(text);
-    emit menu(s);
+    emit menu(text);
+}
+
+void PDoc::observePush(const char *name)
+{
+    emit pushed(name);
+}
+
+void PDoc::observePop()
+{
+    emit popped();
 }
 

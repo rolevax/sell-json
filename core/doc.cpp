@@ -42,10 +42,6 @@ void Doc::load()
     tokens.print();
 }
 
-/*
- * TODO XXX
- * stack gui effects
- */
 void Doc::keyboard(char key)
 {
     assert(modes.size() > 0);
@@ -65,11 +61,19 @@ void Doc::registerObserver(PDoc *ob)
 void Doc::push(Mode *mode)
 {
     modes.emplace(mode);
+    if (ob != nullptr)
+        ob->observePush(modes.top()->name());
     modes.top()->onPushed();
 }
 
+/* TODO XXX
+ * fix 'regret when fucking into an empty, then restore cursor' problem
+ */
 void Doc::pop()
 {
+    if (ob != nullptr)
+        ob->observePop();
+
     std::unique_ptr<Mode> popped = std::move(modes.top());
     modes.pop();
     popped->onPopped();
@@ -88,7 +92,6 @@ void Doc::fuckIn()
         if (type == Ast::Type::OBJECT || type == Ast::Type::ARRAY) {
             outer = &focus;
             inner = 0;
-            // TODO: change to general insert menu
             push(new MenuMode(*this, false));
         }
         return;

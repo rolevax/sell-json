@@ -38,3 +38,8 @@ void StringInputMode::onPopped()
     tokens.setHotLight(false);
 }
 
+const char *StringInputMode::name()
+{
+    return "String Input";
+}
+

@@ -58,3 +58,8 @@ void NumberInputMode::onPopped()
     tokens.setHotLight(false);
 }
 
+const char *NumberInputMode::name()
+{
+    return "Number Input";
+}
+

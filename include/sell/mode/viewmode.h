@@ -9,6 +9,7 @@ public:
     ViewMode(Doc &doc);
 
     void keyboard(char key) override;
+    const char *name() override;
 };
 
 #endif // VIEWMODE_H

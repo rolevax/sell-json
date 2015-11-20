@@ -11,6 +11,7 @@ public:
     void keyboard(char key) override;
     void onPushed() override;
     void onPopped() override;
+    const char *name() override;
 };
 
 #endif // NUMBERINPUTMODE_H

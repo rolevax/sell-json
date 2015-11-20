@@ -18,6 +18,14 @@ Rectangle {
                 menu.visible = true;
             }
         }
+
+        onPushed: {
+            modesModel.append({ modelText: name });
+        }
+
+        onPopped: {
+            modesModel.remove(modesModel.count - 1, 1);
+        }
     }
 
     PRawRows {
@@ -54,7 +62,27 @@ Rectangle {
         anchors.fill: parent
     }
 
-    property var doc: "global str"
+    ListView {
+        id: modes
+        model: ListModel {
+            id: modesModel
+        }
+
+        width: 130
+        height: parent.height
+        anchors.right: parent.right
+        verticalLayoutDirection: ListView.BottomToTop
+        delegate: Rectangle {
+            width: parent.width
+            height: 35
+            color: "yellow"
+            Text {
+                anchors.centerIn: parent
+                text: modelText
+                font.pixelSize: 20
+            }
+        }
+    }
 
     Keys.onPressed: {
         pDoc.keyboard(event.text, event.modifiers);

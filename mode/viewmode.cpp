@@ -38,4 +38,9 @@ void ViewMode::keyboard(char key)
 
 }
 
+const char *ViewMode::name()
+{
+    return "View";
+}
+
 

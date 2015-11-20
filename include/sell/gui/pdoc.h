@@ -17,9 +17,13 @@ public:
     Q_INVOKABLE void attachPRawRows(PRawRows *p);
 
     void observeMenu(const char *text);
+    void observePush(const char *name);
+    void observePop();
 
 signals:
-    void menu(const QVariant &text);
+    void menu(QString text);
+    void pushed(QString name);
+    void popped();
 
 public slots:
 

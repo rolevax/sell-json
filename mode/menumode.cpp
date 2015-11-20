@@ -63,4 +63,9 @@ void MenuMode::onPopped()
     showMenu("");
 }
 
+const char *MenuMode::name()
+{
+    return "Select Type";
+}
+
 
