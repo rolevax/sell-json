@@ -2,9 +2,10 @@
 #include "sell/mode/stringinputmode.h"
 #include "sell/mode/numberinputmode.h"
 
-MenuMode::MenuMode(Doc &doc, bool append) :
+MenuMode::MenuMode(Doc &doc, bool append, bool empty) :
     Mode(doc),
-    append(append)
+    append(append),
+    empty(empty)
 {
 
 }
@@ -16,24 +17,20 @@ void MenuMode::keyboard(char key)
         leave();
         break;
     case 's':
-        if (append)
-            ++inner;
+        prepareCursor();
         leave(new StringInputMode(doc));
         break;
     case 'n':
-        if (append)
-            ++inner;
+        prepareCursor();
         leave(new NumberInputMode(doc));
         break;
     case 'a':
-        if (append)
-            ++inner;
+        prepareCursor();
         insert(Ast::Type::ARRAY);
         leave();
         break;
     case 'o':
-        if (append)
-            ++inner;
+        prepareCursor();
         insert(Ast::Type::OBJECT);
         leave();
         break;
@@ -66,6 +63,16 @@ void MenuMode::onPopped()
 const char *MenuMode::name()
 {
     return "Select Type";
+}
+
+void MenuMode::prepareCursor()
+{
+    if (append) {
+        ++inner;
+    } else if (empty) {
+        outer = &outer->at(inner);
+        inner = 0;
+    }
 }
 
 

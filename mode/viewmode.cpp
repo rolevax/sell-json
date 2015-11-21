@@ -27,7 +27,7 @@ void ViewMode::keyboard(char key)
     case 'i':
         if (outer->getType() == Ast::Type::OBJECT
                 || outer->getType() == Ast::Type::ARRAY)
-            push(new MenuMode(doc, 'a' == key));
+            push(new MenuMode(doc, 'a' == key, false));
         break;
     case 'x':
         remove();

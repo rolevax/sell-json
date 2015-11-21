@@ -66,9 +66,6 @@ void Doc::push(Mode *mode)
     modes.top()->onPushed();
 }
 
-/* TODO XXX
- * fix 'regret when fucking into an empty, then restore cursor' problem
- */
 void Doc::pop()
 {
     if (ob != nullptr)
@@ -90,9 +87,7 @@ void Doc::fuckIn()
 
     if (focus.size() == 0) {
         if (type == Ast::Type::OBJECT || type == Ast::Type::ARRAY) {
-            outer = &focus;
-            inner = 0;
-            push(new MenuMode(*this, false));
+            push(new MenuMode(*this, false, true));
         }
         return;
     }
