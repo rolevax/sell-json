@@ -37,9 +37,9 @@ void Doc::load()
     ac.convert(d);
 
     tokens.insert(outer, inner);
-//    tokens.light(&outer->at(inner));
+    tokens.light(&outer->at(inner));
 
-    tokens.print();
+//    tokens.print();
 }
 
 void Doc::keyboard(char key)
@@ -172,7 +172,7 @@ void Doc::remove()
             --inner;
         } else { // outer became empty
             damnOut(); // TODO: remove child of root case
-            // re-insert to generate special empty text look
+            // re-insert to generate special empty look
             tokens.remove(outer, inner);
             tokens.insert(outer, inner);
         }

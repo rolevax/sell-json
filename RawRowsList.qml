@@ -39,6 +39,7 @@ ListView {
                         item.colId === id)
                     return item;
             }
+            console.log("row.delegateAt: illegal id: " + id);
             return undefined;
         }
     }

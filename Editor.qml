@@ -106,7 +106,15 @@ Rectangle {
 
     Component.onCompleted: {
         pDoc.attachPRawRows(pRawRows);
-        pDoc.load();
+        timer.start(); // workaround for force repaint
+    }
+
+    Timer {
+        id: timer
+        interval: 17 // skip one frame (16ms)
+        onTriggered: {
+            pDoc.load();
+        }
     }
 }
 

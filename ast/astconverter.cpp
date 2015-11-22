@@ -63,7 +63,7 @@ bool AstConverter::String(const AstConverter::Ch *str,
 {
     (void) copy;
     (void) length;
-    convertScalar(std::string("\"") + str + "\"");
+    convertScalar(str);
     return true;
 }
 
