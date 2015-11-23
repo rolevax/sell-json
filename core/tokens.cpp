@@ -37,7 +37,7 @@ void Tokens::insert(const Ast *outer, size_t inner)
     assert(outer->size() > 0 && inner < outer->size());
 
     if (outer->getType() == Ast::Type::ROOT) { // outer is root
-        hammer.write(*outer, 0, 0);
+        hammer.hit(*outer, 0, 0);
     } else if (outer->size() == 1) { // was empty before insertion
         Ast *parent = &outer->getParent();
         size_t outerIndex = parent->indexOf(outer);
@@ -47,10 +47,10 @@ void Tokens::insert(const Ast *outer, size_t inner)
     } else if (inner == 0) { // at very beginning
         Region prevHead = locate(&outer->at(1));
         suck(prevHead);
-        hammer.write(outer->at(inner), prevHead.br, prevHead.bc);
+        hammer.hit(outer->at(inner), prevHead.br, prevHead.bc);
     } else { // internal or very end
         Region ass = locate(&outer->at(inner - 1));
-        hammer.write(outer->at(inner), ass.er, ass.ec + 1);
+        hammer.hit(outer->at(inner), ass.er, ass.ec + 1);
     }
 }
 
