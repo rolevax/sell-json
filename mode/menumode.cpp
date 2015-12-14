@@ -2,10 +2,9 @@
 #include "sell/mode/stringinputmode.h"
 #include "sell/mode/numberinputmode.h"
 
-MenuMode::MenuMode(Doc &doc, bool append, bool empty) :
+MenuMode::MenuMode(Doc &doc, Context context) :
     Mode(doc),
-    append(append),
-    empty(empty)
+    context(context)
 {
 
 }
@@ -42,8 +41,11 @@ void MenuMode::keyboard(char key)
 void MenuMode::onPushed()
 {
     // early leave if only one choice
-    if (outer->getType() == Ast::Type::OBJECT
-            || (empty && outer->at(inner).getType() == Ast::Type::OBJECT)) {
+    bool underTyrant = context != Context::ASSART
+            && outer->getType() == Ast::Type::OBJECT;
+    bool intoTyrant = context == Context::ASSART
+            && outer->at(inner).getType() == Ast::Type::OBJECT;
+    if (underTyrant || intoTyrant) {
         prepareCursor();
         insert(Ast::Type::PAIR);
         leave();
@@ -70,9 +72,9 @@ const char *MenuMode::name()
 
 void MenuMode::prepareCursor()
 {
-    if (append) {
+    if (context == Context::APPEND) {
         ++inner;
-    } else if (empty) {
+    } else if (context == Context::ASSART) {
         outer = &outer->at(inner);
         inner = 0;
     }

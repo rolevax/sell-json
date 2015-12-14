@@ -26,8 +26,12 @@ void ViewMode::keyboard(char key)
     case 'a':
     case 'i':
         if (outer->getType() == Ast::Type::OBJECT
-                || outer->getType() == Ast::Type::ARRAY)
-            push(new MenuMode(doc, 'a' == key, false));
+                || outer->getType() == Ast::Type::ARRAY) {
+            MenuMode::Context context;
+            context = 'a' == key ? MenuMode::Context::APPEND
+                                 : MenuMode::Context::INSERT;
+            push(new MenuMode(doc, context));
+        }
         break;
     case 'x':
         remove();

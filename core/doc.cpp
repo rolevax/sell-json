@@ -87,7 +87,7 @@ void Doc::fuckIn()
 
     if (focus.size() == 0) {
         if (type == Ast::Type::OBJECT || type == Ast::Type::ARRAY) {
-            push(new MenuMode(*this, false, true));
+            push(new MenuMode(*this, MenuMode::Context::ASSART));
         }
         return;
     }

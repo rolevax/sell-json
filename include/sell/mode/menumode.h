@@ -6,7 +6,11 @@
 class MenuMode : public Mode
 {
 public:
-    MenuMode(Doc &doc, bool append, bool empty);
+    enum class Context
+    {
+        INSERT, APPEND, ASSART, CHANGE
+    };
+    MenuMode(Doc &doc, Context context);
 
     void keyboard(char key) override;
     void onPushed() override;
@@ -17,8 +21,7 @@ private:
     void prepareCursor();
 
 private:
-    bool append;
-    bool empty;
+    Context context;
 };
 
 #endif // MENUMODE_H
