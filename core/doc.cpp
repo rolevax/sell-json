@@ -7,6 +7,9 @@
 
 #include "sell/gui/pdoc.h"
 
+#include <fstream>
+#include <sstream>
+
 #include <chrono>
 #include <QDebug>
 #include <iostream>
@@ -19,13 +22,14 @@ Doc::Doc()
 void Doc::load()
 {
     assert(!root.present());
-    const char *json = "[{"
-                       "\"cat\": \"dog\","
-                       "\"horse\": 18,"
-                       "\"pig\": true"
-                       "},"
-                       "[],9.88"
-                       "]";
+
+    std::ifstream ifs("sample.json");
+    std::stringstream ss;
+    ss << ifs.rdbuf();
+    std::string str(ss.str());
+    const char *json = str.c_str();
+
+    // TODO: do something when parse error
     rapidjson::Document d;
     d.Parse(json);
     rapidjson::StringBuffer sb;
