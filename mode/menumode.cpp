@@ -41,7 +41,10 @@ void MenuMode::keyboard(char key)
 
 void MenuMode::onPushed()
 {
-    if (outer->getType() == Ast::Type::OBJECT) {
+    // early leave if only one choice
+    if (outer->getType() == Ast::Type::OBJECT
+            || (empty && outer->at(inner).getType() == Ast::Type::OBJECT)) {
+        prepareCursor();
         insert(Ast::Type::PAIR);
         leave();
         return;
