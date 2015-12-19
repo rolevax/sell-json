@@ -28,7 +28,6 @@ void StringInputMode::keyboard(char key)
 
 void StringInputMode::onPushed()
 {
-    insert(Ast::Type::SCALAR);
     tokens.light(&outer->at(inner));
     tokens.setHotLight(true);
 }

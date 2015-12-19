@@ -48,7 +48,6 @@ void NumberInputMode::keyboard(char key)
 
 void NumberInputMode::onPushed()
 {
-    insert(Ast::Type::SCALAR);
     tokens.light(&outer->at(inner));
     tokens.setHotLight(true);
 }

@@ -24,7 +24,7 @@ public:
     void load();
     void keyboard(char key);
 
-    void registerRawRowsObserver(TokensObserver *ob);
+    void registerTokensObserver(TokensObserver *ob);
     void registerObserver(PDoc *ob);
 
     friend class Mode;

@@ -31,7 +31,7 @@ int PDoc::output()
 
 void PDoc::attachPRawRows(PRawRows *p)
 {
-    doc->registerRawRowsObserver(p);
+    doc->registerTokensObserver(p);
 }
 
 void PDoc::observeMenu(const char *text)

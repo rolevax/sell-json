@@ -1,18 +1,23 @@
+// SELL headers
 #include "sell/core/doc.h"
 #include "sell/mode/viewmode.h"
 #include "sell/mode/menumode.h"
 #include "sell/ast/astconverter.h"
-#include "rapidjson/document.h"
-#include "rapidjson/prettywriter.h"
-
 #include "sell/gui/pdoc.h"
 
+// RapidJSON headers
+#include "rapidjson/document.h"
+#include "rapidjson/prettywriter.h"
+#include "rapidjson/error/en.h"
+
+// headers for reading from a file
 #include <fstream>
 #include <sstream>
 
-#include <chrono>
+// headers for debug uses
 #include <QDebug>
 #include <iostream>
+#include <cstdlib>
 
 Doc::Doc()
 {
@@ -29,13 +34,13 @@ void Doc::load()
     std::string str(ss.str());
     const char *json = str.c_str();
 
-    // TODO: do something when parse error
     rapidjson::Document d;
-    d.Parse(json);
-    rapidjson::StringBuffer sb;
-    rapidjson::PrettyWriter<rapidjson::StringBuffer> pw(sb);
-    d.Accept(pw);
-    qDebug() << sb.GetString();
+    if (d.Parse(json).HasParseError()) {
+        std::cerr << "Parse error: "
+                  << GetParseError_En(d.GetParseError())
+                  << std::endl;
+        exit(1);
+    }
 
     AstConverter ac(root);
     ac.convert(d);
@@ -46,13 +51,19 @@ void Doc::load()
 //    tokens.print();
 }
 
+/**
+ * @brief Doc::keyboard
+ * @param key
+ * Accept a key stroke and handle it with the mode on
+ * the top of the mode stack.
+ */
 void Doc::keyboard(char key)
 {
     assert(modes.size() > 0);
     modes.top()->keyboard(key);
 }
 
-void Doc::registerRawRowsObserver(TokensObserver *ob)
+void Doc::registerTokensObserver(TokensObserver *ob)
 {
     tokens.registerObserver(ob);
 }
@@ -78,8 +89,6 @@ void Doc::pop()
     std::unique_ptr<Mode> popped = std::move(modes.top());
     modes.pop();
     popped->onPopped();
-    if (inner < outer->size()) // TODO: might be moved to other place
-        tokens.light(&outer->at(inner));
 }
 
 void Doc::fuckIn()
@@ -132,8 +141,16 @@ void Doc::jackKick(int step)
     tokens.light(&outer->at(inner));
 }
 
+/**
+ * @brief Doc::insert Create a new subnode
+ * @param type The type of the new node
+ * Create a new subnode inside 'outer' at 'inner',
+ * with specified type 'type'
+ */
 void Doc::insert(Ast::Type type)
 {
+    assert(inner <= outer->size());
+
     Ast *a;
 
     switch (type) {
@@ -164,6 +181,8 @@ void Doc::insert(Ast::Type type)
 
 void Doc::remove()
 {
+    assert(inner < outer->size());
+
     if (outer->getType() != Ast::Type::ARRAY
             && outer->getType() != Ast::Type::OBJECT) {
         qDebug() << "unremovable outer";

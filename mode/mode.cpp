@@ -18,7 +18,8 @@ void Mode::push(Mode *mode)
 void Mode::leave(Mode *next)
 {
     Doc *pd = &doc; // for memory safety
-    doc.pop(); // object suicide
+    doc.pop(); // cause object suicide
+    /* Do not use "this" pointer below */
     if (next != nullptr)
         pd->push(next);
 }
