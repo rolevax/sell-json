@@ -10,7 +10,7 @@
 #include "rapidjson/prettywriter.h"
 #include "rapidjson/error/en.h"
 
-// headers for reading from a file
+// headers for file I/O
 #include <fstream>
 #include <sstream>
 
@@ -73,6 +73,13 @@ void Doc::registerObserver(PDoc *ob)
     this->ob = ob;
 }
 
+/**
+ * @brief Doc::push
+ * @param mode
+ * Push 'mode' onto the mode stack,
+ * and trigger the 'onPushed' callback of 'mode'
+ * This will take away the ownership of 'mode'.
+ */
 void Doc::push(Mode *mode)
 {
     modes.emplace(mode);
@@ -81,6 +88,12 @@ void Doc::push(Mode *mode)
     modes.top()->onPushed();
 }
 
+/**
+ * @brief Doc::pop
+ * Pop the top of the mode stack,
+ * and call the 'onPopped' callback of that mode.
+ * Afterwards that mode object will be destructed.
+ */
 void Doc::pop()
 {
     if (ob != nullptr)
@@ -145,7 +158,8 @@ void Doc::jackKick(int step)
  * @brief Doc::insert Create a new subnode
  * @param type The type of the new node
  * Create a new subnode inside 'outer' at 'inner',
- * with specified type 'type'
+ * with specified type 'type'.
+ * The value of the new node is "as empty as possible".
  */
 void Doc::insert(Ast::Type type)
 {

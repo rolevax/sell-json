@@ -74,9 +74,10 @@ ListView {
     function newLine(r, c) {
         listModel.insert(r + 1, { modelColumns: [] });
         var prevRow = listModel.get(r).modelColumns;
+        var newRow = listModel.get(r + 1).modelColumns;
         for (var i = c; i < prevRow.count; i++) {
             var token = prevRow.get(i);
-            listModel.get(r + 1).modelColumns.insert(i - c, token);
+            newRow.append(token);
         }
         if (c !== prevRow.count)
             prevRow.remove(c, prevRow.count - c);

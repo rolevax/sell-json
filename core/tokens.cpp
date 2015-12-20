@@ -4,7 +4,6 @@
 #include <QDebug>
 #include <iostream>
 
-
 Tokens::Tokens() :
     hammer(*this)
 {
@@ -32,13 +31,20 @@ void Tokens::light(const Ast *inner)
     }
 }
 
+/**
+ * @brief Tokens::insert
+ * @param outer Parent of new node
+ * @param inner Index of new node within its parent
+ * Apply a insertion change in Ast into Tokens.
+ * Should be called after Ast's insertion.
+ */
 void Tokens::insert(const Ast *outer, size_t inner)
 {
     assert(outer->size() > 0 && inner < outer->size());
 
     if (outer->getType() == Ast::Type::ROOT) { // outer is root
         hammer.hit(*outer, 0, 0);
-    } else if (outer->size() == 1) { // was empty before insertion
+    } else if (outer->size() == 1) { // assart
         Ast *parent = &outer->getParent();
         size_t outerIndex = parent->indexOf(outer);
         remove(parent, outerIndex);
@@ -54,6 +60,12 @@ void Tokens::insert(const Ast *outer, size_t inner)
     }
 }
 
+/**
+ * @brief Tokens::remove
+ * @param outer Parent of the node to remove
+ * @param inner Index of the node to remove within its parent
+ * This should be called before Ast's remove operation.
+ */
 void Tokens::remove(const Ast *outer, size_t inner)
 {
     assert(inner < outer->size());
@@ -86,6 +98,12 @@ void Tokens::registerObserver(TokensObserver *ob)
     observers.push_back(ob);
 }
 
+/**
+ * @brief Tokens::locate
+ * @param tar The node to locate
+ * @return A Region representing a "TokenGroup"
+ * See the comment in Tokens class defination for "TokenGroup".
+ */
 Region Tokens::locate(const Ast *tar)
 {
     if (tar->getType() == Ast::Type::ROOT)
@@ -113,9 +131,18 @@ Region Tokens::locate(const Ast *tar)
     }
 
     assert(found);
+#ifdef NDEBUG
+    (void) found;
+#endif
     return res;
 }
 
+/**
+ * @brief Tokens::suck
+ * @param r
+ * Change "TokenGroup" into "lightableGroup"
+ * See comment in Tokens class defination for details
+ */
 void Tokens::suck(Region &r)
 {
     assert(r.br < rows.size() && r.bc < rows[r.br].size());
@@ -127,6 +154,13 @@ void Tokens::suck(Region &r)
     }
 }
 
+/**
+ * @brief Tokens::write
+ * @param token
+ * @param r row index
+ * @param c column index
+ * Insert a token at specified position
+ */
 void Tokens::write(Token *token, size_t r, size_t c)
 {
     assert(r < rows.size() && c <= rows[r].size());
@@ -136,6 +170,11 @@ void Tokens::write(Token *token, size_t r, size_t c)
         ob->observeWrite(*token, r, c);
 }
 
+/**
+ * @brief Tokens::erase
+ * @param r
+ * Remove all tokens from the region 'r'
+ */
 void Tokens::erase(const Region &r)
 {
     assert(r.br < rows.size() && r.bc < rows[r.br].size());
