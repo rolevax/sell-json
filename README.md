@@ -1,16 +1,14 @@
 SELL - Source Editor at Language Level
 --------------------------------------
 
-SELL is a **syntax directed editor for general programming languages**. 
-Currently it supports editing JSON only. 
+SELL is a **syntax directed editor for JSON**. 
 
 ## Features
 
-* Free from syntax errors as a structure editor.
-* Vi-like keyboard controlling, not click-click, 
-* Tree operations as first class citizens. 
+* Free from syntax matters as a structured editor.
+* Vi-like keyboard controlling.
 
 ## Usage
-* Run with a file named `sample.json`
+* Run with a JSON file named `sample.json`
 
 
