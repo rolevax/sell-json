@@ -4,10 +4,11 @@
 
 const std::string SoulToken::empty;
 
-SoulToken::SoulToken(const Ast *ast, Role role) :
+SoulToken::SoulToken(const Ast *ast, Role role, bool newline) :
     Token(ast, role)
 {
     assert(role == Role::BEGIN || role == Role::END);
+    newLine = newline;
 }
 
 const std::string &SoulToken::getText() const

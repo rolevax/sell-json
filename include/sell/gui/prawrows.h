@@ -14,8 +14,9 @@ public:
 
     void observeWrite(const Token &token, size_t r, size_t c) override;
     void observeErase(const Region &r) override;
-    void observeUpdateFlesh(size_t r, size_t c, const Token &t) override;
+    void observeUpdateFlesh(size_t r, size_t bc, size_t ec, const Token &t) override;
     void observeNewLine(size_t r, size_t c) override;
+    void observeJoinLine(size_t r) override;
     void observeLight(size_t lbr, size_t lbc,
                       size_t ler, size_t lec,
                       size_t hbr, size_t hbc,
@@ -23,10 +24,11 @@ public:
     void observeSetHotLight(bool b) override;
 
 signals:
-    void written(const QVariant &token, int r, int c);
+    void written(const QString str, int r, int c);
     void erased(int br, int bc, int er, int ec);
-    void fleshUpdated(int r, int c, const QVariant &token);
+    void fleshUpdated(int r, int bc, int ec, const QString str);
     void newLine(int r, int c);
+    void joinLine(int r);
     void hotLightSet(bool b);
     void lighted(int lbr, int lbc, int ler, int lec,
                  int hbr, int hbc, int her, int hec);

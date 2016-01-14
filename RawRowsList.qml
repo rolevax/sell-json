@@ -4,47 +4,22 @@ ListView {
     model: ListModel {
         id: listModel
         ListElement {
-            modelColumns: []
+            modelText: ""
         }
     }
 
-    delegate: ListView {
+    delegate: Text {
         property int rowId: index
 
         objectName: "delegateItem"
         width: parent.width
-        height: 20
-        orientation: Qt.Horizontal
-        model: modelColumns
-        delegate: Item {
-            property int colId: index
-
-            objectName: "delegateItem"
-            width: token.width; height: token.height
-
-            Text {
-                id: token
-                text: modelText
-                color: "white"
-                font.family: "Monospace"
-                font.pixelSize: 20
-            }
-        }
-
-        function delegateAt(id) {
-            forceLayout();
-            for (var i = 0; i < contentItem.children.length; i++) {
-                var item = contentItem.children[i];
-                if (item.objectName === "delegateItem" &&
-                        item.colId === id)
-                    return item;
-            }
-            console.log("row.delegateAt: illegal id: " + id);
-            return undefined;
-        }
+        text: modelText
+        color: "white"
+        font.family: "Monospace"
+        font.pixelSize: 20
     }
 
-    function delegateAt(id) {
+    function rowAt(id) {
         forceLayout();
         for (var i = 0; i < contentItem.children.length; i++) {
             var item = contentItem.children[i];
@@ -55,60 +30,42 @@ ListView {
         return undefined;
     }
 
-    function tokenAt(rowId, colId) {
-        var row = delegateAt(rowId)
-        var token = row.delegateAt(colId);
-        if (!token)
-            console.log("tokenAt: illegal index " + rowId + ", " + colId);
-        return token;
+    function insert(str, r, c) {
+        var orig = listModel.get(r).modelText;
+        var next = [orig.slice(0, c), str, orig.slice(c)].join("");
+        listModel.get(r).modelText = next;
     }
 
-    function insert(token, r, c) {
-        listModel.get(r).modelColumns.insert(c, token);
-    }
-
-    function update(r, c, token) {
-        listModel.get(r).modelColumns.set(c, token);
+    function update(r, bc, ec, str) {
+        var orig = listModel.get(r).modelText;
+        var next = [orig.slice(0, bc), str, orig.slice(ec)].join("");
+        listModel.get(r).modelText = next;
     }
 
     function newLine(r, c) {
-        listModel.insert(r + 1, { modelColumns: [] });
-        var prevRow = listModel.get(r).modelColumns;
-        var newRow = listModel.get(r + 1).modelColumns;
-        for (var i = c; i < prevRow.count; i++) {
-            var token = prevRow.get(i);
-            newRow.append(token);
-        }
-        if (c !== prevRow.count)
-            prevRow.remove(c, prevRow.count - c);
+        var prevRow = listModel.get(r).modelText;
+        listModel.insert(r + 1, { modelText: prevRow.slice(c) });
+        listModel.get(r).modelText = prevRow.slice(0, c);
     }
 
-    function mergeLine(r) {
-        var prevLine = listModel.get(r - 1).modelColumns;
-        var currLine = listModel.get(r).modelColumns;
-        for (var i = 0; i < currLine.count; i++)
-            prevLine.append(currLine.get(i));
+    function joinLine(r) {
+        listModel.get(r - 1).modelText += listModel.get(r).modelText;
         listModel.remove(r, 1);
     }
 
     function erase(br, bc, er, ec) {
-        if (br === er) {
-            listModel.get(br).modelColumns.remove(bc, ec - bc + 1);
-            if (listModel.get(br).modelColumns.count === 0)
-                listModel.remove(br, 1);
+        if (br === er) { // erase within a row
+            var orig = listModel.get(br).modelText;
+            listModel.get(br).modelText = orig.slice(0, bc) + orig.slice(ec + 1);
         } else {
-            // remove tokens in the last row
-            listModel.get(er).modelColumns.remove(0, ec + 1);
+            // remove characters in the last row
+            listModel.get(er).modelText = listModel.get(er).modelText.slice(ec + 1);
 
-            if (br + 1 < er) // remove tokens in the middle rows
+            if (br + 1 < er) // remove middle rows
                 listModel.remove(br + 1, (er - 1) - (br + 1) + 1);
 
-            // remove tokens in the first row
-            var ct = listModel.get(br).modelColumns.count;
-            listModel.get(br).modelColumns.remove(bc, ct - bc);
-
-            if (br + 1 < listModel.count)
-                mergeLine(br + 1);
+            // remove characters in the first row
+            listModel.get(br).modelText = listModel.get(br).modelText.slice(0, bc);
         }
     }
 }

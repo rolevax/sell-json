@@ -6,7 +6,7 @@
 class SoulToken : public Token
 {
 public:
-    SoulToken(const Ast *ast, Role role);
+    SoulToken(const Ast *ast, Role role, bool newLine = false);
 
     const std::string &getText() const;
 

@@ -1,54 +1,52 @@
 import QtQuick 2.0
 
 Item {
-    property alias highLightUp: highLightUp
+    property alias highLightUp: highUp
 
-    Rectangle {
-        id: lowLightUp
-        width: 20; height: 20
-        color: "#303040"
+    LightBar {
+        id: lowUp
+        lightColor: "#303040"
+    }
+
+    LightBar {
+        id: lowDown
+        lightColor: lowUp.lightColor
     }
 
     Rectangle {
-        id: lowLightDown
-        width: 20; height: 20
-        color: lowLightUp.color
+        id: lowMiddle
+        anchors.top: lowUp.bottom
+        anchors.bottom: lowDown.top
+        anchors.left: lowDown.left
+        anchors.leftMargin: lowDown.leftText.width
+        anchors.right: lowUp.right
+        color: lowDown.lightColor
+    }
+
+    LightBar {
+        id: highUp
+        lightColor: "#443399"
+    }
+
+    LightBar {
+        id: highDown
+        lightColor: highUp.lightColor
     }
 
     Rectangle {
-        id: lowLightMiddle
-        anchors.top: lowLightUp.bottom
-        anchors.bottom: lowLightDown.top
-        anchors.left: lowLightDown.left
-        anchors.right: lowLightUp.right
-        color: lowLightDown.color
-    }
-
-    Rectangle {
-        id: highLightUp
-        width: 20; height: 20
-        color: "#443399"
-    }
-
-    Rectangle {
-        id: highLightDown
-        width: 20; height: 20
-        color: highLightUp.color
-    }
-
-    Rectangle {
-        id: highLightMiddle
-        anchors.top: highLightUp.bottom
-        anchors.bottom: highLightDown.top
-        anchors.left: highLightDown.left
-        anchors.right: highLightUp.right
-        color: highLightDown.color
+        id: highMiddle
+        anchors.top: highUp.bottom
+        anchors.bottom: highDown.top
+        anchors.left: highDown.left
+        anchors.leftMargin: highDown.leftText.width
+        anchors.right: highUp.right
+        color: highDown.lightColor
     }
 
     Rectangle {
         id: hotLight
-        anchors.left: highLightUp.right
-        anchors.top: highLightUp.top
+        anchors.left: highUp.right
+        anchors.top: highUp.top
         width: 10; height: 20
         color: "#EE3333"
         visible: false
@@ -64,52 +62,41 @@ Item {
     }
 
     function light(high, br, bc, er, ec) {
-        var up = high ? highLightUp : lowLightUp;
-        var down = high ? highLightDown : lowLightDown;
-
-        var begin = list.tokenAt(br, bc);
-        var end = list.tokenAt(er, ec);
-        var beginPos = mapFromItem(begin, 0, 0);
-        var endPos = mapFromItem(end, end.width, 0);
-        var leftMost = beginPos.x;
-        var rightMost = endPos.x;
-        var i, j;
+        var up = high ? highUp : lowUp;
+        var down = high ? highDown : lowDown;
 
         // determine leftmost and rightmost non-space position
-        for (i = br; i <= er; i++) {
-            var columns = list.model.get(i).modelColumns;
-            var start = i === br ? bc : 0;
-            var limit = i === er ? ec + 1 : columns.count;
-            for (j = start; j < limit; j++) {
-                var text = columns.get(j).modelText;
-                if (!(/^\s*$/.test(text))) {
-                    var token = list.tokenAt(i, j);
-                    var pos = mapFromItem(token, 0, 0);
-                    leftMost = pos.x < leftMost ? pos.x : leftMost;
-                    rightMost = pos.x + token.width > rightMost ?
-                                pos.x + token.width : rightMost;
-                }
-            }
+        var leftMost = bc;
+        var rightMost = ec;
+        for (var i = br; i <= er; i++) {
+            var row = list.model.get(i).modelText;
+            leftMost = Math.min(leftMost, row.search(/\S/));
+            rightMost = Math.max(rightMost, row.length);
         }
 
-        up.x = beginPos.x;
-        up.width = Math.max(0, rightMost - up.x);
-        up.y = beginPos.y;
-        down.x = leftMost;
-        down.width = Math.max(0, endPos.x - down.x);
-        down.y = endPos.y;
+        up.leftOff = bc;
+        up.rightOff = rightMost;
+        up.y = mapFromItem(list.rowAt(br), 0, 0).y;
+
+        down.leftOff = leftMost;
+        down.rightOff = ec;
+        down.y = mapFromItem(list.rowAt(er), 0, 0).y;
     }
 
     function newLine(r, c) {
         list.newLine(r, c);
     }
 
-    function insert(token, r, c) {
-        list.insert(token, r, c);
+    function joinLine(r) {
+        list.joinLine(r);
     }
 
-    function update(r, c, token) {
-        list.update(r, c, token);
+    function insert(str, r, c) {
+        list.insert(str, r, c);
+    }
+
+    function update(r, bc, ec, str) {
+        list.update(r, bc, ec, str);
     }
 
     function erase(br, bc, er, ec) {

@@ -6,7 +6,7 @@
 class BoneToken : public Token
 {
 public:
-    BoneToken(const Ast *ast, const std::string &text);
+    BoneToken(const Ast *ast, const std::string &text, bool newline = false);
 
     const std::string &getText() const override;
 

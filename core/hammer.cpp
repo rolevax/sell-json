@@ -19,15 +19,13 @@ void Hammer::hit(const Ast &ast, size_t r, size_t c)
 
 void Hammer::write(Token *token, size_t &r, size_t &c)
 {
-    tokens.write(token, r, c);
-    ++c;
-}
-
-void Hammer::newLine(size_t &r, size_t &c)
-{
-    tokens.newLine(r, c);
-    ++r;
-    c = 0;
+    bool newLine = tokens.write(token, r, c);
+    if (newLine) {
+        ++r;
+        c = 0;
+    } else {
+        ++c;
+    }
 }
 
 void Hammer::hitGeneral(const Ast &ast, size_t &r, size_t &c)
@@ -59,8 +57,7 @@ void Hammer::hitScalar(const ScalarAst &scalar, size_t &r, size_t &c)
     indent(&scalar, r, c);
     write(new SoulToken(&scalar, Token::Role::BEGIN), r, c);
     write(new FleshToken(&scalar), r, c);
-    newLine(r, c);
-    write(new SoulToken(&scalar, Token::Role::END), r, c);
+    write(new SoulToken(&scalar, Token::Role::END, true), r, c);
 }
 
 void Hammer::hitObject(const ListAst &object, size_t &r, size_t &c)
@@ -70,8 +67,7 @@ void Hammer::hitObject(const ListAst &object, size_t &r, size_t &c)
 
     size_t size = object.size();
     if (size > 0) {
-        write(new BoneToken(&object, "{"), r, c);
-        newLine(r, c);
+        write(new BoneToken(&object, "{", true), r, c);
 
         for (size_t i = 0; i < object.size(); i++) {
             const Ast &pair_ = object.at(i);
@@ -85,9 +81,8 @@ void Hammer::hitObject(const ListAst &object, size_t &r, size_t &c)
     } else {
         write(new BoneToken(&object, "{}"), r, c);
     }
-    newLine(r, c);
 
-    write(new SoulToken(&object, Token::Role::END), r, c);
+    write(new SoulToken(&object, Token::Role::END, true), r, c);
 }
 
 void Hammer::hitArray(const ListAst &array, size_t &r, size_t &c)
@@ -97,8 +92,7 @@ void Hammer::hitArray(const ListAst &array, size_t &r, size_t &c)
 
     size_t size = array.size();
     if (size > 0) {
-        write(new BoneToken(&array, "["), r, c);
-        newLine(r, c);
+        write(new BoneToken(&array, "[", true), r, c);
 
         for (size_t i = 0; i < size; i++) {
             hitGeneral(array.at(i), r, c);
@@ -109,9 +103,8 @@ void Hammer::hitArray(const ListAst &array, size_t &r, size_t &c)
     } else {
         write(new BoneToken(&array, "[]"), r, c);
     }
-    newLine(r, c);
 
-    write(new SoulToken(&array, Token::Role::END), r, c);
+    write(new SoulToken(&array, Token::Role::END, true), r, c);
 }
 
 void Hammer::hitPair(const MapAst &pair, size_t &r, size_t &c)
@@ -148,7 +141,7 @@ void Hammer::indent(const Ast *master, size_t &r, size_t &c)
     }
 
     if (level > 0) {
-        Token *t = new BoneToken(master, std::string(level, '\t'));
+        Token *t = new BoneToken(master, std::string(level * 4, ' '));
         write(t, r, c);
     }
 }

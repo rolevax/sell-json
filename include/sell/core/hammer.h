@@ -19,7 +19,6 @@ public:
 
 private:
     void write(Token *token, size_t &r, size_t &c);
-    void newLine(size_t &r, size_t &c);
 
     void hitGeneral(const Ast &ast, size_t &r, size_t &c);
     void hitScalar(const ScalarAst &scalar, size_t &r, size_t &c);

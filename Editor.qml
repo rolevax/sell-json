@@ -32,7 +32,7 @@ Rectangle {
         id: pRawRows
 
         onWritten: {
-            rawRows.insert(token, r, c);
+            rawRows.insert(str, r, c);
         }
 
         onErased: {
@@ -40,11 +40,15 @@ Rectangle {
         }
 
         onFleshUpdated: {
-            rawRows.update(r, c, token);
+            rawRows.update(r, bc, ec, str);
         }
 
         onNewLine: {
             rawRows.newLine(r, c);
+        }
+
+        onJoinLine: {
+            rawRows.joinLine(r);
         }
 
         onHotLightSet: {

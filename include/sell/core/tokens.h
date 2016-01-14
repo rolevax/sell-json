@@ -7,8 +7,10 @@
 #include <vector>
 
 /* TokenGroup     := [Bone tab] LightableGroup
- * LightableGroup := Begin Flesh [newline] End
- *                 | Begin TokenGroup {TokenGroup} [newline] End
+ * LightableGroup := Begin Flesh End [newline]
+ *                 | Begin TokenGroup {TokenGroup} End [newline]
+ */
+/* TODO: re-arrange functions in cpp file
  */
 class Tokens
 {
@@ -28,16 +30,21 @@ public:
 
     void registerObserver(TokensObserver *ob);
 
-    friend class Hammer;
+    /** @name Hammer's Interface
+     */
+    ///@{
+    bool write(Token *token, size_t r, size_t c);
+    void erase(const Region &r);
+    void updateFlesh(const Region &r);
+    ///@}
 
 private:
     Region locate(const Ast *tar);
     void suck(Region &region);
-    void write(Token *token, size_t r, size_t c);
-    void erase(const Region &r);
-    void updateFlesh(const Region &r);
     void newLine(size_t r, size_t c);
-    void mergeLine(size_t r);
+    void joinLine(size_t r);
+    size_t anchor(size_t r, size_t c);
+    Region anchor(const Region &r);
 
 private:
     Hammer hammer;

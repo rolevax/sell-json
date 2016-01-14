@@ -24,10 +24,12 @@ public:
     const Ast *getAst() const;
     Role getRole() const;
     virtual const std::string &getText() const = 0;
+    bool needNewLine() const;
 
 protected:
     const Ast *ast;
     Role role;
+    bool newLine = false;
 };
 
 #endif // TOKEN_H

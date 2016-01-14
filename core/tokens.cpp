@@ -18,13 +18,14 @@ void Tokens::setHotLight(bool b)
 
 void Tokens::light(const Ast *inner)
 {
-    Region in = locate(inner);
+    Region in = anchor(locate(inner));
     Ast *outer = &inner->getParent();
     if (outer->getType() == Ast::Type::ROOT) {
         for (auto ob : observers)
-            ob->observeLight(0, 0, 0, 0, in.br, in.bc, in.er, in.ec);
+            ob->observeLight(0, 0, 0, 0,
+                             in.br, in.bc, in.er, in.ec);
     } else {
-        Region out = locate(outer);
+        Region out = anchor(locate(outer));
         for (auto ob : observers)
             ob->observeLight(out.br, out.bc, out.er, out.ec,
                              in.br, in.bc, in.er, in.ec);
@@ -50,13 +51,21 @@ void Tokens::insert(const Ast *outer, size_t inner)
         remove(parent, outerIndex);
         insert(parent, outerIndex);
         /* recursion terminates when outer is root */
-    } else if (inner == 0) { // at very beginning
-        Region prevHead = locate(&outer->at(1));
+    } else if (inner < outer->size() - 1) { // not very end
+        Region prevHead = locate(&outer->at(inner + 1));
         suck(prevHead);
         hammer.hit(outer->at(inner), prevHead.br, prevHead.bc);
-    } else { // internal or very end
+    } else { // very end
         Region ass = locate(&outer->at(inner - 1));
-        hammer.hit(outer->at(inner), ass.er, ass.ec + 1);
+        size_t nextR, nextC;
+        if (rows[ass.er][ass.ec]->needNewLine()) {
+            nextR = ass.er + 1;
+            nextC = 0;
+        } else {
+            nextR = ass.er;
+            nextC = ass.ec + 1;
+        }
+        hammer.hit(outer->at(inner), nextR, nextC);
     }
 }
 
@@ -91,6 +100,23 @@ void Tokens::print()
         std::cout << std::endl;
     }
     std::cout << "End of rawRows print. Last \\n is external" << std::endl;
+}
+
+size_t Tokens::anchor(size_t r, size_t c)
+{
+    assert(r < rows.size() && c <= rows[r].size());
+    size_t offset = 0;
+    for (size_t i = 0; i < c; i++)
+        offset += rows[r][i]->getText().size();
+    return offset;
+}
+
+Region Tokens::anchor(const Region &r)
+{
+   Region c(r);
+   c.bc = anchor(c.br, c.bc);
+   c.ec = anchor(c.er, c.ec);
+   return c;
 }
 
 void Tokens::registerObserver(TokensObserver *ob)
@@ -150,7 +176,7 @@ void Tokens::suck(Region &r)
     if (role == Token::Role::BEGIN) {
         const Ast *ast = rows[r.br][r.bc]->getAst();
         if (r.bc > 0 && rows[r.br][r.bc - 1]->getAst() == ast)
-            --r.bc; // skip one tab
+            --r.bc; // skip one space indentation token
     }
 }
 
@@ -159,21 +185,47 @@ void Tokens::suck(Region &r)
  * @param token
  * @param r row index
  * @param c column index
- * Insert a token at specified position
+ * @return whether the write triggered a new line
+ * Insert a token at specified position.
+ * Automatically handles new line according to token->needNewLine().
+ * Also add a new line if the previous token need one.
  */
-void Tokens::write(Token *token, size_t r, size_t c)
+bool Tokens::write(Token *token, size_t r, size_t c)
 {
     assert(r < rows.size() && c <= rows[r].size());
+
+    bool ret = false;
+
+    // TODO: really needed? may kind of assert 'never write after newline'
+    if (c > 0 && rows[r][c - 1]->needNewLine()) {
+        newLine(r, c);
+        ++r;
+        c = 0;
+        ret = true;
+    }
+
     std::vector<std::unique_ptr<Token>> &row = rows[r];
     row.emplace(row.begin() + c, token);
     for (auto ob : observers)
-        ob->observeWrite(*token, r, c);
+        ob->observeWrite(*token, r, anchor(r, c));
+
+    // one write triggers at most one new line
+    if (!ret && token->needNewLine()) {
+        newLine(r, c + 1);
+        ret = true;
+    }
+
+    return ret;
 }
 
 /**
  * @brief Tokens::erase
  * @param r
  * Remove all tokens from the region 'r'
+ * If 'r' indicates multiple lines,
+ * all lines except the first and the last will be removed
+ * without calling joinLine() function.
+ * The observer should be aware of this.
  */
 void Tokens::erase(const Region &r)
 {
@@ -181,36 +233,44 @@ void Tokens::erase(const Region &r)
     assert(r.er < rows.size() && r.ec < rows[r.er].size());
     assert(r.br <= r.er);
 
-    if (r.br == r.er) {
+    Region cr = anchor(r);
+    int needJoin = 0;
+    needJoin += rows[r.br].back()->needNewLine(); // first line
+
+    if (r.br == r.er) { // one-line erase
         auto it = rows[r.br].begin();
         rows[r.br].erase(it + r.bc, it + r.ec + 1);
-    } else {
+    } else { // multi-line erase
+        /* bottom-up remove from the last row
+         * since it won't mess up the row indices
+         */
+
         // remove inside the last line
+        needJoin += rows[r.er][r.ec]->needNewLine();
         auto endIt = rows[r.er].begin();
         rows[r.er].erase(endIt, endIt + r.ec + 1);
-        if (rows[r.er].empty())
-            rows.erase(rows.begin() + r.er);
 
         if (r.br + 1 < r.er) // remove internal lines
             rows.erase(rows.begin() + r.br + 1, rows.begin() + r.er);
 
         // remove inside the first line
         rows[r.br].erase(rows[r.br].begin() + r.bc, rows[r.br].end());
-
-        if (r.br + 1 < rows.size())
-            mergeLine(r.br + 1);
     }
 
     for (auto ob : observers)
-        ob->observeErase(r);
+        ob->observeErase(cr);
+
+    while (needJoin --> 0)
+        joinLine(r.br);
 }
 
 void Tokens::updateFlesh(const Region &r)
 {
     Token &t = *rows[r.br][r.bc + 1];
     assert(t.getRole() == Token::Role::FLESH);
+    Region cr = anchor(r);
     for (auto ob : observers)
-        ob->observeUpdateFlesh(r.br, r.bc + 1, t);
+        ob->observeUpdateFlesh(cr.br, cr.bc, cr.ec, t);
 }
 
 /*
@@ -228,10 +288,10 @@ void Tokens::newLine(size_t r, size_t c)
     rows[r].erase(rows[r].begin() + c, rows[r].end());
 
     for (auto ob : observers)
-        ob->observeNewLine(r, c);
+        ob->observeNewLine(r, anchor(r, c));
 }
 
-void Tokens::mergeLine(size_t r)
+void Tokens::joinLine(size_t r)
 {
     assert(r > 0 && r < rows.size());
     auto &prevRow = rows[r - 1];
@@ -239,6 +299,9 @@ void Tokens::mergeLine(size_t r)
                    std::make_move_iterator(rows[r].begin()),
                    std::make_move_iterator(rows[r].end()));
     rows.erase(rows.begin() + r);
+
+    for (auto ob : observers)
+        ob->observeJoinLine(r);
 }
 
 

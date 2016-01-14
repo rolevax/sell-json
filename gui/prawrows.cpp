@@ -11,7 +11,7 @@ PRawRows::PRawRows(QObject *parent) :
 
 void PRawRows::observeWrite(const Token &token, size_t r, size_t c)
 {
-    emit written(createTokenVar(token), r, c);
+    emit written(QString::fromStdString(token.getText()), r, c);
 }
 
 void PRawRows::observeErase(const Region &r)
@@ -19,14 +19,19 @@ void PRawRows::observeErase(const Region &r)
     emit erased(r.br, r.bc, r.er, r.ec);
 }
 
-void PRawRows::observeUpdateFlesh(size_t r, size_t c, const Token &t)
+void PRawRows::observeUpdateFlesh(size_t r, size_t bc, size_t ec, const Token &t)
 {
-    emit fleshUpdated(r, c, createTokenVar(t));
+    emit fleshUpdated(r, bc, ec, QString::fromStdString(t.getText()));
 }
 
 void PRawRows::observeNewLine(size_t r, size_t c)
 {
     emit newLine(r, c);
+}
+
+void PRawRows::observeJoinLine(size_t r)
+{
+    emit joinLine(r);
 }
 
 void PRawRows::observeLight(size_t lbr, size_t lbc,

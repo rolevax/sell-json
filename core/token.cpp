@@ -17,4 +17,9 @@ Token::Role Token::getRole() const
     return role;
 }
 
+bool Token::needNewLine() const
+{
+    return newLine;
+}
+
 

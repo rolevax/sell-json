@@ -4,5 +4,6 @@
         <file>Editor.qml</file>
         <file>RawRowsList.qml</file>
         <file>RawRows.qml</file>
+        <file>LightBar.qml</file>
     </qresource>
 </RCC>
