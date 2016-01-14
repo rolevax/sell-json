@@ -11,11 +11,11 @@ Rectangle {
         id: pDoc
 
         onMenu: {
+            /* TODO: consider deprecate 'text' */
             if (text === "") {
-                menu.visible = false;
+                street.setTension(false);
             } else {
-                menuText.text = text;
-                menu.visible = true;
+                street.setTension(true);
             }
         }
 
@@ -32,37 +32,37 @@ Rectangle {
         id: pRawRows
 
         onWritten: {
-            rawRows.insert(str, r, c);
+            street.insert(str, r, c);
         }
 
         onErased: {
-            rawRows.erase(br, bc, er, ec);
+            street.erase(br, bc, er, ec);
         }
 
         onFleshUpdated: {
-            rawRows.update(r, bc, ec, str);
+            street.update(r, bc, ec, str);
         }
 
         onNewLine: {
-            rawRows.newLine(r, c);
+            street.newLine(r, c);
         }
 
         onJoinLine: {
-            rawRows.joinLine(r);
+            street.joinLine(r);
         }
 
         onHotLightSet: {
-            rawRows.setHotLight(b);
+            street.setHotLight(b);
         }
 
         onLighted: {
-            rawRows.light(false, lbr, lbc, ler, lec);
-            rawRows.light(true, hbr, hbc, her, hec);
+            street.light(false, lbr, lbc, ler, lec);
+            street.light(true, hbr, hbc, her, hec);
         }
     }
 
-    RawRows {
-        id: rawRows
+    Street {
+        id: street
         anchors.fill: parent
     }
 
@@ -97,8 +97,8 @@ Rectangle {
         id: menu
         width: menuText.width + 20;
         height: menuText.height + 20;
-        x: rawRows.highLightUp.x
-        y: rawRows.highLightUp.y
+        x: street.highLightUp.x
+        y: street.highLightUp.y
         color: "#88DDDDCC"
         visible: false
         Text {

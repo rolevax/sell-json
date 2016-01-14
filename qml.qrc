@@ -2,8 +2,8 @@
     <qresource prefix="/">
         <file>main.qml</file>
         <file>Editor.qml</file>
-        <file>RawRowsList.qml</file>
-        <file>RawRows.qml</file>
         <file>LightBar.qml</file>
+        <file>Street.qml</file>
+        <file>Asphalt.qml</file>
     </qresource>
 </RCC>

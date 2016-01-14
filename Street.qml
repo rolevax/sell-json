@@ -24,8 +24,9 @@ Item {
     }
 
     LightBar {
+        property bool tension: false
         id: highUp
-        lightColor: "#443399"
+        lightColor: tension ? "#22AA22" : "#443399"
     }
 
     LightBar {
@@ -52,13 +53,17 @@ Item {
         visible: false
     }
 
-    RawRowsList {
-        id: list
+    Asphalt {
+        id: asph
         anchors.fill: parent
     }
 
     function setHotLight(b) {
         hotLight.visible = b;
+    }
+
+    function setTension(b) {
+        highUp.tension = b;
     }
 
     function light(high, br, bc, er, ec) {
@@ -69,38 +74,38 @@ Item {
         var leftMost = bc;
         var rightMost = ec;
         for (var i = br; i <= er; i++) {
-            var row = list.model.get(i).modelText;
+            var row = asph.model.get(i).modelText;
             leftMost = Math.min(leftMost, row.search(/\S/));
             rightMost = Math.max(rightMost, row.length);
         }
 
         up.leftOff = bc;
         up.rightOff = rightMost;
-        up.y = mapFromItem(list.rowAt(br), 0, 0).y;
+        up.y = mapFromItem(asph.rowAt(br), 0, 0).y;
 
         down.leftOff = leftMost;
         down.rightOff = ec;
-        down.y = mapFromItem(list.rowAt(er), 0, 0).y;
+        down.y = mapFromItem(asph.rowAt(er), 0, 0).y;
     }
 
     function newLine(r, c) {
-        list.newLine(r, c);
+        asph.newLine(r, c);
     }
 
     function joinLine(r) {
-        list.joinLine(r);
+        asph.joinLine(r);
     }
 
     function insert(str, r, c) {
-        list.insert(str, r, c);
+        asph.insert(str, r, c);
     }
 
     function update(r, bc, ec, str) {
-        list.update(r, bc, ec, str);
+        asph.update(r, bc, ec, str);
     }
 
     function erase(br, bc, er, ec) {
-        list.erase(br, bc, er, ec);
+        asph.erase(br, bc, er, ec);
     }
 }
 
