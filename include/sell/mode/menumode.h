@@ -24,7 +24,6 @@ public:
     const char *name() override;
 
 private:
-    void prepareCursor();
     void work(Ast::Type type);
 
 private:

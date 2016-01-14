@@ -1,5 +1,26 @@
 #include "sell/ast/ast.h"
 
+bool Ast::isList(Ast::Type type)
+{
+    return type == Type::ARRAY || type == Type::OBJECT;
+}
+
+bool Ast::isList(const Ast &a)
+{
+    return isList(a.type);
+}
+
+bool Ast::isScalar(Ast::Type type)
+{
+    return type == Type::KEY || type == Type::STRING
+            || type == Type::NUMBER || type == Type::KEYTAL;
+}
+
+bool Ast::isScalar(const Ast &a)
+{
+    return isScalar(a.type);
+}
+
 Ast::Ast(Type t) :
     type(t)
 {

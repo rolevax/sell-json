@@ -18,43 +18,43 @@ void AstConverter::convert(const rapidjson::Document &d)
 
 bool AstConverter::Null()
 {
-    convertScalar("null");
+    convertScalar(Ast::Type::KEYTAL, "null");
     return true;
 }
 
 bool AstConverter::Bool(bool b)
 {
-    convertScalar(b ? "true" : "false");
+    convertScalar(Ast::Type::KEYTAL, b ? "true" : "false");
     return true;
 }
 
 bool AstConverter::Int(int i)
 {
-    convertScalar(std::to_string(i));
+    convertScalar(Ast::Type::NUMBER, std::to_string(i));
     return true;
 }
 
 bool AstConverter::Uint(unsigned i)
 {
-    convertScalar(std::to_string(i));
+    convertScalar(Ast::Type::NUMBER, std::to_string(i));
     return true;
 }
 
 bool AstConverter::Int64(int64_t i)
 {
-    convertScalar(std::to_string(i));
+    convertScalar(Ast::Type::NUMBER, std::to_string(i));
     return true;
 }
 
 bool AstConverter::Uint64(uint64_t i)
 {
-    convertScalar(std::to_string(i));
+    convertScalar(Ast::Type::NUMBER, std::to_string(i));
     return true;
 }
 
 bool AstConverter::Double(double d)
 {
-    convertScalar(std::to_string(d));
+    convertScalar(Ast::Type::NUMBER, std::to_string(d));
     return true;
 }
 
@@ -63,7 +63,7 @@ bool AstConverter::String(const AstConverter::Ch *str,
 {
     (void) copy;
     (void) length;
-    convertScalar(str);
+    convertScalar(Ast::Type::STRING, str);
     return true;
 }
 
@@ -125,9 +125,9 @@ bool AstConverter::EndArray(rapidjson::SizeType elementCount)
     return true;
 }
 
-void AstConverter::convertScalar(const std::string &text)
+void AstConverter::convertScalar(Ast::Type type, const std::string &text)
 {
-    Ast *scalar = new ScalarAst(Ast::Type::SCALAR, text);
+    Ast *scalar = new ScalarAst(type, text);
     outer->insert(inner, scalar);
     if (outer->getType() == Ast::Type::ARRAY) {
         ++inner;

@@ -23,16 +23,10 @@ void MenuMode::keyboard(char key)
         leave();
         break;
     case 's':
-        // TODO: make STRING type, do this with work()
-        prepareCursor();
-        insert(Ast::Type::SCALAR);
-        leave(new StringInputMode(doc));
+        work(Ast::Type::STRING);
         break;
     case 'n':
-        // TODO: make NUMBER type, do this with work()
-        prepareCursor();
-        insert(Ast::Type::SCALAR);
-        leave(new NumberInputMode(doc));
+        work(Ast::Type::NUMBER);
         break;
     case 'a':
         work(Ast::Type::ARRAY);
@@ -76,21 +70,6 @@ const char *MenuMode::name()
 }
 
 /**
- * @brief MenuMode::prepareCursor
- * Call this only if next statement is "insert(type);"
- * TODO: consider move all these fucks into work()
- */
-void MenuMode::prepareCursor()
-{
-    if (context == Context::APPEND) {
-        ++inner;
-    } else if (context == Context::ASSART) {
-        outer = &outer->at(inner);
-        inner = 0;
-    }
-}
-
-/**
  * @brief MenuMode::work
  * @param type The type of the new node
  * Insert into or change inside 'outer', with
@@ -98,21 +77,35 @@ void MenuMode::prepareCursor()
  */
 void MenuMode::work(Ast::Type type)
 {
-    // TODO: not just insert(), consider 'CHANGE' context
+    if (context == Context::CHANGE) {
+        // TODO
+    } else {
+        // prepare cursor
+        if (context == Context::APPEND) {
+            ++inner;
+        } else if (context == Context::ASSART) {
+            outer = &outer->at(inner);
+            inner = 0;
+        }
+
+        insert(type);
+    }
+
     switch (type) {
-    case Ast::Type::SCALAR:
-        // TODO: there should be not SCALAR (too super)
+    case Ast::Type::STRING:
+        leave(new StringInputMode(doc));
+        break;
+    case Ast::Type::NUMBER:
+        leave(new NumberInputMode(doc));
         break;
     case Ast::Type::ARRAY:
     case Ast::Type::OBJECT:
     case Ast::Type::PAIR:
-        prepareCursor();
-        insert(type);
         tokens.light(&outer->at(inner));
         leave();
         break;
     default:
-        qDebug() << "Menumode: work(): unhandled type";
+        throw "MenuMode: work(): unhandled ast type";
         break;
     }
 }

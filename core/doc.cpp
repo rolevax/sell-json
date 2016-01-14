@@ -112,7 +112,7 @@ void Doc::fuckIn()
     Ast::Type type = focus.getType();
 
     if (focus.size() == 0) {
-        if (type == Ast::Type::OBJECT || type == Ast::Type::ARRAY) {
+        if (Ast::isList(type)) {
             push(new MenuMode(*this, MenuMode::Context::ASSART));
         }
         return;
@@ -128,7 +128,9 @@ void Doc::fuckIn()
         tokens.light(&outer->at(inner));
         break;
     case Ast::Type::KEY:
-    case Ast::Type::SCALAR:
+    case Ast::Type::STRING:
+    case Ast::Type::NUMBER:
+    case Ast::Type::KEYTAL:
         assert("size of key or scalar should be 0" && false);
         break;
     }
@@ -171,10 +173,13 @@ void Doc::insert(Ast::Type type)
     case Ast::Type::PAIR:
         a = new MapAst(Ast::Type::PAIR);
         a->insert(0, new ScalarAst(Ast::Type::KEY, "key"));
-        a->insert(1, new ScalarAst(Ast::Type::SCALAR, "value"));
+        a->insert(1, new ScalarAst(Ast::Type::STRING, "value"));
         break;
-    case Ast::Type::SCALAR:
-        a = new ScalarAst(Ast::Type::SCALAR, "");
+    case Ast::Type::STRING:
+        a = new ScalarAst(Ast::Type::STRING, "");
+        break;
+    case Ast::Type::NUMBER:
+        a = new ScalarAst(Ast::Type::NUMBER, "");
         break;
     case Ast::Type::ARRAY:
         a = new ListAst(Ast::Type::ARRAY);
@@ -182,7 +187,9 @@ void Doc::insert(Ast::Type type)
     case Ast::Type::OBJECT:
         a = new ListAst(Ast::Type::OBJECT);
         break;
-    default:
+    case Ast::Type::ROOT:
+    case Ast::Type::KEY:
+    case Ast::Type::KEYTAL:
         qDebug() << "insert type: untreated outer type";
         break;
     }
@@ -197,8 +204,7 @@ void Doc::remove()
 {
     assert(inner < outer->size());
 
-    if (outer->getType() != Ast::Type::ARRAY
-            && outer->getType() != Ast::Type::OBJECT) {
+    if (Ast::isList(*outer)) {
         qDebug() << "unremovable outer";
         return; // TODO: allow removing child of root
     }

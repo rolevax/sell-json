@@ -17,7 +17,7 @@ void StringInputMode::keyboard(char key)
         leave();
         break;
     default:
-        assert(outer->at(inner).getType() == Ast::Type::SCALAR);
+        assert(Ast::isScalar(outer->at(inner)));
         ScalarAst &scalar = static_cast<ScalarAst&>(outer->at(inner));
         scalar.append(key);
         tokens.updateScalar(outer, inner);

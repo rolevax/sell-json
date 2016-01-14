@@ -86,7 +86,7 @@ void Tokens::remove(const Ast *outer, size_t inner)
 
 void Tokens::updateScalar(const Ast *outer, size_t inner)
 {
-    assert(outer->at(inner).getType() == Ast::Type::SCALAR);
+    assert(Ast::isScalar(outer->at(inner)));
     Region r = locate(&outer->at(inner));
     updateFlesh(r);
 }

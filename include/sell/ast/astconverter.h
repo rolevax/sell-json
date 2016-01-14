@@ -31,7 +31,7 @@ public:
     bool EndArray(rapidjson::SizeType elementCount);
 
 private:
-    void convertScalar(const std::string &text);
+    void convertScalar(Ast::Type type, const std::string &text);
 
 private:
     RootAst &root;

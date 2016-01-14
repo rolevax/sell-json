@@ -40,7 +40,10 @@ void Hammer::hitGeneral(const Ast &ast, size_t &r, size_t &c)
     case Ast::Type::OBJECT:
         hitObject(static_cast<const ListAst&>(ast), r, c);
         break;
-    case Ast::Type::SCALAR:
+    case Ast::Type::STRING:
+    case Ast::Type::NUMBER:
+    case Ast::Type::KEY:
+    case Ast::Type::KEYTAL:
         hitScalar(static_cast<const ScalarAst&>(ast), r, c);
         break;
     case Ast::Type::PAIR:

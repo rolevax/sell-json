@@ -10,8 +10,13 @@ class Ast
 {
 public:
     enum class Type {
-        ROOT, ARRAY, OBJECT, PAIR, KEY, SCALAR
+        ROOT, ARRAY, OBJECT, PAIR, KEY, STRING, NUMBER, KEYTAL
     };
+
+    static bool isList(Type type);
+    static bool isList(const Ast &a);
+    static bool isScalar(Type type);
+    static bool isScalar(const Ast &a);
 
     Ast(Type t);
 

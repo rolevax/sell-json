@@ -12,7 +12,7 @@ NumberInputMode::NumberInputMode(Doc &doc) :
 
 void NumberInputMode::keyboard(char key)
 {
-    assert(outer->at(inner).getType() == Ast::Type::SCALAR);
+    assert(Ast::isScalar(outer->at(inner)));
 
     if (' ' == key) {
         leave();

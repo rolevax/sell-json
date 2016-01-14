@@ -7,7 +7,7 @@ MapAst::MapAst(Type t) :
 {
     // Supporting only JSON for now.
     assert(t == Type::PAIR);
-    keys = { Type::KEY, Type::SCALAR };
+    keys = { Type::KEY, Type::STRING }; // TODO: something like OR-type
 }
 
 size_t MapAst::size() const
