@@ -18,7 +18,6 @@ SOURCES += main.cpp \
     ast/astconverter.cpp \
     ast/scalarast.cpp \
     ast/rootast.cpp \
-    ast/pigast.cpp \
     core/bonetoken.cpp \
     core/fleshtoken.cpp \
     core/soultoken.cpp \
@@ -51,7 +50,6 @@ HEADERS += \
     include/sell/gui/prawrows.h \
     include/sell/ast/scalarast.h \
     include/sell/ast/rootast.h \
-    include/sell/ast/pigast.h \
     include/sell/core/bonetoken.h \
     include/sell/core/fleshtoken.h \
     include/sell/core/soultoken.h \

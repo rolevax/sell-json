@@ -5,6 +5,7 @@
 #include "sell/ast/listast.h"
 #include "sell/ast/mapast.h"
 
+class Token;
 class Tokens;
 
 class Hammer

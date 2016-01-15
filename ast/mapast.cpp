@@ -3,27 +3,40 @@
 #include <cassert>
 
 MapAst::MapAst(Type t) :
-    PigAst(t)
+    Ast(t)
 {
     // Supporting only JSON for now.
     assert(t == Type::PAIR);
-    keys = { Type::KEY, Type::STRING }; // TODO: something like OR-type
 }
 
 size_t MapAst::size() const
 {
     // TODO: might not strictly equal to container size
-    return subtrees.size();
+    return 2;
 }
 
 Ast &MapAst::at(size_t pos) const
 {
-    return *subtrees[pos];
+    if (pos > 1)
+        throw 880;
+    return pos == 0 ? *key : *value;
+}
+
+size_t MapAst::indexOf(const Ast *child) const
+{
+    return key.get() == child ? 0
+                              : value.get() == child ? 1 : -1;
 }
 
 void MapAst::doInsert(size_t pos, Ast *child)
 {
-    // TODO: subtype: assert(t is of type key[pos]);
-    subtrees.emplace(subtrees.begin() + pos, std::move(child));
+    if (pos == 0) {
+        assert(child->getType() == Ast::Type::KEY);
+        key.reset(static_cast<ScalarAst*>(child));
+    } else if (pos == 1) {
+        value.reset(child);
+    } else {
+        throw 789;
+    }
 }
 
