@@ -24,7 +24,7 @@ public:
     const char *name() override;
 
 private:
-    void work(Ast::Type type);
+    void work(Ast::Type type, const char *keytal = nullptr);
 
 private:
     Context context;

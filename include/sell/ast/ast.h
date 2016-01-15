@@ -9,6 +9,10 @@ class RootAst;
 class Ast
 {
 public:
+    /**
+     * @brief type of a node in the language tree
+     * KEYTAL means "keyword literal".
+     */
     enum class Type {
         ROOT, ARRAY, OBJECT, PAIR, KEY, STRING, NUMBER, KEYTAL
     };

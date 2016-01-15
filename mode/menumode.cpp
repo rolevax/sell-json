@@ -3,6 +3,7 @@
 #include "sell/mode/numberinputmode.h"
 #include "sell/core/tokens.h"
 
+#include <cassert>
 #include <QDebug>
 
 MenuMode::MenuMode(Doc &doc, Context context) :
@@ -27,6 +28,15 @@ void MenuMode::keyboard(char key)
         break;
     case 'n':
         work(Ast::Type::NUMBER);
+        break;
+    case 'x':
+        work(Ast::Type::KEYTAL, "null");
+        break;
+    case 't':
+        work(Ast::Type::KEYTAL, "true");
+        break;
+    case 'f':
+        work(Ast::Type::KEYTAL, "false");
         break;
     case 'a':
         work(Ast::Type::ARRAY);
@@ -75,7 +85,7 @@ const char *MenuMode::name()
  * Insert into or change inside 'outer', with
  * position specified by 'inner'.
  */
-void MenuMode::work(Ast::Type type)
+void MenuMode::work(Ast::Type type, const char *keytal)
 {
     if (context == Context::CHANGE) {
         // TODO
@@ -98,6 +108,12 @@ void MenuMode::work(Ast::Type type)
     case Ast::Type::NUMBER:
         leave(new NumberInputMode(doc));
         break;
+    case Ast::Type::KEYTAL:
+        assert(nullptr != keytal);
+        while ('\0' != *keytal)
+            static_cast<ScalarAst&>(outer->at(inner)).append(*keytal++);
+        tokens.updateScalar(outer, inner);
+        /* fall through */
     case Ast::Type::ARRAY:
     case Ast::Type::OBJECT:
     case Ast::Type::PAIR:

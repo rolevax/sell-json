@@ -162,6 +162,7 @@ void Doc::jackKick(int step)
  * Create a new subnode inside 'outer' at 'inner',
  * with specified type 'type'.
  * The value of the new node is "as empty as possible".
+ * ... number and keytal, is "", makes it inconsistent, might be a bad design
  */
 void Doc::insert(Ast::Type type)
 {
@@ -181,6 +182,9 @@ void Doc::insert(Ast::Type type)
     case Ast::Type::NUMBER:
         a = new ScalarAst(Ast::Type::NUMBER, "");
         break;
+    case Ast::Type::KEYTAL:
+        a = new ScalarAst(Ast::Type::KEYTAL, "");
+        break;
     case Ast::Type::ARRAY:
         a = new ListAst(Ast::Type::ARRAY);
         break;
@@ -189,7 +193,6 @@ void Doc::insert(Ast::Type type)
         break;
     case Ast::Type::ROOT:
     case Ast::Type::KEY:
-    case Ast::Type::KEYTAL:
         qDebug() << "insert type: untreated outer type";
         break;
     }
@@ -204,7 +207,7 @@ void Doc::remove()
 {
     assert(inner < outer->size());
 
-    if (Ast::isList(*outer)) {
+    if (!Ast::isList(*outer)) {
         qDebug() << "unremovable outer";
         return; // TODO: allow removing child of root
     }
