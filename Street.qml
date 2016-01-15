@@ -75,8 +75,10 @@ Item {
         var rightMost = ec;
         for (var i = br; i <= er; i++) {
             var row = asph.model.get(i).modelText;
-            leftMost = Math.min(leftMost, row.search(/\S/));
-            rightMost = Math.max(rightMost, row.length);
+            if (i !== br)
+                leftMost = Math.min(leftMost, row.search(/\S/));
+            if (i !== er)
+                rightMost = Math.max(rightMost, row.length);
         }
 
         up.leftOff = bc;

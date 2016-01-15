@@ -10,6 +10,16 @@ bool Ast::isList(const Ast &a)
     return isList(a.type);
 }
 
+bool Ast::isMap(Ast::Type type)
+{
+    return type == Type::PAIR;
+}
+
+bool Ast::isMap(const Ast &a)
+{
+    return isMap(a.type);
+}
+
 bool Ast::isScalar(Ast::Type type)
 {
     return type == Type::KEY || type == Type::STRING

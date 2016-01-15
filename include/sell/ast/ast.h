@@ -19,6 +19,8 @@ public:
 
     static bool isList(Type type);
     static bool isList(const Ast &a);
+    static bool isMap(Type type);
+    static bool isMap(const Ast &a);
     static bool isScalar(Type type);
     static bool isScalar(const Ast &a);
 
