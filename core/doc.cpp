@@ -212,10 +212,10 @@ void Doc::change(Ast::Type type)
     tokens.light(&outer->at(inner));
 }
 
-void Doc::showMenu(const char *text)
+void Doc::toggleTension(bool b)
 {
     if (ob != nullptr)
-        ob->observeMenu(text);
+        ob->observeTension(b);
 }
 
 Ast *Doc::newTree(Ast::Type type)

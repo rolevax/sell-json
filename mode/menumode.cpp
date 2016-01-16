@@ -15,10 +15,6 @@ MenuMode::MenuMode(Doc &doc, Context context) :
 
 void MenuMode::keyboard(char key)
 {
-    /*
-     * TODO: regard 'input mode' as 'modify mode',
-     * insert inside this function only if mode is insert/append/assart
-     */
     switch (key) {
     case ' ':
         leave();
@@ -61,17 +57,12 @@ void MenuMode::onPushed()
         return;
     }
 
-    const char *text = "s: string\n"
-                       "n: number\n"
-                       "a: array\n"
-                       "o: object\n"
-                       "space: back";
-    showMenu(text);
+    toggleTension(true);
 }
 
 void MenuMode::onPopped()
 {
-    showMenu("");
+    toggleTension(false);
 }
 
 const char *MenuMode::name()

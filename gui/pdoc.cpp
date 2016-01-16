@@ -34,9 +34,9 @@ void PDoc::attachPRawRows(PRawRows *p)
     doc->registerTokensObserver(p);
 }
 
-void PDoc::observeMenu(const char *text)
+void PDoc::observeTension(bool b)
 {
-    emit menu(text);
+    emit tension(b);
 }
 
 void PDoc::observePush(const char *name)

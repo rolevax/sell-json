@@ -16,12 +16,12 @@ public:
     Q_INVOKABLE int output();
     Q_INVOKABLE void attachPRawRows(PRawRows *p);
 
-    void observeMenu(const char *text);
+    void observeTension(bool b);
     void observePush(const char *name);
     void observePop();
 
 signals:
-    void menu(QString text);
+    void tension(bool b);
     void pushed(QString name);
     void popped();
 

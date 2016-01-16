@@ -39,7 +39,7 @@ private:
     void insert(Ast::Type type);
     void remove();
     void change(Ast::Type type);
-    void showMenu(const char *text);
+    void toggleTension(bool b);
 
     Ast *newTree(Ast::Type type);
 

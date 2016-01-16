@@ -10,13 +10,8 @@ Rectangle {
     PDoc {
         id: pDoc
 
-        onMenu: {
-            /* TODO: consider deprecate 'text' */
-            if (text === "") {
-                street.setTension(false);
-            } else {
-                street.setTension(true);
-            }
+        onTension: {
+            street.setTension(b);
         }
 
         onPushed: {

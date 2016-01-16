@@ -54,8 +54,8 @@ void Mode::change(Ast::Type type)
     doc.change(type);
 }
 
-void Mode::showMenu(const char *text)
+void Mode::toggleTension(bool b)
 {
-    doc.showMenu(text);
+    doc.toggleTension(b);
 }
 
