@@ -31,6 +31,16 @@ bool Ast::isScalar(const Ast &a)
     return isScalar(a.type);
 }
 
+bool Ast::isChangeable(Ast::Type type)
+{
+    return type != Type::KEY && type != Type::PAIR && type != Type::ROOT;
+}
+
+bool Ast::isChangeable(const Ast &a)
+{
+    return isChangeable(a.type);
+}
+
 Ast::Ast(Type t) :
     type(t)
 {
@@ -65,6 +75,12 @@ std::unique_ptr<Ast> Ast::remove(size_t pos)
     throw 2048;
 }
 
+std::unique_ptr<Ast> Ast::change(size_t pos, Ast *next)
+{
+    next->setParent(this);
+    return doChange(pos, next);
+}
+
 size_t Ast::size() const
 {
     return 0;
@@ -86,6 +102,13 @@ void Ast::doInsert(size_t pos, Ast *child)
 {
     (void) pos;
     (void) child;
+    throw 2048;
+}
+
+std::unique_ptr<Ast> Ast::doChange(size_t pos, Ast *next)
+{
+    (void) pos;
+    (void) next;
     throw 2048;
 }
 

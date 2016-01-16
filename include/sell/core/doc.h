@@ -38,7 +38,10 @@ private:
     void jackKick(int step);
     void insert(Ast::Type type);
     void remove();
+    void change(Ast::Type type);
     void showMenu(const char *text);
+
+    Ast *newTree(Ast::Type type);
 
 private:
     std::stack<std::unique_ptr<Mode>> modes;

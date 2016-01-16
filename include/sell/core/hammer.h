@@ -30,6 +30,7 @@ private:
 
 private:
     Tokens &tokens;
+    bool absorbOneIndent = false;
 };
 
 #endif // HAMMER_H

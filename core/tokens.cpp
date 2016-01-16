@@ -1,4 +1,5 @@
 #include "sell/core/tokens.h"
+#include "sell/core/soultoken.h"
 #include <cassert>
 
 #include <QDebug>
@@ -45,27 +46,43 @@ void Tokens::insert(const Ast *outer, size_t inner)
 
     if (outer->getType() == Ast::Type::ROOT) { // outer is root
         hammer.hit(*outer, 0, 0);
-    } else if (outer->size() == 1) { // assart
-        Ast *parent = &outer->getParent();
-        size_t outerIndex = parent->indexOf(outer);
-        remove(parent, outerIndex);
-        insert(parent, outerIndex);
-        /* recursion terminates when outer is root */
-    } else if (inner < outer->size() - 1) { // not very end
-        Region prevHead = locate(&outer->at(inner + 1));
-        suck(prevHead);
-        hammer.hit(outer->at(inner), prevHead.br, prevHead.bc);
-    } else { // very end
-        Region ass = locate(&outer->at(inner - 1));
-        size_t nextR, nextC;
-        if (rows[ass.er][ass.ec]->needNewLine()) {
-            nextR = ass.er + 1;
-            nextC = 0;
-        } else {
-            nextR = ass.er;
-            nextC = ass.ec + 1;
+    } else if (Ast::isList(*outer)) {
+        if (outer->size() == 1) { // assart
+            Ast *parent = &outer->getParent();
+            size_t outerIndex = parent->indexOf(outer);
+            remove(parent, outerIndex);
+            insert(parent, outerIndex);
+            /* recursion terminates when outer is root */
+        } else if (inner < outer->size() - 1) { // not very end
+            Region younger = locate(&outer->at(inner + 1));
+            suck(younger);
+            hammer.hit(outer->at(inner), younger.br, younger.bc);
+        } else { // very end
+            Region ass = locate(&outer->at(inner - 1));
+            size_t nextR, nextC;
+            if (rows[ass.er][ass.ec]->needNewLine()) {
+                nextR = ass.er + 1;
+                nextC = 0;
+            } else {
+                nextR = ass.er;
+                nextC = ass.ec + 1;
+            }
+            hammer.hit(outer->at(inner), nextR, nextC);
         }
-        hammer.hit(outer->at(inner), nextR, nextC);
+    } else if (Ast::isMap(*outer)) {
+        Region out = locate(outer);
+        // works only for JSON
+        std::vector<std::unique_ptr<Token>> &row = rows[out.br];
+        auto it = std::find_if(row.begin() + out.bc, row.begin() + out.ec + 1,
+                               [](const std::unique_ptr<Token> &t) {
+                                   return t->getRole() == Token::Role::META;
+                               });
+        assert(it != row.end());
+        size_t bc = it - row.begin();
+        row.erase(it);
+        hammer.hit(outer->at(inner), out.br, bc);
+    } else {
+        throw "Tokens::insert uninsertable outer";
     }
 }
 
@@ -82,6 +99,11 @@ void Tokens::remove(const Ast *outer, size_t inner)
     Region r = locate(&outer->at(inner));
     suck(r);
     erase(r);
+
+    if (Ast::isMap(*outer)) {
+        Token *meta = new SoulToken(outer, Token::Role::META);
+        rows[r.br].emplace(rows[r.br].begin() + r.bc, meta);
+    }
 }
 
 void Tokens::updateScalar(const Ast *outer, size_t inner)
@@ -127,8 +149,8 @@ void Tokens::registerObserver(TokensObserver *ob)
 /**
  * @brief Tokens::locate
  * @param tar The node to locate
- * @return A Region representing a "TokenGroup"
- * See the comment in Tokens class defination for "TokenGroup".
+ * @return A Region representing a "LightableGroup"
+ * See the comment in Tokens class defination for "LightableGroup".
  */
 Region Tokens::locate(const Ast *tar)
 {
@@ -164,14 +186,14 @@ Region Tokens::locate(const Ast *tar)
 }
 
 /**
- * @brief Tokens::suck
+ * @brief Change LightableGroup into TokenGroup
  * @param r
- * Change "TokenGroup" into "lightableGroup"
  * See comment in Tokens class defination for details
  */
 void Tokens::suck(Region &r)
 {
     assert(r.br < rows.size() && r.bc < rows[r.br].size());
+
     Token::Role role = rows[r.br][r.bc]->getRole();
     if (role == Token::Role::BEGIN) {
         const Ast *ast = rows[r.br][r.bc]->getAst();
@@ -235,12 +257,14 @@ void Tokens::erase(const Region &r)
 
     Region cr = anchor(r);
     int needJoin = 0;
-    needJoin += rows[r.br].back()->needNewLine(); // first line
 
     if (r.br == r.er) { // one-line erase
+        needJoin += rows[r.er][r.ec]->needNewLine();
         auto it = rows[r.br].begin();
         rows[r.br].erase(it + r.bc, it + r.ec + 1);
     } else { // multi-line erase
+        needJoin += rows[r.br].back()->needNewLine(); // first line
+
         /* bottom-up remove from the last row
          * since it won't mess up the row indices
          */
@@ -261,7 +285,7 @@ void Tokens::erase(const Region &r)
         ob->observeErase(cr);
 
     while (needJoin --> 0)
-        joinLine(r.br);
+        joinLine(r.br + 1);
 }
 
 void Tokens::updateFlesh(const Region &r)
@@ -291,6 +315,10 @@ void Tokens::newLine(size_t r, size_t c)
         ob->observeNewLine(r, anchor(r, c));
 }
 
+/**
+ * @brief Join the r-th line into the (r-1)-th line
+ * @param r
+ */
 void Tokens::joinLine(size_t r)
 {
     assert(r > 0 && r < rows.size());

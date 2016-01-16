@@ -26,6 +26,7 @@ protected:
     void jackKick(int step);
     void insert(Ast::Type type);
     void remove();
+    void change(Ast::Type type);
     void showMenu(const char *text);
 
 protected:

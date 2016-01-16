@@ -16,7 +16,7 @@ class Token
 {
 public:
     enum class Role {
-        BEGIN, END, BONE, FLESH
+        BEGIN, END, META, BONE, FLESH
     };
 
     Token(const Ast *ast, Role role);

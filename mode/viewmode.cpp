@@ -25,12 +25,16 @@ void ViewMode::keyboard(char key)
         break;
     case 'a':
     case 'i':
-        if (outer->getType() == Ast::Type::OBJECT
-                || outer->getType() == Ast::Type::ARRAY) {
+        if (Ast::isList(*outer)) {
             MenuMode::Context context;
             context = 'a' == key ? MenuMode::Context::APPEND
                                  : MenuMode::Context::INSERT;
             push(new MenuMode(doc, context));
+        }
+        break;
+    case 'c':
+        if (Ast::isChangeable(outer->at(inner))) {
+            push(new MenuMode(doc, MenuMode::Context::CHANGE));
         }
         break;
     case 'x':

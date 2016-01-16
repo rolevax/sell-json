@@ -2,7 +2,6 @@
 #define MAPAST_H
 
 #include "sell/ast/ast.h"
-#include "sell/ast/scalarast.h"
 
 class MapAst : public Ast
 {
@@ -15,9 +14,10 @@ public:
 
 protected:
     void doInsert(size_t pos, Ast *child) override;
+    std::unique_ptr<Ast> doChange(size_t pos, Ast *next) override;
 
 private:
-    std::unique_ptr<ScalarAst> key;
+    std::unique_ptr<Ast> key;
     std::unique_ptr<Ast> value;
 };
 

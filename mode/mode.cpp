@@ -49,6 +49,11 @@ void Mode::remove()
     doc.remove();
 }
 
+void Mode::change(Ast::Type type)
+{
+    doc.change(type);
+}
+
 void Mode::showMenu(const char *text)
 {
     doc.showMenu(text);

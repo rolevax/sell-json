@@ -11,7 +11,6 @@ MapAst::MapAst(Type t) :
 
 size_t MapAst::size() const
 {
-    // TODO: might not strictly equal to container size
     return 2;
 }
 
@@ -32,11 +31,20 @@ void MapAst::doInsert(size_t pos, Ast *child)
 {
     if (pos == 0) {
         assert(child->getType() == Ast::Type::KEY);
-        key.reset(static_cast<ScalarAst*>(child));
+        key.reset(child);
     } else if (pos == 1) {
         value.reset(child);
     } else {
         throw 789;
     }
+}
+
+std::unique_ptr<Ast> MapAst::doChange(size_t pos, Ast *next)
+{
+    assert(pos < 2);
+    std::unique_ptr<Ast> &tar = pos == 0 ? key : value;
+    std::unique_ptr<Ast> res = std::move(tar);
+    tar.reset(next);
+    return res;
 }
 

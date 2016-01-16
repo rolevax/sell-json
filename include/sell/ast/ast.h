@@ -23,6 +23,8 @@ public:
     static bool isMap(const Ast &a);
     static bool isScalar(Type type);
     static bool isScalar(const Ast &a);
+    static bool isChangeable(Type type);
+    static bool isChangeable(const Ast &a);
 
     Ast(Type t);
 
@@ -32,12 +34,14 @@ public:
 
     void insert(size_t pos, Ast *child);
     virtual std::unique_ptr<Ast> remove(size_t pos);
+    std::unique_ptr<Ast> change(size_t pos, Ast *next);
     virtual size_t size() const;
     virtual Ast &at(size_t pos) const;
     virtual size_t indexOf(const Ast *child) const;
 
 protected:
     virtual void doInsert(size_t pos, Ast *child);
+    virtual std::unique_ptr<Ast> doChange(size_t pos, Ast *next);
 
 protected:
     Type type;

@@ -30,6 +30,13 @@ void Hammer::write(Token *token, size_t &r, size_t &c)
 
 void Hammer::hitGeneral(const Ast &ast, size_t &r, size_t &c)
 {
+    if (ast.getParent().getType() == Ast::Type::PAIR
+            && ast.getParent().indexOf(&ast) == 1)
+        absorbOneIndent = true; // 'value' inside 'pair'
+
+    // FIXIT XXX: a newline of 'value' is included in end of 'pair'
+    // sol: parameterize 'bool newline', decide when call
+
     switch (ast.getType()) {
     case Ast::Type::ROOT:
         hitGeneral(ast.at(0), r, c);
@@ -73,10 +80,7 @@ void Hammer::hitObject(const ListAst &object, size_t &r, size_t &c)
         write(new BoneToken(&object, "{", true), r, c);
 
         for (size_t i = 0; i < object.size(); i++) {
-            const Ast &pair_ = object.at(i);
-            assert(pair_.getType() == Ast::Type::PAIR);
-            const MapAst &pair = dynamic_cast<const MapAst&>(pair_);
-            hitPair(pair, r, c);
+            hitGeneral(object.at(i), r, c); // including hit pair case
         }
 
         indent(&object, r, c);
@@ -115,7 +119,7 @@ void Hammer::hitPair(const MapAst &pair, size_t &r, size_t &c)
     indent(&pair, r, c);
     write(new SoulToken(&pair, Token::Role::BEGIN), r, c);
 
-    const ScalarAst *key = dynamic_cast<const ScalarAst*>(&pair.at(0));
+    const ScalarAst *key = static_cast<const ScalarAst*>(&pair.at(0));
     write(new SoulToken(key, Token::Role::BEGIN), r, c);
     write(new FleshToken(key), r, c);
     write(new SoulToken(key, Token::Role::END), r, c);
@@ -129,13 +133,16 @@ void Hammer::hitPair(const MapAst &pair, size_t &r, size_t &c)
 
 void Hammer::indent(const Ast *master, size_t &r, size_t &c)
 {
-    if (master->getType() == Ast::Type::KEY)
+    if (absorbOneIndent) {
+        absorbOneIndent = false;
         return;
+    }
+
+    if (master->getType() == Ast::Type::KEY)
+        return; // key's indent is done by pair
 
     int level = 0;
     const Ast *a = &master->getParent();
-    if (a->getType() == Ast::Type::PAIR)
-        return;
 
     while (a->getType() != Ast::Type::ROOT) {
         if (a->getType() != Ast::Type::PAIR)

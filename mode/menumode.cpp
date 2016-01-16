@@ -88,7 +88,7 @@ const char *MenuMode::name()
 void MenuMode::work(Ast::Type type, const char *keytal)
 {
     if (context == Context::CHANGE) {
-        // TODO
+        change(type);
     } else {
         // prepare cursor
         if (context == Context::APPEND) {

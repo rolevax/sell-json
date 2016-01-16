@@ -17,6 +17,7 @@ public:
 
 protected:
     void doInsert(size_t pos, Ast *child) override;
+    std::unique_ptr<Ast> doChange(size_t pos, Ast *next) override;
 
 private:
     std::vector<std::unique_ptr<Ast>> subtrees;

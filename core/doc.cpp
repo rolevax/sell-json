@@ -168,36 +168,7 @@ void Doc::insert(Ast::Type type)
 {
     assert(inner <= outer->size());
 
-    Ast *a;
-
-    switch (type) {
-    case Ast::Type::PAIR:
-        a = new MapAst(Ast::Type::PAIR);
-        a->insert(0, new ScalarAst(Ast::Type::KEY, "__key"));
-        a->insert(1, new ScalarAst(Ast::Type::KEYTAL, "null"));
-        break;
-    case Ast::Type::STRING:
-        a = new ScalarAst(Ast::Type::STRING, "");
-        break;
-    case Ast::Type::NUMBER:
-        a = new ScalarAst(Ast::Type::NUMBER, "");
-        break;
-    case Ast::Type::KEYTAL:
-        a = new ScalarAst(Ast::Type::KEYTAL, "");
-        break;
-    case Ast::Type::ARRAY:
-        a = new ListAst(Ast::Type::ARRAY);
-        break;
-    case Ast::Type::OBJECT:
-        a = new ListAst(Ast::Type::OBJECT);
-        break;
-    case Ast::Type::ROOT:
-    case Ast::Type::KEY:
-        qDebug() << "insert type: untreated outer type";
-        break;
-    }
-
-    assert(a != nullptr);
+    Ast *a = newTree(type);
 
     outer->insert(inner, a);
     tokens.insert(outer, inner);
@@ -226,9 +197,57 @@ void Doc::remove()
     tokens.light(&outer->at(inner));
 }
 
+void Doc::change(Ast::Type type)
+{
+    assert(inner < outer->size());
+
+    if (!Ast::isChangeable(outer->at(inner))) {
+        qDebug() << "unchangable inner";
+        return;
+    }
+
+    tokens.remove(outer, inner);
+    outer->change(inner, newTree(type));
+    tokens.insert(outer, inner);
+    tokens.light(&outer->at(inner));
+}
+
 void Doc::showMenu(const char *text)
 {
     if (ob != nullptr)
         ob->observeMenu(text);
+}
+
+Ast *Doc::newTree(Ast::Type type)
+{
+    Ast *a = nullptr;
+
+    switch (type) {
+    case Ast::Type::PAIR:
+        a = new MapAst(Ast::Type::PAIR);
+        a->insert(0, new ScalarAst(Ast::Type::KEY, "__key"));
+        a->insert(1, new ScalarAst(Ast::Type::KEYTAL, "null"));
+        break;
+    case Ast::Type::STRING:
+        a = new ScalarAst(Ast::Type::STRING, "");
+        break;
+    case Ast::Type::NUMBER:
+        a = new ScalarAst(Ast::Type::NUMBER, "");
+        break;
+    case Ast::Type::KEYTAL:
+        a = new ScalarAst(Ast::Type::KEYTAL, "");
+        break;
+    case Ast::Type::ARRAY:
+        a = new ListAst(Ast::Type::ARRAY);
+        break;
+    case Ast::Type::OBJECT:
+        a = new ListAst(Ast::Type::OBJECT);
+        break;
+    case Ast::Type::ROOT:
+    case Ast::Type::KEY:
+        throw "newTree: untreated type";
+    }
+
+    return a;
 }
 
