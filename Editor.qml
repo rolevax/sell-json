@@ -39,8 +39,8 @@ Rectangle {
             street.erase(br, bc, er, ec);
         }
 
-        onFleshUpdated: {
-            street.update(r, bc, ec, str);
+        onLineUpdated: {
+            street.update(r, str);
         }
 
         onNewLine: {

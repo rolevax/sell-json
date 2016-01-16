@@ -14,7 +14,11 @@ const std::string &ScalarAst::getText() const
 
 void ScalarAst::append(char c)
 {
-    text += c;
+    if (c == '\b') {
+        text.pop_back();
+    } else {
+        text += c;
+    }
 }
 
 

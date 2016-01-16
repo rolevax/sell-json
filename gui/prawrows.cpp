@@ -19,9 +19,9 @@ void PRawRows::observeErase(const Region &r)
     emit erased(r.br, r.bc, r.er, r.ec);
 }
 
-void PRawRows::observeUpdateFlesh(size_t r, size_t bc, size_t ec, const Token &t)
+void PRawRows::observeUpdateLine(size_t r, const std::string &s)
 {
-    emit fleshUpdated(r, bc, ec, QString::fromStdString(t.getText()));
+    emit lineUpdated(r, QString::fromStdString(s));
 }
 
 void PRawRows::observeNewLine(size_t r, size_t c)

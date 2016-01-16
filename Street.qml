@@ -102,8 +102,8 @@ Item {
         asph.insert(str, r, c);
     }
 
-    function update(r, bc, ec, str) {
-        asph.update(r, bc, ec, str);
+    function update(r, str) {
+        asph.update(r, str);
     }
 
     function erase(br, bc, er, ec) {

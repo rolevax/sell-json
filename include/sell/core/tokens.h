@@ -26,6 +26,7 @@ public:
     void insert(const Ast *outer, size_t inner);
     void remove(const Ast *outer, size_t inner);
     void updateScalar(const Ast *outer, size_t inner);
+    std::string pluck(size_t r);
     void print();
 
     void registerObserver(TokensObserver *ob);
@@ -35,7 +36,6 @@ public:
     ///@{
     bool write(Token *token, size_t r, size_t c);
     void erase(const Region &r);
-    void updateFlesh(const Region &r);
     ///@}
 
 private:

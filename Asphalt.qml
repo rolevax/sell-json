@@ -36,10 +36,8 @@ ListView {
         listModel.get(r).modelText = next;
     }
 
-    function update(r, bc, ec, str) {
-        var orig = listModel.get(r).modelText;
-        var next = [orig.slice(0, bc), str, orig.slice(ec)].join("");
-        listModel.get(r).modelText = next;
+    function update(r, str) {
+        listModel.get(r).modelText = str;
     }
 
     function newLine(r, c) {

@@ -4,6 +4,7 @@
 
 #include <QDebug>
 #include <iostream>
+#include <sstream>
 
 Tokens::Tokens() :
     hammer(*this)
@@ -39,6 +40,9 @@ void Tokens::light(const Ast *inner)
  * @param inner Index of new node within its parent
  * Apply a insertion change in Ast into Tokens.
  * Should be called after Ast's insertion.
+ * Also called in Doc::change().
+ * When changing a node inside map, will locate by the
+ * meta soul token left by Tokens::remove().
  */
 void Tokens::insert(const Ast *outer, size_t inner)
 {
@@ -79,7 +83,7 @@ void Tokens::insert(const Ast *outer, size_t inner)
                                });
         assert(it != row.end());
         size_t bc = it - row.begin();
-        row.erase(it);
+        row.erase(it); // delete meta token
         hammer.hit(outer->at(inner), out.br, bc);
     } else {
         throw "Tokens::insert uninsertable outer";
@@ -90,7 +94,8 @@ void Tokens::insert(const Ast *outer, size_t inner)
  * @brief Tokens::remove
  * @param outer Parent of the node to remove
  * @param inner Index of the node to remove within its parent
- * This should be called before Ast's remove operation.
+ * This should be called before modifying Ast.
+ * If outer is map, will leave a meta placeholder token.
  */
 void Tokens::remove(const Ast *outer, size_t inner)
 {
@@ -110,7 +115,20 @@ void Tokens::updateScalar(const Ast *outer, size_t inner)
 {
     assert(Ast::isScalar(outer->at(inner)));
     Region r = locate(&outer->at(inner));
-    updateFlesh(r);
+
+    for (auto ob : observers)
+        ob->observeUpdateLine(r.br, pluck(r.br));
+}
+
+std::string Tokens::pluck(size_t r)
+{
+    assert(r < rows.size());
+
+    std::stringstream ss;
+    for (const std::unique_ptr<Token> &t : rows[r])
+        ss << t->getText();
+
+    return ss.str();
 }
 
 void Tokens::print()
@@ -124,6 +142,12 @@ void Tokens::print()
     std::cout << "End of rawRows print. Last \\n is external" << std::endl;
 }
 
+/**
+ * @brief Convert token level index into character level index
+ * @param r row of token
+ * @param c column of token
+ * @return column index in terms of character
+ */
 size_t Tokens::anchor(size_t r, size_t c)
 {
     assert(r < rows.size() && c <= rows[r].size());
@@ -147,7 +171,7 @@ void Tokens::registerObserver(TokensObserver *ob)
 }
 
 /**
- * @brief Tokens::locate
+ * @brief Find a "LightableGroup" by Ast
  * @param tar The node to locate
  * @return A Region representing a "LightableGroup"
  * See the comment in Tokens class defination for "LightableGroup".
@@ -286,15 +310,6 @@ void Tokens::erase(const Region &r)
 
     while (needJoin --> 0)
         joinLine(r.br + 1);
-}
-
-void Tokens::updateFlesh(const Region &r)
-{
-    Token &t = *rows[r.br][r.bc + 1];
-    assert(t.getRole() == Token::Role::FLESH);
-    Region cr = anchor(r);
-    for (auto ob : observers)
-        ob->observeUpdateFlesh(cr.br, cr.bc, cr.ec, t);
 }
 
 /*
