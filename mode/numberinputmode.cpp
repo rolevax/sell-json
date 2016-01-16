@@ -20,7 +20,7 @@ void NumberInputMode::keyboard(char key)
     }
 
     char input;
-    if ('0' <= key && key <= '9')
+    if (('0' <= key && key <= '9') || key == '\b')
         input = key;
     else if ('u' == key)
         input = '4';

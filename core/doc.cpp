@@ -225,7 +225,7 @@ Ast *Doc::newTree(Ast::Type type)
     switch (type) {
     case Ast::Type::PAIR:
         a = new MapAst(Ast::Type::PAIR);
-        a->insert(0, new ScalarAst(Ast::Type::KEY, "__key"));
+        a->insert(0, new ScalarAst(Ast::Type::KEY, "key"));
         a->insert(1, new ScalarAst(Ast::Type::KEYTAL, "null"));
         break;
     case Ast::Type::STRING:

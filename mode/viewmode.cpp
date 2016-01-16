@@ -1,5 +1,7 @@
 #include "sell/mode/viewmode.h"
 #include "sell/mode/menumode.h"
+#include "sell/mode/stringinputmode.h"
+#include "sell/mode/numberinputmode.h"
 #include "sell/core/doc.h"
 
 ViewMode::ViewMode(Doc &doc) :
@@ -37,13 +39,25 @@ void ViewMode::keyboard(char key)
             push(new MenuMode(doc, MenuMode::Context::CHANGE));
         }
         break;
+    case 'm':
+        switch (outer->at(inner).getType()) {
+        case Ast::Type::STRING:
+        case Ast::Type::KEY:
+            push(new StringInputMode(doc));
+            break;
+        case Ast::Type::NUMBER:
+            push(new NumberInputMode(doc));
+            break;
+        default:
+            break;
+        }
+        break;
     case 'x':
         remove();
         break;
     default:
         break;
     }
-
 }
 
 const char *ViewMode::name()
