@@ -45,10 +45,10 @@ Item {
     }
 
     onLeftOffChanged: {
-        leftText.text = repeat('L', leftOff);
+        leftText.text = repeat(' ', leftOff);
     }
 
     onRightOffChanged: {
-        rightText.text = repeat('*', rightOff);
+        rightText.text = repeat(' ', rightOff);
     }
 }

@@ -21,16 +21,14 @@ public:
 private:
     void write(Token *token, size_t &r, size_t &c);
 
-    void hitGeneral(const Ast &ast, size_t &r, size_t &c);
-    void hitScalar(const ScalarAst &scalar, size_t &r, size_t &c);
-    void hitObject(const ListAst &object, size_t &r, size_t &c);
-    void hitArray(const ListAst &array, size_t &r, size_t &c);
+    void hitGeneral(const Ast &ast, size_t &r, size_t &c, bool tab, bool enter);
+    void hitScalar(const ScalarAst &scalar, size_t &r, size_t &c, bool tab, bool enter);
+    void hitList(const ListAst &list, size_t &r, size_t &c, bool tab, bool enter);
     void hitPair(const MapAst &pair, size_t &r, size_t &c);
     void indent(const Ast *master, size_t &r, size_t &c);
 
 private:
     Tokens &tokens;
-    bool absorbOneIndent = false;
 };
 
 #endif // HAMMER_H

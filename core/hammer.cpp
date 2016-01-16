@@ -14,7 +14,9 @@ Hammer::Hammer(Tokens &tokens) :
 
 void Hammer::hit(const Ast &ast, size_t r, size_t c)
 {
-    hitGeneral(ast, r, c);
+    bool valueInPair = ast.getParent().getType() == Ast::Type::PAIR
+            && ast.getParent().indexOf(&ast) == 1;
+    hitGeneral(ast, r, c, !valueInPair, !valueInPair);
 }
 
 void Hammer::write(Token *token, size_t &r, size_t &c)
@@ -28,30 +30,21 @@ void Hammer::write(Token *token, size_t &r, size_t &c)
     }
 }
 
-void Hammer::hitGeneral(const Ast &ast, size_t &r, size_t &c)
+void Hammer::hitGeneral(const Ast &ast, size_t &r, size_t &c, bool tab, bool enter)
 {
-    if (ast.getParent().getType() == Ast::Type::PAIR
-            && ast.getParent().indexOf(&ast) == 1)
-        absorbOneIndent = true; // 'value' inside 'pair'
-
-    // FIXIT XXX: a newline of 'value' is included in end of 'pair'
-    // sol: parameterize 'bool newline', decide when call
-
     switch (ast.getType()) {
     case Ast::Type::ROOT:
-        hitGeneral(ast.at(0), r, c);
+        hitGeneral(ast.at(0), r, c, tab, enter);
         break;
     case Ast::Type::ARRAY:
-        hitArray(static_cast<const ListAst&>(ast), r, c);
-        break;
     case Ast::Type::OBJECT:
-        hitObject(static_cast<const ListAst&>(ast), r, c);
+        hitList(static_cast<const ListAst&>(ast), r, c, tab, enter);
         break;
     case Ast::Type::STRING:
     case Ast::Type::NUMBER:
     case Ast::Type::KEY:
     case Ast::Type::KEYTAL:
-        hitScalar(static_cast<const ScalarAst&>(ast), r, c);
+        hitScalar(static_cast<const ScalarAst&>(ast), r, c, tab, enter);
         break;
     case Ast::Type::PAIR:
         hitPair(static_cast<const MapAst&>(ast), r, c);
@@ -62,56 +55,43 @@ void Hammer::hitGeneral(const Ast &ast, size_t &r, size_t &c)
     }
 }
 
-void Hammer::hitScalar(const ScalarAst &scalar, size_t &r, size_t &c)
+void Hammer::hitScalar(const ScalarAst &scalar, size_t &r, size_t &c,
+                       bool tab, bool enter)
 {
-    indent(&scalar, r, c);
+    if (tab)
+        indent(&scalar, r, c);
+
     write(new SoulToken(&scalar, Token::Role::BEGIN), r, c);
     write(new FleshToken(&scalar), r, c);
-    write(new SoulToken(&scalar, Token::Role::END, true), r, c);
+    write(new SoulToken(&scalar, Token::Role::END, enter), r, c);
 }
 
-void Hammer::hitObject(const ListAst &object, size_t &r, size_t &c)
+void Hammer::hitList(const ListAst &list, size_t &r, size_t &c,
+                     bool tab, bool enter)
 {
-    indent(&object, r, c);
-    write(new SoulToken(&object, Token::Role::BEGIN), r, c);
+    // either array or object
+    bool isArray = list.getType() == Ast::Type::ARRAY;
 
-    size_t size = object.size();
+    if (tab)
+        indent(&list, r, c);
+
+    write(new SoulToken(&list, Token::Role::BEGIN), r, c);
+
+    size_t size = list.size();
     if (size > 0) {
-        write(new BoneToken(&object, "{", true), r, c);
-
-        for (size_t i = 0; i < object.size(); i++) {
-            hitGeneral(object.at(i), r, c); // including hit pair case
-        }
-
-        indent(&object, r, c);
-        write(new BoneToken(&object, "}"), r, c);
-    } else {
-        write(new BoneToken(&object, "{}"), r, c);
-    }
-
-    write(new SoulToken(&object, Token::Role::END, true), r, c);
-}
-
-void Hammer::hitArray(const ListAst &array, size_t &r, size_t &c)
-{
-    indent(&array, r, c);
-    write(new SoulToken(&array, Token::Role::BEGIN), r, c);
-
-    size_t size = array.size();
-    if (size > 0) {
-        write(new BoneToken(&array, "[", true), r, c);
+        write(new BoneToken(&list, isArray ? "[" : "{", true), r, c);
 
         for (size_t i = 0; i < size; i++) {
-            hitGeneral(array.at(i), r, c);
+            hitGeneral(list.at(i), r, c, true, true);
         }
 
-        indent(&array, r, c);
-        write(new BoneToken(&array, "]"), r, c);
+        indent(&list, r, c);
+        write(new BoneToken(&list, isArray ? "]" : "}"), r, c);
     } else {
-        write(new BoneToken(&array, "[]"), r, c);
+        write(new BoneToken(&list, isArray ? "[]" : "{}"), r, c);
     }
 
-    write(new SoulToken(&array, Token::Role::END, true), r, c);
+    write(new SoulToken(&list, Token::Role::END, enter), r, c);
 }
 
 void Hammer::hitPair(const MapAst &pair, size_t &r, size_t &c)
@@ -126,18 +106,13 @@ void Hammer::hitPair(const MapAst &pair, size_t &r, size_t &c)
 
     write(new BoneToken(&pair, ": "), r, c);
 
-    hitGeneral(pair.at(1), r, c);
+    hitGeneral(pair.at(1), r, c, false, false);
 
-    write(new SoulToken(&pair, Token::Role::END), r, c);
+    write(new SoulToken(&pair, Token::Role::END, true), r, c);
 }
 
 void Hammer::indent(const Ast *master, size_t &r, size_t &c)
 {
-    if (absorbOneIndent) {
-        absorbOneIndent = false;
-        return;
-    }
-
     if (master->getType() == Ast::Type::KEY)
         return; // key's indent is done by pair
 
