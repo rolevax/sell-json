@@ -32,6 +32,7 @@ public:
     void registerObserver(TokensObserver *ob);
 
     /** @name Hammer's Interface
+     *  actually also called by this class itself
      */
     ///@{
     bool write(Token *token, size_t r, size_t c);
@@ -40,7 +41,8 @@ public:
 
 private:
     Region locate(const Ast *tar);
-    void suck(Region &region);
+    void suckIndent(Region &region);
+    void suckComma(Region &region);
     void newLine(size_t r, size_t c);
     void joinLine(size_t r);
     size_t anchor(size_t r, size_t c);

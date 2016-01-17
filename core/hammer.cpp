@@ -16,7 +16,8 @@ void Hammer::hit(const Ast &ast, size_t r, size_t c)
 {
     bool valueInPair = ast.getParent().getType() == Ast::Type::PAIR
             && ast.getParent().indexOf(&ast) == 1;
-    hitGeneral(ast, r, c, !valueInPair, !valueInPair);
+    //hitGeneral(ast, r, c, !valueInPair, !valueInPair);
+    hitGeneral(ast, r, c, !valueInPair, false);
 }
 
 void Hammer::write(Token *token, size_t &r, size_t &c)
@@ -62,7 +63,11 @@ void Hammer::hitScalar(const ScalarAst &scalar, size_t &r, size_t &c,
         indent(&scalar, r, c);
 
     write(new SoulToken(&scalar, Token::Role::BEGIN), r, c);
+    if (scalar.getType() == Ast::Type::STRING)
+        write(new BoneToken(&scalar, "\""), r, c);
     write(new FleshToken(&scalar), r, c);
+    if (scalar.getType() == Ast::Type::STRING)
+        write(new BoneToken(&scalar, "\""), r, c);
     write(new SoulToken(&scalar, Token::Role::END, enter), r, c);
 }
 
@@ -82,7 +87,8 @@ void Hammer::hitList(const ListAst &list, size_t &r, size_t &c,
         write(new BoneToken(&list, isArray ? "[" : "{", true), r, c);
 
         for (size_t i = 0; i < size; i++) {
-            hitGeneral(list.at(i), r, c, true, true);
+            hitGeneral(list.at(i), r, c, true, false);
+            write(new BoneToken(&list, i == size - 1 ? "" : ",", true), r, c);
         }
 
         indent(&list, r, c);
@@ -108,7 +114,8 @@ void Hammer::hitPair(const MapAst &pair, size_t &r, size_t &c)
 
     hitGeneral(pair.at(1), r, c, false, false);
 
-    write(new SoulToken(&pair, Token::Role::END, true), r, c);
+    // pairs have no line break, since that's done by bone commas
+    write(new SoulToken(&pair, Token::Role::END, false), r, c);
 }
 
 void Hammer::indent(const Ast *master, size_t &r, size_t &c)

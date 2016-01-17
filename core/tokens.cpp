@@ -1,4 +1,5 @@
 #include "sell/core/tokens.h"
+#include "sell/core/bonetoken.h"
 #include "sell/core/soultoken.h"
 #include <cassert>
 
@@ -43,12 +44,13 @@ void Tokens::light(const Ast *inner)
  * Also called in Doc::change().
  * When changing a node inside map, will locate by the
  * meta soul token left by Tokens::remove().
+ * Deal with commas when outer is list.
  */
 void Tokens::insert(const Ast *outer, size_t inner)
 {
     assert(outer->size() > 0 && inner < outer->size());
 
-    if (outer->getType() == Ast::Type::ROOT) { // outer is root
+    if (outer->getType() == Ast::Type::ROOT) {
         hammer.hit(*outer, 0, 0);
     } else if (Ast::isList(*outer)) {
         if (outer->size() == 1) { // assart
@@ -59,10 +61,14 @@ void Tokens::insert(const Ast *outer, size_t inner)
             /* recursion terminates when outer is root */
         } else if (inner < outer->size() - 1) { // not very end
             Region younger = locate(&outer->at(inner + 1));
-            suck(younger);
+            suckIndent(younger);
+            write(new BoneToken(outer, ",", true), younger.br, younger.bc);
             hammer.hit(outer->at(inner), younger.br, younger.bc);
         } else { // very end
             Region ass = locate(&outer->at(inner - 1));
+            // [ ... comma ass empty-bone-newline ]
+            write(new BoneToken(outer, ",", true), ass.er, ++ass.ec);
+            // [ ... comma ass-with-comma (auto-newline) nextRC empty-bone-newline ]
             size_t nextR, nextC;
             if (rows[ass.er][ass.ec]->needNewLine()) {
                 nextR = ass.er + 1;
@@ -96,13 +102,16 @@ void Tokens::insert(const Ast *outer, size_t inner)
  * @param inner Index of the node to remove within its parent
  * This should be called before modifying Ast.
  * If outer is map, will leave a meta placeholder token.
+ * Deal with commas when outer is list.
  */
 void Tokens::remove(const Ast *outer, size_t inner)
 {
     assert(inner < outer->size());
 
     Region r = locate(&outer->at(inner));
-    suck(r);
+    suckIndent(r);
+    if (Ast::isList(*outer))
+        suckComma(r);
     erase(r);
 
     if (Ast::isMap(*outer)) {
@@ -161,7 +170,7 @@ Region Tokens::anchor(const Region &r)
 {
    Region c(r);
    c.bc = anchor(c.br, c.bc);
-   c.ec = anchor(c.er, c.ec);
+   c.ec = anchor(c.er, c.ec + 1);
    return c;
 }
 
@@ -214,7 +223,7 @@ Region Tokens::locate(const Ast *tar)
  * @param r
  * See comment in Tokens class defination for details
  */
-void Tokens::suck(Region &r)
+void Tokens::suckIndent(Region &r)
 {
     assert(r.br < rows.size() && r.bc < rows[r.br].size());
 
@@ -222,7 +231,24 @@ void Tokens::suck(Region &r)
     if (role == Token::Role::BEGIN) {
         const Ast *ast = rows[r.br][r.bc]->getAst();
         if (r.bc > 0 && rows[r.br][r.bc - 1]->getAst() == ast)
-            --r.bc; // skip one space indentation token
+            --r.bc; // include one indentation token
+    }
+}
+
+void Tokens::suckComma(Region &r)
+{
+    const Ast *in = rows[r.br][r.bc]->getAst();
+    const Ast &par = in->getParent();
+    if (par.size() > 1) {
+        if (par.indexOf(in) == par.size() - 1) {
+            /* very end of a non-single-element list
+               then include the previous comma,
+               which is assumed to be the end of the previous row. */
+            --r.br;
+            r.bc = rows[r.br].size() - 1;
+        } else {
+            ++r.ec; // include the following comma
+        }
     }
 }
 
@@ -242,21 +268,15 @@ bool Tokens::write(Token *token, size_t r, size_t c)
 
     bool ret = false;
 
-    // TODO: really needed? may kind of assert 'never write after newline'
-    if (c > 0 && rows[r][c - 1]->needNewLine()) {
-        newLine(r, c);
-        ++r;
-        c = 0;
-        ret = true;
-    }
+    // should not write after line terminater
+    assert(!(c > 0 && rows[r][c - 1]->needNewLine()));
 
     std::vector<std::unique_ptr<Token>> &row = rows[r];
     row.emplace(row.begin() + c, token);
     for (auto ob : observers)
         ob->observeWrite(*token, r, anchor(r, c));
 
-    // one write triggers at most one new line
-    if (!ret && token->needNewLine()) {
+    if (token->needNewLine()) {
         newLine(r, c + 1);
         ret = true;
     }
