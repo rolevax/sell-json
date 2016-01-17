@@ -60,7 +60,8 @@ void ViewMode::keyboard(char key)
         }
         break;
     case 'x':
-        remove();
+        if (Ast::isList(*outer) || outer->getType() == Ast::Type::ROOT)
+            remove();
         break;
     default:
         break;

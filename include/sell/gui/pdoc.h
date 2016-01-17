@@ -11,9 +11,8 @@ class PDoc : public QObject
     Q_OBJECT
 public:
     explicit PDoc(QObject *parent = 0);
-    Q_INVOKABLE void load();
+    Q_INVOKABLE void load(QString filename);
     Q_INVOKABLE void keyboard(QString key, int modifier);
-    Q_INVOKABLE int output();
     Q_INVOKABLE void attachPRawRows(PRawRows *p);
 
     void observeTension(bool b);
@@ -21,6 +20,7 @@ public:
     void observePop();
 
 signals:
+    void message(QString text);
     void tension(bool b);
     void pushed(QString name);
     void popped();

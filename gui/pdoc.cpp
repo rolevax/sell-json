@@ -12,21 +12,20 @@ PDoc::PDoc(QObject *parent) :
     doc->registerObserver(this);
 }
 
-void PDoc::load()
+void PDoc::load(QString filename)
 {
-    doc->load();
+    try {
+        doc->load(filename.toStdString());
+    } catch (const std::exception &e) {
+        emit message(e.what());
+    }
 }
 
 void PDoc::keyboard(QString key, int modifier)
 {
-    qDebug() << "PDoc: key:" << key << " mod:" << modifier;
+    (void) modifier;
     if (key.size() > 0)
         doc->keyboard(key.at(0).toLatin1());
-}
-
-int PDoc::output()
-{
-    return 725;
 }
 
 void PDoc::attachPRawRows(PRawRows *p)

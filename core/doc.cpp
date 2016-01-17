@@ -14,6 +14,9 @@
 #include <fstream>
 #include <sstream>
 
+// utilities
+#include <stdexcept>
+
 // headers for debug uses
 #include <QDebug>
 #include <iostream>
@@ -24,22 +27,30 @@ Doc::Doc()
     modes.emplace(new ViewMode(*this));
 }
 
-void Doc::load()
+void Doc::load(const std::string &filename)
 {
-    assert(root.size() == 0);
+    if (modes.size() > 1)
+        throw std::runtime_error("Modifying mode not popped");
 
-    std::ifstream ifs("sample.json");
+    std::ifstream ifs(filename.c_str());
     std::stringstream ss;
     ss << ifs.rdbuf();
+    ifs.close();
     std::string str(ss.str());
     const char *json = str.c_str();
 
     rapidjson::Document d;
     if (d.Parse(json).HasParseError()) {
-        std::cerr << "Parse error: "
-                  << GetParseError_En(d.GetParseError())
-                  << std::endl;
-        exit(1);
+        std::stringstream ss;
+        ss << "Parse error: "
+           << GetParseError_En(d.GetParseError());
+        throw std::runtime_error(ss.str());
+    }
+
+    if (root.size() != 0) {
+        outer = &root;
+        inner = 0;
+        remove();
     }
 
     AstConverter ac(root);
@@ -185,7 +196,7 @@ std::unique_ptr<Ast> Doc::remove()
     std::unique_ptr<Ast> ret = outer->remove(inner);
     if (outer->getType() == Ast::Type::ROOT) {
         // nothing to do yet, just leave it here
-    } else {
+    } else if (Ast::isList(*outer)) {
         if (inner == outer->size()) {
             if (inner > 0) {
                 --inner;

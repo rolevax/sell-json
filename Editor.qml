@@ -1,7 +1,10 @@
 import QtQuick 2.0
+import QtQuick.Dialogs 1.2
 import sell 1.0
 
 Rectangle {
+    property string filename
+
     id: frame
     width: 800; height: 500
     color: "#222233"
@@ -9,6 +12,11 @@ Rectangle {
 
     PDoc {
         id: pDoc
+
+        onMessage: {
+            messageDialog.text = text;
+            messageDialog.open();
+        }
 
         onTension: {
             street.setTension(b);
@@ -83,36 +91,30 @@ Rectangle {
         }
     }
 
+    MessageDialog {
+        id: messageDialog
+        icon: StandardIcon.Information
+    }
+
     Keys.onPressed: {
         pDoc.keyboard(event.text, event.modifiers);
         event.accepted = true;
     }
 
-    Rectangle {
-        id: menu
-        width: menuText.width + 20;
-        height: menuText.height + 20;
-        x: street.highLightUp.x
-        y: street.highLightUp.y
-        color: "#88DDDDCC"
-        visible: false
-        Text {
-            id: menuText
-            anchors.centerIn: parent
-            font.pixelSize: 20
-        }
-    }
-
     Component.onCompleted: {
         pDoc.attachPRawRows(pRawRows);
+    }
+
+    onFilenameChanged: {
         timer.start(); // workaround for force repaint
+        // still need timer?
     }
 
     Timer {
         id: timer
         interval: 17 // skip one frame (16ms)
         onTriggered: {
-            pDoc.load();
+            pDoc.load(filename);
         }
     }
 }

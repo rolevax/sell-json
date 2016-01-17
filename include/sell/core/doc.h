@@ -21,7 +21,7 @@ public:
     Doc(const Doc&) = delete;
     Doc &operator=(const Doc&) = delete;
 
-    void load();
+    void load(const std::string &filename);
     void keyboard(char key);
 
     void registerTokensObserver(TokensObserver *ob);
