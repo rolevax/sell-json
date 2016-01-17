@@ -32,6 +32,8 @@ void ViewMode::keyboard(char key)
             context = 'a' == key ? MenuMode::Context::APPEND
                                  : MenuMode::Context::INSERT;
             push(new MenuMode(doc, context));
+        } else if (outer->getType() == Ast::Type::ROOT) {
+            push(new MenuMode(doc, MenuMode::Context::INSERT));
         }
         break;
     case 'c':
@@ -63,6 +65,12 @@ void ViewMode::keyboard(char key)
     default:
         break;
     }
+}
+
+void ViewMode::emptyKeyboard(char key)
+{
+    if (key == 'i')
+        keyboard(key);
 }
 
 const char *ViewMode::name()

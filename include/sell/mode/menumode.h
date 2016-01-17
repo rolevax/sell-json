@@ -13,6 +13,7 @@ public:
     MenuMode(Doc &doc, Context context);
 
     void keyboard(char key) override;
+    void emptyKeyboard(char key) override;
     void onPushed() override;
     void onPopped() override;
     const char *name() override;

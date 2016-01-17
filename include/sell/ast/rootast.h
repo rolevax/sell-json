@@ -8,8 +8,6 @@ class RootAst : public Ast
 public:
     RootAst();
 
-    bool present() const;
-
     size_t size() const override;
     Ast &at(size_t pos) const override;
     std::unique_ptr<Ast> remove(size_t pos) override;
@@ -17,6 +15,7 @@ public:
 
 protected:
     void doInsert(size_t pos, Ast *child) override;
+    std::unique_ptr<Ast> doChange(size_t pos, Ast *next) override;
 
 private:
     std::unique_ptr<Ast> subtree = nullptr;

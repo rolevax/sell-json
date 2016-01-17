@@ -9,6 +9,7 @@ public:
     ViewMode(Doc &doc);
 
     void keyboard(char key) override;
+    void emptyKeyboard(char key) override;
     const char *name() override;
 };
 

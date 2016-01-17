@@ -13,6 +13,7 @@ public:
     Mode &operator=(const Mode& assign) = delete;
 
     virtual void keyboard(char key) = 0;
+    virtual void emptyKeyboard(char key) { (void) key; }
     virtual void onPushed() {}
     virtual void onPopped() {}
     virtual const char *name() = 0;

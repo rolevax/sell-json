@@ -26,7 +26,7 @@ Doc::Doc()
 
 void Doc::load()
 {
-    assert(!root.present());
+    assert(root.size() == 0);
 
     std::ifstream ifs("sample.json");
     std::stringstream ss;
@@ -60,7 +60,10 @@ void Doc::load()
 void Doc::keyboard(char key)
 {
     assert(modes.size() > 0);
-    modes.top()->keyboard(key);
+    if (root.size() > 0)
+        modes.top()->keyboard(key);
+    else
+        modes.top()->emptyKeyboard(key);
 }
 
 void Doc::registerTokensObserver(TokensObserver *ob)
@@ -178,23 +181,23 @@ std::unique_ptr<Ast> Doc::remove()
 {
     assert(inner < outer->size());
 
-    if (!Ast::isList(*outer)) {
-        qDebug() << "unremovable outer";
-        return nullptr; // TODO: allow removing child of root
-    }
     tokens.remove(outer, inner);
     std::unique_ptr<Ast> ret = outer->remove(inner);
-    if (inner == outer->size()) {
-        if (inner > 0) {
-            --inner;
-        } else { // outer became empty
-            damnOut(); // TODO: remove child of root case
-            // re-insert to generate special empty look
-            tokens.remove(outer, inner);
-            tokens.insert(outer, inner);
+    if (outer->getType() == Ast::Type::ROOT) {
+        // nothing to do yet, just leave it here
+    } else {
+        if (inner == outer->size()) {
+            if (inner > 0) {
+                --inner;
+            } else { // outer became empty
+                damnOut();
+                // re-insert to generate special empty look
+                tokens.remove(outer, inner);
+                tokens.insert(outer, inner);
+            }
         }
+        tokens.light(&outer->at(inner));
     }
-    tokens.light(&outer->at(inner));
 
     return ret;
 }

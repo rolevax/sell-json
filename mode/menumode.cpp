@@ -45,6 +45,11 @@ void MenuMode::keyboard(char key)
     }
 }
 
+void MenuMode::emptyKeyboard(char key)
+{
+    keyboard(key);
+}
+
 void MenuMode::onPushed()
 {
     // early leave if only one choice
