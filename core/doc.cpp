@@ -174,16 +174,16 @@ void Doc::insert(Ast::Type type)
     tokens.insert(outer, inner);
 }
 
-void Doc::remove()
+std::unique_ptr<Ast> Doc::remove()
 {
     assert(inner < outer->size());
 
     if (!Ast::isList(*outer)) {
         qDebug() << "unremovable outer";
-        return; // TODO: allow removing child of root
+        return nullptr; // TODO: allow removing child of root
     }
     tokens.remove(outer, inner);
-    outer->remove(inner);
+    std::unique_ptr<Ast> ret = outer->remove(inner);
     if (inner == outer->size()) {
         if (inner > 0) {
             --inner;
@@ -195,6 +195,8 @@ void Doc::remove()
         }
     }
     tokens.light(&outer->at(inner));
+
+    return ret;
 }
 
 void Doc::change(Ast::Type type)
@@ -208,6 +210,24 @@ void Doc::change(Ast::Type type)
 
     tokens.remove(outer, inner);
     outer->change(inner, newTree(type));
+    tokens.insert(outer, inner);
+    tokens.light(&outer->at(inner));
+}
+
+void Doc::nest(Ast::Type type)
+{
+    assert(inner < outer->size());
+    // a kind of fucking design.
+    assert(type == Ast::Type::ARRAY);
+
+    // nestable only if changeable
+    if (!Ast::isChangeable(outer->at(inner))) {
+        qDebug() << "unnestable inner";
+        return;
+    }
+
+    tokens.remove(outer, inner);
+    outer->nest(inner, newTree(type));
     tokens.insert(outer, inner);
     tokens.light(&outer->at(inner));
 }

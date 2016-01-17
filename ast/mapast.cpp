@@ -21,6 +21,12 @@ Ast &MapAst::at(size_t pos) const
     return pos == 0 ? *key : *value;
 }
 
+std::unique_ptr<Ast> MapAst::remove(size_t pos)
+{
+    std::unique_ptr<Ast> &tar = pos == 0 ? key : value;
+    return std::move(tar);
+}
+
 size_t MapAst::indexOf(const Ast *child) const
 {
     return key.get() == child ? 0

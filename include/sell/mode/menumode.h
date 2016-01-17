@@ -8,13 +8,7 @@ class MenuMode : public Mode
 public:
     enum class Context
     {
-        /*
-         * Many 'if' conditions assumes that there can be
-         * only these four values. If this enum is going
-         * to be re-defined, you should search around and
-         * change a bunch of 'if' conditions.
-         */
-        INSERT, APPEND, ASSART, CHANGE
+        INSERT, APPEND, ASSART, CHANGE, NEST
     };
     MenuMode(Doc &doc, Context context);
 

@@ -1,5 +1,7 @@
 #include "sell/ast/ast.h"
 
+#include <cassert>
+
 bool Ast::isList(Ast::Type type)
 {
     return type == Type::ARRAY || type == Type::OBJECT;
@@ -79,6 +81,15 @@ std::unique_ptr<Ast> Ast::change(size_t pos, Ast *next)
 {
     next->setParent(this);
     return doChange(pos, next);
+}
+
+void Ast::nest(size_t pos, Ast *nester)
+{
+    assert(nester->type == Type::ARRAY && nester->size() == 0);
+
+    std::unique_ptr<Ast> nestee = remove(pos);
+    insert(pos, nester);
+    at(pos).insert(0, nestee.release());
 }
 
 size_t Ast::size() const

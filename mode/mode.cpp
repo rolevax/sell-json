@@ -44,14 +44,19 @@ void Mode::insert(Ast::Type type)
     doc.insert(type);
 }
 
-void Mode::remove()
+std::unique_ptr<Ast> Mode::remove()
 {
-    doc.remove();
+    return doc.remove();
 }
 
 void Mode::change(Ast::Type type)
 {
     doc.change(type);
+}
+
+void Mode::nest(Ast::Type type)
+{
+    doc.nest(type);
 }
 
 void Mode::toggleTension(bool b)

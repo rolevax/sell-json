@@ -39,6 +39,11 @@ void ViewMode::keyboard(char key)
             push(new MenuMode(doc, MenuMode::Context::CHANGE));
         }
         break;
+    case 'n':
+        if (Ast::isChangeable(outer->at(inner))) {
+            push(new MenuMode(doc, MenuMode::Context::NEST));
+        }
+        break;
     case 'm':
         switch (outer->at(inner).getType()) {
         case Ast::Type::STRING:

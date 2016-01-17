@@ -55,6 +55,9 @@ void MenuMode::onPushed()
     if (underTyrant || intoTyrant) {
         work(Ast::Type::PAIR);
         return;
+    } else if (context == Context::NEST) {
+        work(Ast::Type::ARRAY);
+        return;
     }
 
     toggleTension(true);
@@ -80,6 +83,8 @@ void MenuMode::work(Ast::Type type, const char *keytal)
 {
     if (context == Context::CHANGE) {
         change(type);
+    } else if (context == Context::NEST) {
+        nest(type);
     } else {
         // prepare cursor
         if (context == Context::APPEND) {

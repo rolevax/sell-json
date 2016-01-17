@@ -37,8 +37,9 @@ private:
     void damnOut();
     void jackKick(int step);
     void insert(Ast::Type type);
-    void remove();
+    std::unique_ptr<Ast> remove();
     void change(Ast::Type type);
+    void nest(Ast::Type type);
     void toggleTension(bool b);
 
     Ast *newTree(Ast::Type type);
