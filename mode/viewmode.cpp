@@ -13,40 +13,66 @@ ViewMode::ViewMode(Doc &doc) :
 void ViewMode::keyboard(char key)
 {
     switch (key) {
-    case 'j':
-        jackKick(+1);
+    // abstract cursor moving
+    case 'g': // get next node
+        sibling(+1);
         break;
-    case 'k':
-        jackKick(-1);
+    case 's': // senior previous node
+        sibling(-1);
         break;
-    case 'f':
+    case 'f': // fall in
         fuckIn();
         break;
-    case 'd':
+    case 'd': // dig out
         damnOut();
         break;
-    case 'a':
-    case 'i':
+
+    // concrete cursor moving
+    // TODO
+    case 'h':
+        break;
+    case 'j':
+        break;
+    case 'k':
+        break;
+    case 'l':
+        break;
+
+    // outer modification
+    case 'o': // oh, append
+    case 'i': // insert
         if (Ast::isList(*outer)) {
             MenuMode::Context context;
-            context = 'a' == key ? MenuMode::Context::APPEND
+            context = 'o' == key ? MenuMode::Context::APPEND
                                  : MenuMode::Context::INSERT;
             push(new MenuMode(doc, context));
         } else if (outer->getType() == Ast::Type::ROOT) {
             push(new MenuMode(doc, MenuMode::Context::INSERT));
         }
         break;
-    case 'c':
+    case 'r': // remove
+        if (Ast::isList(*outer) || outer->getType() == Ast::Type::ROOT)
+            remove();
+        // TODO get to clipboard
+        break;
+    case 'y': // yank
+        // TODO
+        break;
+    case 'p': // paste
+        break;
+
+    // inner modification
+    case 'c': // change
         if (Ast::isChangeable(outer->at(inner))) {
             push(new MenuMode(doc, MenuMode::Context::CHANGE));
         }
         break;
-    case 'n':
+    case 'n': // nest
         if (Ast::isChangeable(outer->at(inner))) {
             push(new MenuMode(doc, MenuMode::Context::NEST));
         }
         break;
-    case 'm':
+    case 'm': // modify
         switch (outer->at(inner).getType()) {
         case Ast::Type::STRING:
         case Ast::Type::KEY:
@@ -58,10 +84,6 @@ void ViewMode::keyboard(char key)
         default:
             break;
         }
-        break;
-    case 'x':
-        if (Ast::isList(*outer) || outer->getType() == Ast::Type::ROOT)
-            remove();
         break;
     default:
         break;

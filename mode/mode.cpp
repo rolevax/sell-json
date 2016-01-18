@@ -34,9 +34,9 @@ void Mode::damnOut()
     doc.damnOut();
 }
 
-void Mode::jackKick(int step)
+void Mode::sibling(int step)
 {
-    doc.jackKick(step);
+    doc.sibling(step);
 }
 
 void Mode::insert(Ast::Type type)

@@ -168,7 +168,7 @@ void Doc::damnOut()
     outer = nextOuter;
 }
 
-void Doc::jackKick(int step)
+void Doc::sibling(int step)
 {
     size_t size = outer->size();
     inner = (ssize_t(inner + size) + step) % size;

@@ -13,7 +13,8 @@ StringInputMode::StringInputMode(Doc &doc) :
 void StringInputMode::keyboard(char key)
 {
     switch (key) {
-    case ' ':
+    case '\t':
+    case '\r':
         leave();
         break;
     default:

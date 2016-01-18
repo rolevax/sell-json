@@ -33,7 +33,7 @@ private:
 
     void fuckIn();
     void damnOut();
-    void jackKick(int step);
+    void sibling(int step);
     void insert(Ast::Type type);
     std::unique_ptr<Ast> remove();
     void change(Ast::Type type);
