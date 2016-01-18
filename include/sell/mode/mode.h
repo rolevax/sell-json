@@ -25,6 +25,7 @@ protected:
     void fuckIn();
     void damnOut();
     void sibling(int step);
+    void jackKick(bool down);
     void insert(Ast::Type type);
     std::unique_ptr<Ast> remove();
     void change(Ast::Type type);

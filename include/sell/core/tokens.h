@@ -25,6 +25,7 @@ public:
     void remove(const Ast *outer, size_t inner);
     void updateScalar(const Ast *outer, size_t inner);
     std::string pluck(size_t r);
+    void jackKick(Ast *&outer, size_t &inner, bool down);
 
     void registerObserver(TokensObserver *ob);
 

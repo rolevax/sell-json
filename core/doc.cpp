@@ -175,6 +175,11 @@ void Doc::sibling(int step)
     tokens.light(&outer->at(inner));
 }
 
+void Doc::jackKick(bool down)
+{
+    tokens.jackKick(outer, inner, down);
+}
+
 /**
  * @brief Doc::insert Create a new subnode
  * @param type The type of the new node

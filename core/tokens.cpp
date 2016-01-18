@@ -150,6 +150,29 @@ std::string Tokens::pluck(size_t r)
     return ret;
 }
 
+void Tokens::jackKick(Ast *&outer, size_t &inner, bool down)
+{
+    Region r = locate(&outer->at(inner));
+    for (ssize_t i = down ? r.er + 1 : r.br - 1;
+         down ? size_t(i) < rows.size() : i >= 0;
+         down ? i++ : i--) {
+        for (ssize_t j = rows[i].size() - 1; j - 2 >= 0; j--) {
+            const Token &begin = *rows[i][j - 2];
+            const Token &end = *rows[i][j];
+            const Ast *a = end.getAst();
+            if (Ast::isScalar(*a)
+                    || (a == begin.getAst()
+                        && begin.getRole() == Token::Role::BEGIN
+                        && end.getRole() == Token::Role::END)) {
+                outer = &a->getParent();
+                inner = outer->indexOf(a);
+                light(a);
+                return;
+            }
+        }
+    }
+}
+
 void Tokens::registerObserver(TokensObserver *ob)
 {
     observers.push_back(ob);

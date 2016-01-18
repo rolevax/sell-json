@@ -28,14 +28,19 @@ void ViewMode::keyboard(char key)
         break;
 
     // concrete cursor moving
-    // TODO
-    case 'h':
+    case 'h': // hack left
+        if (outer->getType() == Ast::Type::PAIR && inner == 1)
+            sibling(-1);
         break;
-    case 'j':
+    case 'l': // lead right
+        if (outer->getType() == Ast::Type::PAIR && inner == 0)
+            sibling(+1);
         break;
-    case 'k':
+    case 'j': // jack down
+        jackKick(true);
         break;
-    case 'l':
+    case 'k': // kick up
+        jackKick(false);
         break;
 
     // outer modification

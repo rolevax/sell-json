@@ -39,6 +39,11 @@ void Mode::sibling(int step)
     doc.sibling(step);
 }
 
+void Mode::jackKick(bool down)
+{
+    doc.jackKick(down);
+}
+
 void Mode::insert(Ast::Type type)
 {
     doc.insert(type);
