@@ -21,6 +21,15 @@ void PDoc::load(QString filename)
     }
 }
 
+void PDoc::save(QString filename)
+{
+    try {
+        doc->save(filename.toStdString());
+    } catch (const std::exception &e) {
+        emit message(e.what());
+    }
+}
+
 void PDoc::keyboard(QString key, int modifier)
 {
     (void) modifier;

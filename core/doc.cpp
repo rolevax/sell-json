@@ -58,8 +58,13 @@ void Doc::load(const std::string &filename)
 
     tokens.insert(outer, inner);
     tokens.light(&outer->at(inner));
+}
 
-//    tokens.print();
+void Doc::save(const std::string &filename)
+{
+    std::ofstream ofs(filename.c_str());
+    ofs << tokens;
+    ofs.close();
 }
 
 /**

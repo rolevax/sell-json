@@ -12,6 +12,7 @@ class PDoc : public QObject
 public:
     explicit PDoc(QObject *parent = 0);
     Q_INVOKABLE void load(QString filename);
+    Q_INVOKABLE void save(QString filename);
     Q_INVOKABLE void keyboard(QString key, int modifier);
     Q_INVOKABLE void attachPRawRows(PRawRows *p);
 

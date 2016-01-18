@@ -10,8 +10,6 @@
  * LightableGroup := Begin Flesh End [newline]
  *                 | Begin TokenGroup {TokenGroup} End [newline]
  */
-/* TODO: re-arrange functions in cpp file
- */
 class Tokens
 {
 public:
@@ -27,7 +25,6 @@ public:
     void remove(const Ast *outer, size_t inner);
     void updateScalar(const Ast *outer, size_t inner);
     std::string pluck(size_t r);
-    void print();
 
     void registerObserver(TokensObserver *ob);
 
@@ -38,6 +35,8 @@ public:
     bool write(Token *token, size_t r, size_t c);
     void erase(const Region &r);
     ///@}
+
+    friend std::ostream &operator<<(std::ostream &os, const Tokens &ts);
 
 private:
     Region locate(const Ast *tar);
@@ -53,5 +52,7 @@ private:
     std::vector<std::vector<std::unique_ptr<Token>>> rows;
     std::vector<TokensObserver*> observers;
 };
+
+std::ostream &operator<<(std::ostream &os, const Tokens &ts);
 
 #endif // TOKENS_H

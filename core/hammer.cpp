@@ -62,11 +62,14 @@ void Hammer::hitScalar(const ScalarAst &scalar, size_t &r, size_t &c,
     if (tab)
         indent(&scalar, r, c);
 
+    bool needQuotes = scalar.getType() == Ast::Type::STRING
+            || scalar.getType() == Ast::Type::KEY;
+
     write(new SoulToken(&scalar, Token::Role::BEGIN), r, c);
-    if (scalar.getType() == Ast::Type::STRING)
+    if (needQuotes)
         write(new BoneToken(&scalar, "\""), r, c);
     write(new FleshToken(&scalar), r, c);
-    if (scalar.getType() == Ast::Type::STRING)
+    if (needQuotes)
         write(new BoneToken(&scalar, "\""), r, c);
     write(new SoulToken(&scalar, Token::Role::END, enter), r, c);
 }
@@ -105,13 +108,8 @@ void Hammer::hitPair(const MapAst &pair, size_t &r, size_t &c)
     indent(&pair, r, c);
     write(new SoulToken(&pair, Token::Role::BEGIN), r, c);
 
-    const ScalarAst *key = static_cast<const ScalarAst*>(&pair.at(0));
-    write(new SoulToken(key, Token::Role::BEGIN), r, c);
-    write(new FleshToken(key), r, c);
-    write(new SoulToken(key, Token::Role::END), r, c);
-
+    hitGeneral(pair.at(0), r, c, true, false);
     write(new BoneToken(&pair, ": "), r, c);
-
     hitGeneral(pair.at(1), r, c, false, false);
 
     // pairs have no line break, since that's done by bone commas

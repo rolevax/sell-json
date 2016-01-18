@@ -106,16 +106,11 @@ Rectangle {
     }
 
     onFilenameChanged: {
-        timer.start(); // workaround for force repaint
-        // still need timer?
+        pDoc.load(filename);
     }
 
-    Timer {
-        id: timer
-        interval: 17 // skip one frame (16ms)
-        onTriggered: {
-            pDoc.load(filename);
-        }
+    function save() {
+        pDoc.save(filename);
     }
 }
 

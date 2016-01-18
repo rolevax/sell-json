@@ -17,15 +17,6 @@ Window {
         }
     }
 
-    FileDialog {
-        id: fileDialog
-        title: "Please choose a file"
-        nameFilters: [ "JSON files (*.json)", "All files (*)" ]
-        onAccepted: {
-            editor.filename = fileUrl.toString().slice(7);
-        }
-    }
-
     Text {
         anchors.left: openButton.right
         anchors.leftMargin: 10
@@ -33,6 +24,27 @@ Window {
         text: editor.filename
         color: "white"
     }
+
+    Button {
+        id: saveButton
+        text: "Save"
+        anchors.right: parent.right
+        onClicked: {
+            editor.save();
+        }
+    }
+
+
+    FileDialog {
+        id: fileDialog
+        title: "Please choose a file"
+        nameFilters: [ "JSON files (*.json)", "All files (*)" ]
+        onAccepted: {
+            // slice() to get rid of "file://" prefix
+            editor.filename = fileUrl.toString().slice(7);
+        }
+    }
+
 
     Editor {
         id: editor

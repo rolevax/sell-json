@@ -19,6 +19,10 @@ void Tokens::setHotLight(bool b)
         ob->observeSetHotLight(b);
 }
 
+/**
+ * @brief Make the displayed cursor point to a node.
+ * @param inner the node to point
+ */
 void Tokens::light(const Ast *inner)
 {
     Region in = anchor(locate(inner));
@@ -120,6 +124,9 @@ void Tokens::remove(const Ast *outer, size_t inner)
     }
 }
 
+/**
+ * @brief Apply a scalar change. Assuming it is a one-line change.
+ */
 void Tokens::updateScalar(const Ast *outer, size_t inner)
 {
     assert(Ast::isScalar(outer->at(inner)));
@@ -129,127 +136,23 @@ void Tokens::updateScalar(const Ast *outer, size_t inner)
         ob->observeUpdateLine(r.br, pluck(r.br));
 }
 
+/**
+ * @brief print a row to the returned string
+ */
 std::string Tokens::pluck(size_t r)
 {
     assert(r < rows.size());
 
-    std::stringstream ss;
+    std::string ret;
     for (const std::unique_ptr<Token> &t : rows[r])
-        ss << t->getText();
+        ret += t->getText();
 
-    return ss.str();
-}
-
-void Tokens::print()
-{
-    std::cout << "Print from rawRows:" << std::endl;
-    for (const auto &row : rows) {
-        for (const auto &t : row)
-            std::cout << t->getText();
-        std::cout << std::endl;
-    }
-    std::cout << "End of rawRows print. Last \\n is external" << std::endl;
-}
-
-/**
- * @brief Convert token level index into character level index
- * @param r row of token
- * @param c column of token
- * @return column index in terms of character
- */
-size_t Tokens::anchor(size_t r, size_t c)
-{
-    assert(r < rows.size() && c <= rows[r].size());
-    size_t offset = 0;
-    for (size_t i = 0; i < c; i++)
-        offset += rows[r][i]->getText().size();
-    return offset;
-}
-
-Region Tokens::anchor(const Region &r)
-{
-   Region c(r);
-   c.bc = anchor(c.br, c.bc);
-   c.ec = anchor(c.er, c.ec + 1);
-   return c;
+    return ret;
 }
 
 void Tokens::registerObserver(TokensObserver *ob)
 {
     observers.push_back(ob);
-}
-
-/**
- * @brief Find a "LightableGroup" by Ast
- * @param tar The node to locate
- * @return A Region representing a "LightableGroup"
- * See the comment in Tokens class defination for "LightableGroup".
- */
-Region Tokens::locate(const Ast *tar)
-{
-    if (tar->getType() == Ast::Type::ROOT)
-        return { 0, 0, 0, 0 };
-
-    Region res;
-    bool found = false;
-
-    for (auto rit = rows.begin(); rit != rows.end(); ++rit) {
-        for (auto cit = rit->begin(); cit != rit->end(); ++cit) {
-            const Ast *a = (*cit)->getAst();
-            if (a == tar) {
-                Token::Role role = (*cit)->getRole();
-                if (role == Token::Role::BEGIN) {
-                    res.br = rit - rows.begin();
-                    res.bc = cit - rit->begin();
-                } else if (role == Token::Role::END) {
-                    res.er = rit - rows.begin();
-                    res.ec = cit - rit->begin();
-                    found = true;
-                    break;
-                }
-            }
-        }
-    }
-
-    assert(found);
-#ifdef NDEBUG
-    (void) found;
-#endif
-    return res;
-}
-
-/**
- * @brief Change LightableGroup into TokenGroup
- * @param r
- * See comment in Tokens class defination for details
- */
-void Tokens::suckIndent(Region &r)
-{
-    assert(r.br < rows.size() && r.bc < rows[r.br].size());
-
-    Token::Role role = rows[r.br][r.bc]->getRole();
-    if (role == Token::Role::BEGIN) {
-        const Ast *ast = rows[r.br][r.bc]->getAst();
-        if (r.bc > 0 && rows[r.br][r.bc - 1]->getAst() == ast)
-            --r.bc; // include one indentation token
-    }
-}
-
-void Tokens::suckComma(Region &r)
-{
-    const Ast *in = rows[r.br][r.bc]->getAst();
-    const Ast &par = in->getParent();
-    if (par.size() > 1) {
-        if (par.indexOf(in) == par.size() - 1) {
-            /* very end of a non-single-element list
-               then include the previous comma,
-               which is assumed to be the end of the previous row. */
-            --r.br;
-            r.bc = rows[r.br].size() - 1;
-        } else {
-            ++r.ec; // include the following comma
-        }
-    }
 }
 
 /**
@@ -332,6 +235,93 @@ void Tokens::erase(const Region &r)
         joinLine(r.br + 1);
 }
 
+/**
+ * @brief Output in syntatically correct plain text
+ */
+std::ostream &operator<<(std::ostream &os, const Tokens &ts)
+{
+    for (const auto &row : ts.rows) {
+        for (const auto &t : row)
+            os << t->getText();
+        os << std::endl;
+    }
+
+    return os;
+}
+
+/**
+ * @brief Find a "LightableGroup" by Ast
+ * @param tar The node to locate
+ * @return A Region representing a "LightableGroup"
+ * See the comment in Tokens class defination for "LightableGroup".
+ */
+Region Tokens::locate(const Ast *tar)
+{
+    if (tar->getType() == Ast::Type::ROOT)
+        return { 0, 0, 0, 0 };
+
+    Region res;
+    bool found = false;
+
+    for (auto rit = rows.begin(); rit != rows.end(); ++rit) {
+        for (auto cit = rit->begin(); cit != rit->end(); ++cit) {
+            const Ast *a = (*cit)->getAst();
+            if (a == tar) {
+                Token::Role role = (*cit)->getRole();
+                if (role == Token::Role::BEGIN) {
+                    res.br = rit - rows.begin();
+                    res.bc = cit - rit->begin();
+                } else if (role == Token::Role::END) {
+                    res.er = rit - rows.begin();
+                    res.ec = cit - rit->begin();
+                    found = true;
+                    break;
+                }
+            }
+        }
+    }
+
+    assert(found);
+#ifdef NDEBUG
+    (void) found;
+#endif
+    return res;
+}
+
+/**
+ * @brief Change LightableGroup into TokenGroup
+ * @param r
+ * See comment in Tokens class defination for details
+ */
+void Tokens::suckIndent(Region &r)
+{
+    assert(r.br < rows.size() && r.bc < rows[r.br].size());
+
+    Token::Role role = rows[r.br][r.bc]->getRole();
+    if (role == Token::Role::BEGIN) {
+        const Ast *ast = rows[r.br][r.bc]->getAst();
+        if (r.bc > 0 && rows[r.br][r.bc - 1]->getAst() == ast)
+            --r.bc; // include one indentation token
+    }
+}
+
+void Tokens::suckComma(Region &r)
+{
+    const Ast *in = rows[r.br][r.bc]->getAst();
+    const Ast &par = in->getParent();
+    if (par.size() > 1) {
+        if (par.indexOf(in) == par.size() - 1) {
+            /* very end of a non-single-element list
+               then include the previous comma,
+               which is assumed to be the end of the previous row. */
+            --r.br;
+            r.bc = rows[r.br].size() - 1;
+        } else {
+            ++r.ec; // include the following comma
+        }
+    }
+}
+
 /*
  * observer should also do the move-rest-of-line job
  * should do that with remove + re-insert to reuse code?
@@ -367,4 +357,26 @@ void Tokens::joinLine(size_t r)
         ob->observeJoinLine(r);
 }
 
+/**
+ * @brief Convert token level index into character level index
+ * @param r row of token
+ * @param c column of token
+ * @return column index in terms of character
+ */
+size_t Tokens::anchor(size_t r, size_t c)
+{
+    assert(r < rows.size() && c <= rows[r].size());
+    size_t offset = 0;
+    for (size_t i = 0; i < c; i++)
+        offset += rows[r][i]->getText().size();
+    return offset;
+}
+
+Region Tokens::anchor(const Region &r)
+{
+   Region c(r);
+   c.bc = anchor(c.br, c.bc);
+   c.ec = anchor(c.er, c.ec + 1);
+   return c;
+}
 

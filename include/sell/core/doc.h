@@ -10,9 +10,6 @@
 
 class PDoc;
 
-/* TODO Tokens::dark()
- *   - trigger when root has no child (new doc/all deleted)
- */
 class Doc
 {
 public:
@@ -22,6 +19,7 @@ public:
     Doc &operator=(const Doc&) = delete;
 
     void load(const std::string &filename);
+    void save(const std::string &filename);
     void keyboard(char key);
 
     void registerTokensObserver(TokensObserver *ob);
