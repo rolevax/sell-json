@@ -38,12 +38,12 @@ void StringInputMode::onPushed()
     }
 
     tokens.light(&outer->at(inner));
-    tokens.setHotLight(true);
+    tokens.setHotLight(1); // 1-back to skip quote
 }
 
 void StringInputMode::onPopped()
 {
-    tokens.setHotLight(false);
+    tokens.setHotLight(-1); // turn off hot light
 }
 
 const char *StringInputMode::name()

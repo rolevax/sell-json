@@ -13,10 +13,10 @@ Tokens::Tokens() :
     rows.emplace_back();
 }
 
-void Tokens::setHotLight(bool b)
+void Tokens::setHotLight(ssize_t back)
 {
     for (auto ob : observers)
-        ob->observeSetHotLight(b);
+        ob->observeHotLight(back);
 }
 
 /**

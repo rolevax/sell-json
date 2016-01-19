@@ -57,12 +57,12 @@ void NumberInputMode::onPushed()
     }
 
     tokens.light(&outer->at(inner));
-    tokens.setHotLight(true);
+    tokens.setHotLight(0); // turn on hot light
 }
 
 void NumberInputMode::onPopped()
 {
-    tokens.setHotLight(false);
+    tokens.setHotLight(-1); // turn off hot light
 }
 
 const char *NumberInputMode::name()

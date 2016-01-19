@@ -50,8 +50,8 @@ Rectangle {
             street.removeLine(r, ct);
         }
 
-        onHotLightSet: {
-            street.setHotLight(b);
+        onHotLighted: {
+            street.setHotLight(back);
         }
 
         onLighted: {

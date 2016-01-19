@@ -37,9 +37,9 @@ void PRawRows::observeLight(size_t lbr, size_t lbc,
     emit lighted(lbr, lbc, ler, lec, hbr, hbc, her, hec);
 }
 
-void PRawRows::observeSetHotLight(bool b)
+void PRawRows::observeHotLight(ssize_t back)
 {
-    emit hotLightSet(b);
+    emit hotLighted(back);
 }
 
 QVariant PRawRows::createTokenVar(const Token &token)

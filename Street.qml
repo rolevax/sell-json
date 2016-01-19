@@ -44,12 +44,11 @@ Item {
         color: highDown.lightColor
     }
 
-    Rectangle {
+    HotLight {
         id: hotLight
-        anchors.left: highUp.right
+        leftOff: highUp.rightOff
         anchors.top: highUp.top
         width: 10; height: 20
-        color: "#EE3333"
         visible: false
     }
 
@@ -58,8 +57,13 @@ Item {
         anchors.fill: parent
     }
 
-    function setHotLight(b) {
-        hotLight.visible = b;
+    function setHotLight(back) {
+        if (back < 0) {
+            hotLight.visible = false;
+        } else {
+            hotLight.back = back;
+            hotLight.visible = true;
+        }
     }
 
     function setTension(b) {

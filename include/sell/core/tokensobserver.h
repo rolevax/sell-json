@@ -14,7 +14,7 @@ public:
     virtual void observeJoinLine(size_t /*r*/) {}
     virtual void observeUpdateLine(size_t /*r*/, const std::string &/*s*/) {}
     virtual void observeRemoveLine(size_t /*r*/, size_t /*ct*/) {}
-    virtual void observeSetHotLight(bool /*b*/) {}
+    virtual void observeHotLight(ssize_t /*back*/) {}
     virtual void observeLight(size_t /*lbr*/, size_t /*lbc*/,
                               size_t /*ler*/, size_t /*lec*/,
                               size_t /*hbr*/, size_t /*hbc*/,

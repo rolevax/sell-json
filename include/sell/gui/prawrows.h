@@ -20,14 +20,14 @@ public:
                       size_t ler, size_t lec,
                       size_t hbr, size_t hbc,
                       size_t her, size_t hec) override;
-    void observeSetHotLight(bool b) override;
+    void observeHotLight(ssize_t back) override;
 
 signals:
     void updateLine(int r, const QString str);
     void newLine(int r, int c);
     void joinLine(int r);
     void removeLine(int r, int ct);
-    void hotLightSet(bool b);
+    void hotLighted(int back);
     void lighted(int lbr, int lbc, int ler, int lec,
                  int hbr, int hbc, int her, int hec);
 

@@ -19,7 +19,7 @@ public:
     Tokens(const Tokens&) = delete;
     Tokens &operator=(const Tokens&) = delete;
 
-    void setHotLight(bool b);
+    void setHotLight(ssize_t back);
     void light(const Ast *inner);
     void insert(const Ast *outer, size_t inner);
     void remove(const Ast *outer, size_t inner);
