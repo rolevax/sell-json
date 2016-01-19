@@ -4,15 +4,16 @@
 
 #include <cassert>
 
-NumberInputMode::NumberInputMode(Doc &doc) :
-    Mode(doc)
+NumberInputMode::NumberInputMode(Doc &doc, bool clear) :
+    Mode(doc),
+    clear(clear)
 {
 
 }
 
 void NumberInputMode::keyboard(char key)
 {
-    assert(Ast::isScalar(outer->at(inner)));
+    assert(outer->at(inner).getType() == Ast::Type::NUMBER);
 
     if (' ' == key) {
         leave();
@@ -48,6 +49,13 @@ void NumberInputMode::keyboard(char key)
 
 void NumberInputMode::onPushed()
 {
+    if (clear) {
+        assert(outer->at(inner).getType() == Ast::Type::NUMBER);
+        ScalarAst &scalar = static_cast<ScalarAst&>(outer->at(inner));
+        scalar.clear();
+        tokens.updateScalar(outer, inner);
+    }
+
     tokens.light(&outer->at(inner));
     tokens.setHotLight(true);
 }

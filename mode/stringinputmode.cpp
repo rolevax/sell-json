@@ -4,8 +4,9 @@
 
 #include <cassert>
 
-StringInputMode::StringInputMode(Doc &doc) :
-    Mode(doc)
+StringInputMode::StringInputMode(Doc &doc, bool clear) :
+    Mode(doc),
+    clear(clear)
 {
 
 }
@@ -29,6 +30,13 @@ void StringInputMode::keyboard(char key)
 
 void StringInputMode::onPushed()
 {
+    if (clear) {
+        assert(Ast::isScalar(outer->at(inner)));
+        ScalarAst &scalar = static_cast<ScalarAst&>(outer->at(inner));
+        scalar.clear();
+        tokens.updateScalar(outer, inner);
+    }
+
     tokens.light(&outer->at(inner));
     tokens.setHotLight(true);
 }

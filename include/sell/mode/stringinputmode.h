@@ -6,12 +6,15 @@
 class StringInputMode : public Mode
 {
 public:
-    StringInputMode(Doc &doc);
+    StringInputMode(Doc &doc, bool clear);
 
     void keyboard(char key) override;
     void onPushed() override;
     void onPopped() override;
     const char *name() override;
+
+private:
+    bool clear;
 };
 
 #endif // STRINGINPUTMODE_H

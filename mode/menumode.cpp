@@ -104,10 +104,10 @@ void MenuMode::work(Ast::Type type, const char *keytal)
 
     switch (type) {
     case Ast::Type::STRING:
-        leave(new StringInputMode(doc));
+        leave(new StringInputMode(doc, false));
         break;
     case Ast::Type::NUMBER:
-        leave(new NumberInputMode(doc));
+        leave(new NumberInputMode(doc, false));
         break;
     case Ast::Type::KEYTAL:
         assert(nullptr != keytal);

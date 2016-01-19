@@ -6,12 +6,16 @@
 class NumberInputMode : public Mode
 {
 public:
-    NumberInputMode(Doc &doc);
+    NumberInputMode(Doc &doc, bool clear);
+
 
     void keyboard(char key) override;
     void onPushed() override;
     void onPopped() override;
     const char *name() override;
+
+private:
+    bool clear;
 };
 
 #endif // NUMBERINPUTMODE_H

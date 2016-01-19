@@ -12,6 +12,7 @@ public:
     const std::string &getText() const;
 
     void append(char c);
+    void clear();
 
 private:
     std::string text;

@@ -21,4 +21,9 @@ void ScalarAst::append(char c)
     }
 }
 
+void ScalarAst::clear()
+{
+    text.clear();
+}
+
 

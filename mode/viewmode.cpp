@@ -78,13 +78,14 @@ void ViewMode::keyboard(char key)
         }
         break;
     case 'm': // modify
+    case 'M':
         switch (outer->at(inner).getType()) {
         case Ast::Type::STRING:
         case Ast::Type::KEY:
-            push(new StringInputMode(doc));
+            push(new StringInputMode(doc, key == 'M'));
             break;
         case Ast::Type::NUMBER:
-            push(new NumberInputMode(doc));
+            push(new NumberInputMode(doc, key == 'M'));
             break;
         default:
             break;
