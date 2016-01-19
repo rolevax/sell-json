@@ -16,7 +16,7 @@ void NumberInputMode::keyboard(char key)
     assert(outer->at(inner).getType() == Ast::Type::NUMBER);
 
     if (' ' == key) {
-        leave();
+        pop();
         return;
     }
 

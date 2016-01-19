@@ -27,7 +27,8 @@ SOURCES += main.cpp \
     mode/viewmode.cpp \
     mode/menumode.cpp \
     mode/stringinputmode.cpp \
-    mode/numberinputmode.cpp
+    mode/numberinputmode.cpp \
+    mode/pairinputmode.cpp
 
 RESOURCES += qml.qrc
 
@@ -60,5 +61,6 @@ HEADERS += \
     include/sell/mode/viewmode.h \
     include/sell/mode/menumode.h \
     include/sell/mode/stringinputmode.h \
-    include/sell/mode/numberinputmode.h
+    include/sell/mode/numberinputmode.h \
+    include/sell/mode/pairinputmode.h
 

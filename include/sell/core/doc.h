@@ -29,7 +29,7 @@ public:
 
 private:
     void push(Mode *mode);
-    void pop();
+    void pop(Mode *nextPush);
 
     void fuckIn();
     void damnOut();

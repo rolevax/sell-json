@@ -30,7 +30,7 @@ Doc::Doc()
 void Doc::load(const std::string &filename)
 {
     if (modes.size() > 1)
-        throw std::runtime_error("Modifying mode not popped");
+        throw std::runtime_error("Load failed: modifying mode not popped");
 
     std::ifstream ifs(filename.c_str());
     std::stringstream ss;
@@ -62,6 +62,9 @@ void Doc::load(const std::string &filename)
 
 void Doc::save(const std::string &filename)
 {
+    if (modes.size() > 1)
+        throw std::runtime_error("Save failed: modifying mode not popped");
+
     std::ofstream ofs(filename.c_str());
     ofs << tokens;
     ofs.close();
@@ -110,17 +113,25 @@ void Doc::push(Mode *mode)
 /**
  * @brief Doc::pop
  * Pop the top of the mode stack,
- * and call the 'onPopped' callback of that mode.
+ * and call the 'onPopped' of that mode.
+ * Then call 'onResume' of the new top mode.
  * Afterwards that mode object will be destructed.
  */
-void Doc::pop()
+void Doc::pop(Mode *nextPush)
 {
+    assert(modes.size() > 1); // bottom view mode reserved
+
     if (ob != nullptr)
         ob->observePop();
 
     std::unique_ptr<Mode> popped = std::move(modes.top());
     modes.pop();
     popped->onPopped();
+
+    if (nextPush != nullptr)
+        push(nextPush);
+    else
+        modes.top()->onResume();
 }
 
 void Doc::fuckIn()

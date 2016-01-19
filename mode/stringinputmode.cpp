@@ -16,7 +16,7 @@ void StringInputMode::keyboard(char key)
     switch (key) {
     case '\t':
     case '\r':
-        leave();
+        pop();
         break;
     default:
         assert(Ast::isScalar(outer->at(inner)));

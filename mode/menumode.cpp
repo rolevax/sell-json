@@ -1,6 +1,7 @@
 #include "sell/mode/menumode.h"
 #include "sell/mode/stringinputmode.h"
 #include "sell/mode/numberinputmode.h"
+#include "sell/mode/pairinputmode.h"
 #include "sell/core/tokens.h"
 
 #include <cassert>
@@ -17,7 +18,7 @@ void MenuMode::keyboard(char key)
 {
     switch (key) {
     case ' ':
-        leave();
+        pop();
         break;
     case 's':
         work(Ast::Type::STRING);
@@ -104,10 +105,13 @@ void MenuMode::work(Ast::Type type, const char *keytal)
 
     switch (type) {
     case Ast::Type::STRING:
-        leave(new StringInputMode(doc, false));
+        pop(new StringInputMode(doc, false));
         break;
     case Ast::Type::NUMBER:
-        leave(new NumberInputMode(doc, false));
+        pop(new NumberInputMode(doc, false));
+        break;
+    case Ast::Type::PAIR:
+        pop(new PairInputMode(doc));
         break;
     case Ast::Type::KEYTAL:
         assert(nullptr != keytal);
@@ -117,9 +121,8 @@ void MenuMode::work(Ast::Type type, const char *keytal)
         /* fall through */
     case Ast::Type::ARRAY:
     case Ast::Type::OBJECT:
-    case Ast::Type::PAIR:
         tokens.light(&outer->at(inner));
-        leave();
+        pop();
         break;
     default:
         throw "MenuMode: work(): unhandled ast type";

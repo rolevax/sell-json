@@ -12,15 +12,16 @@ public:
     Mode(const Mode& copy) = delete;
     Mode &operator=(const Mode& assign) = delete;
 
-    virtual void keyboard(char key) = 0;
+    virtual void keyboard(char key) { (void) key; }
     virtual void emptyKeyboard(char key) { (void) key; }
     virtual void onPushed() {}
     virtual void onPopped() {}
+    virtual void onResume() {}
     virtual const char *name() = 0;
 
 protected:
     void push(Mode *mode);
-    void leave(Mode *next = nullptr);
+    void pop(Mode *next = nullptr);
 
     void fuckIn();
     void damnOut();
