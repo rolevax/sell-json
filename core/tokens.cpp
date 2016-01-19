@@ -328,6 +328,13 @@ void Tokens::suckIndent(Region &r)
     }
 }
 
+/**
+ * @brief Include a comman that should be removed together
+ * 		  with the region.
+ * @param r region to remove
+ * Assume that comma is adjacent to the "group",
+ * including prefix tab indent.
+ */
 void Tokens::suckComma(Region &r)
 {
     const Ast *in = rows[r.br][r.bc]->getAst();
@@ -337,10 +344,13 @@ void Tokens::suckComma(Region &r)
             /* very end of a non-single-element list
                then include the previous comma,
                which is assumed to be the end of the previous row. */
-            --r.br;
-            r.bc = rows[r.br].size() - 1;
-        } else {
-            ++r.ec; // include the following comma
+            if (rows[r.br - 1].back()->getAst() == &par) {
+                --r.br;
+                r.bc = rows[r.br].size() - 1;
+            }
+        } else { // first or internel list element
+            if (rows[r.er][r.ec + 1]->getAst() == &par)
+                ++r.ec; // include the following comma
         }
     }
 }

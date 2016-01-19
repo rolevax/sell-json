@@ -99,7 +99,15 @@ bool AstConverter::EndObject(rapidjson::SizeType memberCount)
 {
     (void) memberCount;
 
+    // jump out object
     outer = &outer->getParent();
+
+    // jump out pair
+    if (outer->getType() == Ast::Type::PAIR) {
+        outer = &outer->getParent();
+        assert(outer->getType() == Ast::Type::OBJECT);
+    }
+
     inner = outer->size();
 
     return true;
@@ -119,7 +127,15 @@ bool AstConverter::EndArray(rapidjson::SizeType elementCount)
 {
     (void) elementCount;
 
+    // jump out array
     outer = &outer->getParent();
+
+    // jump out pair
+    if (outer->getType() == Ast::Type::PAIR) {
+        outer = &outer->getParent();
+        assert(outer->getType() == Ast::Type::OBJECT);
+    }
+
     inner = outer->size();
 
     return true;
@@ -127,14 +143,14 @@ bool AstConverter::EndArray(rapidjson::SizeType elementCount)
 
 void AstConverter::convertScalar(Ast::Type type, const std::string &text)
 {
+    assert(type != Ast::Type::KEY);
+
     Ast *scalar = new ScalarAst(type, text);
     outer->insert(inner, scalar);
-    if (outer->getType() == Ast::Type::ARRAY) {
-        ++inner;
-    } else if (outer->getType() == Ast::Type::PAIR) {
+    if (outer->getType() == Ast::Type::PAIR) {
         outer = &outer->getParent();
         assert(outer->getType() == Ast::Type::OBJECT);
-        inner = outer->size();
     }
+    inner = outer->size();
 }
 

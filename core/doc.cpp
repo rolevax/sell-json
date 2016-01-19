@@ -8,6 +8,7 @@
 // RapidJSON headers
 #include "rapidjson/document.h"
 #include "rapidjson/prettywriter.h"
+#include "rapidjson/stringbuffer.h"
 #include "rapidjson/error/en.h"
 
 // headers for file I/O
