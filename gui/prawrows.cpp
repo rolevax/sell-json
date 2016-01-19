@@ -9,19 +9,9 @@ PRawRows::PRawRows(QObject *parent) :
 
 }
 
-void PRawRows::observeWrite(const Token &token, size_t r, size_t c)
-{
-    emit written(QString::fromStdString(token.getText()), r, c);
-}
-
-void PRawRows::observeErase(const Region &r)
-{
-    emit erased(r.br, r.bc, r.er, r.ec);
-}
-
 void PRawRows::observeUpdateLine(size_t r, const std::string &s)
 {
-    emit lineUpdated(r, QString::fromStdString(s));
+    emit updateLine(r, QString::fromStdString(s));
 }
 
 void PRawRows::observeNewLine(size_t r, size_t c)
@@ -32,6 +22,11 @@ void PRawRows::observeNewLine(size_t r, size_t c)
 void PRawRows::observeJoinLine(size_t r)
 {
     emit joinLine(r);
+}
+
+void PRawRows::observeRemoveLine(size_t r, size_t ct)
+{
+    emit removeLine(r, ct);
 }
 
 void PRawRows::observeLight(size_t lbr, size_t lbc,

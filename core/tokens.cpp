@@ -40,10 +40,9 @@ void Tokens::light(const Ast *inner)
 }
 
 /**
- * @brief Tokens::insert
+ * @brief Apply a insertion change in Ast into Tokens.
  * @param outer Parent of new node
  * @param inner Index of new node within its parent
- * Apply a insertion change in Ast into Tokens.
  * Should be called after Ast's insertion.
  * Also called in Doc::change().
  * When changing a node inside map, will locate by the
@@ -101,7 +100,7 @@ void Tokens::insert(const Ast *outer, size_t inner)
 }
 
 /**
- * @brief Tokens::remove
+ * @brief Apply a removal change of Ast.
  * @param outer Parent of the node to remove
  * @param inner Index of the node to remove within its parent
  * This should be called before modifying Ast.
@@ -150,6 +149,9 @@ std::string Tokens::pluck(size_t r)
     return ret;
 }
 
+/**
+ * @brief Vertical concrete cursor moving
+ */
 void Tokens::jackKick(Ast *&outer, size_t &inner, bool down)
 {
     Region r = locate(&outer->at(inner));
@@ -200,7 +202,8 @@ bool Tokens::write(Token *token, size_t r, size_t c)
     std::vector<std::unique_ptr<Token>> &row = rows[r];
     row.emplace(row.begin() + c, token);
     for (auto ob : observers)
-        ob->observeWrite(*token, r, anchor(r, c));
+        ob->observeUpdateLine(r, pluck(r));
+
 
     if (token->needNewLine()) {
         newLine(r, c + 1);
@@ -214,10 +217,6 @@ bool Tokens::write(Token *token, size_t r, size_t c)
  * @brief Tokens::erase
  * @param r
  * Remove all tokens from the region 'r'
- * If 'r' indicates multiple lines,
- * all lines except the first and the last will be removed
- * without calling joinLine() function.
- * The observer should be aware of this.
  */
 void Tokens::erase(const Region &r)
 {
@@ -225,7 +224,6 @@ void Tokens::erase(const Region &r)
     assert(r.er < rows.size() && r.ec < rows[r.er].size());
     assert(r.br <= r.er);
 
-    Region cr = anchor(r);
     int needJoin = 0;
 
     if (r.br == r.er) { // one-line erase
@@ -244,18 +242,22 @@ void Tokens::erase(const Region &r)
         auto endIt = rows[r.er].begin();
         rows[r.er].erase(endIt, endIt + r.ec + 1);
 
-        if (r.br + 1 < r.er) // remove internal lines
+        if (r.br + 1 < r.er) { // remove internal lines [br+1,er-1]
             rows.erase(rows.begin() + r.br + 1, rows.begin() + r.er);
+            for (auto ob : observers)
+                ob->observeRemoveLine(r.br + 1, r.er - (r.br + 1));
+        }
 
         // remove inside the first line
         rows[r.br].erase(rows[r.br].begin() + r.bc, rows[r.br].end());
     }
 
-    for (auto ob : observers)
-        ob->observeErase(cr);
 
     while (needJoin --> 0)
         joinLine(r.br + 1);
+
+    for (auto ob : observers)
+        ob->observeUpdateLine(r.br, pluck(r.br));
 }
 
 /**

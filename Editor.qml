@@ -34,16 +34,8 @@ Rectangle {
     PRawRows {
         id: pRawRows
 
-        onWritten: {
-            street.insert(str, r, c);
-        }
-
-        onErased: {
-            street.erase(br, bc, er, ec);
-        }
-
-        onLineUpdated: {
-            street.update(r, str);
+        onUpdateLine: {
+            street.updateLine(r, str);
         }
 
         onNewLine: {
@@ -52,6 +44,10 @@ Rectangle {
 
         onJoinLine: {
             street.joinLine(r);
+        }
+
+        onRemoveLine: {
+            street.removeLine(r, ct);
         }
 
         onHotLightSet: {

@@ -12,11 +12,10 @@ class PRawRows : public QObject, public TokensObserver
 public:
     explicit PRawRows(QObject *parent = 0);
 
-    void observeWrite(const Token &token, size_t r, size_t c) override;
-    void observeErase(const Region &r) override;
     void observeUpdateLine(size_t r, const std::string &s) override;
     void observeNewLine(size_t r, size_t c) override;
     void observeJoinLine(size_t r) override;
+    void observeRemoveLine(size_t r, size_t ct) override;
     void observeLight(size_t lbr, size_t lbc,
                       size_t ler, size_t lec,
                       size_t hbr, size_t hbc,
@@ -24,11 +23,10 @@ public:
     void observeSetHotLight(bool b) override;
 
 signals:
-    void written(const QString str, int r, int c);
-    void erased(int br, int bc, int er, int ec);
-    void lineUpdated(int r, const QString str);
+    void updateLine(int r, const QString str);
     void newLine(int r, int c);
     void joinLine(int r);
+    void removeLine(int r, int ct);
     void hotLightSet(bool b);
     void lighted(int lbr, int lbc, int ler, int lec,
                  int hbr, int hbc, int her, int hec);

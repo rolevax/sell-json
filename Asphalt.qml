@@ -30,13 +30,7 @@ ListView {
         return undefined;
     }
 
-    function insert(str, r, c) {
-        var orig = listModel.get(r).modelText;
-        var next = [orig.slice(0, c), str, orig.slice(c)].join("");
-        listModel.get(r).modelText = next;
-    }
-
-    function update(r, str) {
+    function updateLine(r, str) {
         listModel.get(r).modelText = str;
     }
 
@@ -51,20 +45,8 @@ ListView {
         listModel.remove(r, 1);
     }
 
-    function erase(br, bc, er, ec) {
-        if (br === er) { // erase within a row
-            var orig = listModel.get(br).modelText;
-            listModel.get(br).modelText = orig.slice(0, bc) + orig.slice(ec + 1);
-        } else {
-            // remove characters in the last row
-            listModel.get(er).modelText = listModel.get(er).modelText.slice(ec + 1);
-
-            if (br + 1 < er) // remove middle rows
-                listModel.remove(br + 1, (er - 1) - (br + 1) + 1);
-
-            // remove characters in the first row
-            listModel.get(br).modelText = listModel.get(br).modelText.slice(0, bc);
-        }
+    function removeLine(r, ct) {
+        listModel.remove(r, ct);
     }
 }
 

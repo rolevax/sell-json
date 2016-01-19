@@ -90,6 +90,10 @@ Item {
         down.y = mapFromItem(asph.rowAt(er), 0, 0).y;
     }
 
+    function updateLine(r, str) {
+        asph.updateLine(r, str);
+    }
+
     function newLine(r, c) {
         asph.newLine(r, c);
     }
@@ -98,16 +102,8 @@ Item {
         asph.joinLine(r);
     }
 
-    function insert(str, r, c) {
-        asph.insert(str, r, c);
-    }
-
-    function update(r, str) {
-        asph.update(r, str);
-    }
-
-    function erase(br, bc, er, ec) {
-        asph.erase(br, bc, er, ec);
+    function removeLine(r, ct) {
+        asph.removeLine(r, ct);
     }
 }
 
