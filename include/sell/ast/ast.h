@@ -27,6 +27,7 @@ public:
     static bool isChangeable(const Ast &a);
 
     Ast(Type t);
+    virtual ~Ast() = default;
 
     Type getType() const;
     Ast &getParent() const;

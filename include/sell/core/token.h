@@ -20,6 +20,7 @@ public:
     };
 
     Token(const Ast *ast, Role role);
+    virtual ~Token() = default;
 
     const Ast *getAst() const;
     Role getRole() const;
