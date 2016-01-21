@@ -6,7 +6,7 @@
 class PairInputMode : public Mode
 {
 public:
-    PairInputMode(Doc &doc);
+    PairInputMode(EditableDoc &doc);
 
     void onPushed() override;
     void onResume() override;

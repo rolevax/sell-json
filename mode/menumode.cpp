@@ -1,13 +1,13 @@
+#include "sell/core/editabledoc.h"
 #include "sell/mode/menumode.h"
 #include "sell/mode/stringinputmode.h"
 #include "sell/mode/numberinputmode.h"
 #include "sell/mode/pairinputmode.h"
-#include "sell/core/tokens.h"
 
 #include <cassert>
 #include <QDebug>
 
-MenuMode::MenuMode(Doc &doc, Context context) :
+MenuMode::MenuMode(EditableDoc &doc, Context context) :
     Mode(doc),
     context(context)
 {
@@ -18,7 +18,7 @@ void MenuMode::keyboard(char key)
 {
     switch (key) {
     case ' ':
-        pop();
+        doc.pop();
         break;
     case 's':
         work(Ast::Type::STRING);
@@ -55,9 +55,9 @@ void MenuMode::onPushed()
 {
     // early leave if only one choice
     bool underTyrant = context != Context::ASSART
-            && outer->getType() == Ast::Type::OBJECT;
+            && doc.outerType() == Ast::Type::OBJECT;
     bool intoTyrant = context == Context::ASSART
-            && outer->at(inner).getType() == Ast::Type::OBJECT;
+            && doc.innerType() == Ast::Type::OBJECT;
     if (underTyrant || intoTyrant) {
         work(Ast::Type::PAIR);
         return;
@@ -66,12 +66,12 @@ void MenuMode::onPushed()
         return;
     }
 
-    toggleTension(true);
+    doc.toggleTension(true);
 }
 
 void MenuMode::onPopped()
 {
-    toggleTension(false);
+    doc.toggleTension(false);
 }
 
 const char *MenuMode::name()
@@ -88,41 +88,38 @@ const char *MenuMode::name()
 void MenuMode::work(Ast::Type type, const char *keytal)
 {
     if (context == Context::CHANGE) {
-        change(type);
+        doc.change(type);
     } else if (context == Context::NEST) {
-        nest(type);
+        doc.nest(type);
     } else {
         // prepare cursor
         if (context == Context::APPEND) {
-            ++inner;
+            doc.cursorForward();
         } else if (context == Context::ASSART) {
-            outer = &outer->at(inner);
-            inner = 0;
+            doc.cursorIn();
         }
 
-        insert(type);
+        doc.insert(type);
     }
 
     switch (type) {
     case Ast::Type::STRING:
-        pop(new StringInputMode(doc, false));
+        doc.pop(new StringInputMode(doc, false));
         break;
     case Ast::Type::NUMBER:
-        pop(new NumberInputMode(doc, false));
+        doc.pop(new NumberInputMode(doc, false));
         break;
     case Ast::Type::PAIR:
-        pop(new PairInputMode(doc));
+        doc.pop(new PairInputMode(doc));
         break;
     case Ast::Type::KEYTAL:
         assert(nullptr != keytal);
-        while ('\0' != *keytal)
-            static_cast<ScalarAst&>(outer->at(inner)).append(*keytal++);
-        tokens.updateScalar(outer, inner);
+        doc.scalarAppend(keytal);
         /* fall through */
     case Ast::Type::ARRAY:
     case Ast::Type::OBJECT:
-        tokens.light(&outer->at(inner));
-        pop();
+        doc.light();
+        doc.pop();
         break;
     default:
         throw "MenuMode: work(): unhandled ast type";

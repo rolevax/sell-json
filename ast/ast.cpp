@@ -59,15 +59,9 @@ Ast &Ast::getParent() const
     return *parent;
 }
 
-void Ast::setParent(Ast *p)
-{
-    parent = p;
-    root = parent->root;
-}
-
 void Ast::insert(size_t pos, Ast *child)
 {
-    child->setParent(this);
+    child->parent = this;
     doInsert(pos, child);
 }
 
@@ -79,7 +73,7 @@ std::unique_ptr<Ast> Ast::remove(size_t pos)
 
 std::unique_ptr<Ast> Ast::change(size_t pos, Ast *next)
 {
-    next->setParent(this);
+    next->parent = this;
     return doChange(pos, next);
 }
 

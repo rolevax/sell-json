@@ -6,7 +6,13 @@ RootAst::RootAst() :
     Ast(Type::ROOT)
 {
     parent = this;
-    root = this;
+}
+
+RootAst *RootAst::clone() const
+{
+    RootAst *ret = new RootAst();
+    ret->subtree.reset(subtree->clone());
+    return ret;
 }
 
 size_t RootAst::size() const

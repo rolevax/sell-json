@@ -6,7 +6,7 @@
 class ViewMode : public Mode
 {
 public:
-    ViewMode(Doc &doc);
+    ViewMode(EditableDoc &doc);
 
     void keyboard(char key) override;
     void emptyKeyboard(char key) override;

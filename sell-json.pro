@@ -23,7 +23,6 @@ SOURCES += main.cpp \
     core/soultoken.cpp \
     core/tokens.cpp \
     core/hammer.cpp \
-    mode/mode.cpp \
     mode/viewmode.cpp \
     mode/menumode.cpp \
     mode/stringinputmode.cpp \
@@ -62,5 +61,6 @@ HEADERS += \
     include/sell/mode/menumode.h \
     include/sell/mode/stringinputmode.h \
     include/sell/mode/numberinputmode.h \
-    include/sell/mode/pairinputmode.h
+    include/sell/mode/pairinputmode.h \
+    include/sell/core/editabledoc.h
 

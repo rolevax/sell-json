@@ -9,6 +9,8 @@ class ScalarAst : public Ast
 public:
     ScalarAst(Type t, const std::string &text);
 
+    ScalarAst *clone() const override;
+
     const std::string &getText() const;
 
     void append(char c);

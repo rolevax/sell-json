@@ -7,9 +7,8 @@
 
 PDoc::PDoc(QObject *parent) :
     QObject(parent),
-    doc(new Doc)
+    doc(new Doc(this))
 {
-    doc->registerObserver(this);
 }
 
 void PDoc::load(QString filename)

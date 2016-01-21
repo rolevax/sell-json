@@ -1,10 +1,11 @@
+#include "sell/core/editabledoc.h"
 #include "sell/mode/pairinputmode.h"
 #include "sell/mode/menumode.h"
 #include "sell/mode/stringinputmode.h"
 
 #include <iostream>
 
-PairInputMode::PairInputMode(Doc &doc)
+PairInputMode::PairInputMode(EditableDoc &doc)
     : Mode(doc)
 {
 
@@ -12,22 +13,22 @@ PairInputMode::PairInputMode(Doc &doc)
 
 void PairInputMode::onPushed()
 {
-    fallIn();
+    doc.fallIn();
     stage = Stage::KEY_DONE;
-    push(new StringInputMode(doc, true));
+    doc.push(new StringInputMode(doc, true));
 }
 
 void PairInputMode::onResume()
 {
     switch (stage) {
     case Stage::KEY_DONE:
-        sibling(+1);
+        doc.sibling(+1);
         stage = Stage::VALUE_DONE;
-        push(new MenuMode(doc, MenuMode::Context::CHANGE));
+        doc.push(new MenuMode(doc, MenuMode::Context::CHANGE));
         break;
     case Stage::VALUE_DONE:
-        digOut();
-        pop();
+        doc.digOut();
+        doc.pop();
         break;
     }
 }

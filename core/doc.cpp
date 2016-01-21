@@ -23,7 +23,8 @@
 #include <iostream>
 #include <cstdlib>
 
-Doc::Doc()
+Doc::Doc(PDoc *ob)
+    : ob(ob)
 {
     modes.emplace(new ViewMode(*this));
 }
@@ -89,11 +90,6 @@ void Doc::registerTokensObserver(TokensObserver *ob)
     tokens.registerObserver(ob);
 }
 
-void Doc::registerObserver(PDoc *ob)
-{
-    this->ob = ob;
-}
-
 /**
  * @brief Push 'mode' onto the mode stack,
  * Trigger the 'onPushed' callback of 'mode'
@@ -130,6 +126,27 @@ void Doc::pop(Mode *nextPush)
         push(nextPush);
     else
         modes.top()->onResume();
+}
+
+Ast::Type Doc::outerType()
+{
+    return outer->getType();
+}
+
+Ast::Type Doc::innerType()
+{
+    return outer->at(inner).getType();
+}
+
+void Doc::cursorIn()
+{
+    outer = &outer->at(inner);
+    inner = 0;
+}
+
+void Doc::cursorForward()
+{
+    ++inner;
 }
 
 void Doc::fallIn()
@@ -186,6 +203,12 @@ void Doc::sibling(int step)
 void Doc::jackKick(bool down)
 {
     tokens.jackKick(outer, inner, down);
+}
+
+void Doc::hackLead(bool right)
+{
+    if (outerType() == Ast::Type::PAIR && inner == 0)
+        sibling(right ? +1 : -1);
 }
 
 /**
@@ -264,6 +287,44 @@ void Doc::nest(Ast::Type type)
     tokens.light(&outer->at(inner));
 }
 
+void Doc::scalarAppend(const char *str)
+{
+    ScalarAst &scalar = getScalar();
+    while ('\0' != *str)
+        scalar.append(*str++);
+    tokens.updateScalar(outer, inner);
+}
+
+void Doc::scalarAppend(char c)
+{
+    getScalar().append(c);
+    tokens.updateScalar(outer, inner);
+}
+
+void Doc::scalarClear()
+{
+    getScalar().clear();
+    tokens.updateScalar(outer, inner);
+}
+
+void Doc::light()
+{
+    // TODO: apply this in this cpp
+    tokens.light(&outer->at(inner));
+}
+
+void Doc::setHotLight(bool b)
+{
+    // TODO: move all language-aware things to ast/* or hammer
+    if (b) {
+        ssize_t back = innerType() == Ast::Type::KEY
+                || innerType() == Ast::Type::STRING ? 1 : 0;
+        tokens.setHotLight(back);
+    } else {
+        tokens.setHotLight(-1);
+    }
+}
+
 void Doc::toggleTension(bool b)
 {
     if (ob != nullptr)
@@ -301,5 +362,11 @@ Ast *Doc::newTree(Ast::Type type)
     }
 
     return a;
+}
+
+ScalarAst &Doc::getScalar()
+{
+    assert(Ast::isScalar(outer->at(inner)));
+    return static_cast<ScalarAst&>(outer->at(inner));
 }
 

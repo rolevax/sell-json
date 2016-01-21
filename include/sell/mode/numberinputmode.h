@@ -6,8 +6,7 @@
 class NumberInputMode : public Mode
 {
 public:
-    NumberInputMode(Doc &doc, bool clear);
-
+    NumberInputMode(EditableDoc &doc, bool clear);
 
     void keyboard(char key) override;
     void onPushed() override;

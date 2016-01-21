@@ -10,6 +10,14 @@ ListAst::ListAst(Type t) :
 
 }
 
+ListAst *ListAst::clone() const
+{
+    ListAst *ret = new ListAst(type);
+    for (const std::unique_ptr<Ast> &sub : subtrees)
+        ret->subtrees.emplace_back(sub->clone());
+    return ret;
+}
+
 size_t ListAst::size() const
 {
     return subtrees.size();

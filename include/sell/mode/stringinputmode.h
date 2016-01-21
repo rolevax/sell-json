@@ -6,7 +6,7 @@
 class StringInputMode : public Mode
 {
 public:
-    StringInputMode(Doc &doc, bool clear);
+    StringInputMode(EditableDoc &doc, bool clear);
 
     void keyboard(char key) override;
     void onPushed() override;

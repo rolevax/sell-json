@@ -3,8 +3,7 @@
 
 #include "sell/ast/ast.h"
 
-class Doc;
-class Tokens;
+class EditableDoc;
 
 class Mode
 {
@@ -21,25 +20,8 @@ public:
     virtual const char *name() = 0;
 
 protected:
-    void push(Mode *mode);
-    void pop(Mode *next = nullptr);
-
-    void fallIn();
-    void digOut();
-    void sibling(int step);
-    void jackKick(bool down);
-    void insert(Ast::Type type);
-    std::unique_ptr<Ast> remove();
-    void change(Ast::Type type);
-    void nest(Ast::Type type);
-    void toggleTension(bool b);
-
-protected:
-    Mode(Doc &doc);
-    Doc &doc;
-    Ast *&outer;
-    size_t &inner;
-    Tokens &tokens;
+    Mode(EditableDoc &doc) : doc(doc) {}
+    EditableDoc &doc;
 };
 
 #endif // MODE_H

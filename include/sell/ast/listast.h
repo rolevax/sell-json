@@ -10,6 +10,7 @@ class ListAst : public Ast
 public:
     ListAst(Type t);
 
+    ListAst *clone() const override;
     size_t size() const override;
     Ast &at(size_t pos) const override;
     std::unique_ptr<Ast> remove(size_t pos) override;

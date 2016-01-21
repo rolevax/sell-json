@@ -10,7 +10,7 @@ public:
     {
         INSERT, APPEND, ASSART, CHANGE, NEST
     };
-    MenuMode(Doc &doc, Context context);
+    MenuMode(EditableDoc &doc, Context context);
 
     void keyboard(char key) override;
     void emptyKeyboard(char key) override;

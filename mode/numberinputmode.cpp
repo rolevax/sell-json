@@ -1,10 +1,10 @@
+#include "sell/core/editabledoc.h"
 #include "sell/mode/numberinputmode.h"
-#include "sell/core/tokens.h"
 #include "sell/ast/scalarast.h"
 
 #include <cassert>
 
-NumberInputMode::NumberInputMode(Doc &doc, bool clear) :
+NumberInputMode::NumberInputMode(EditableDoc &doc, bool clear) :
     Mode(doc),
     clear(clear)
 {
@@ -13,10 +13,10 @@ NumberInputMode::NumberInputMode(Doc &doc, bool clear) :
 
 void NumberInputMode::keyboard(char key)
 {
-    assert(outer->at(inner).getType() == Ast::Type::NUMBER);
+    assert(doc.innerType() == Ast::Type::NUMBER);
 
     if (' ' == key) {
-        pop();
+        doc.pop();
         return;
     }
 
@@ -40,29 +40,24 @@ void NumberInputMode::keyboard(char key)
     else
         return;
 
-    ScalarAst &scalar = static_cast<ScalarAst&>(outer->at(inner));
-    scalar.append(input);
-    tokens.updateScalar(outer, inner);
-    tokens.light(&outer->at(inner));
-
+    doc.scalarAppend(input);
+    doc.light();
 }
 
 void NumberInputMode::onPushed()
 {
     if (clear) {
-        assert(outer->at(inner).getType() == Ast::Type::NUMBER);
-        ScalarAst &scalar = static_cast<ScalarAst&>(outer->at(inner));
-        scalar.clear();
-        tokens.updateScalar(outer, inner);
+        assert(doc.innerType() == Ast::Type::NUMBER);
+        doc.scalarClear();
     }
 
-    tokens.light(&outer->at(inner));
-    tokens.setHotLight(0); // turn on hot light
+    doc.light();
+    doc.setHotLight(true);
 }
 
 void NumberInputMode::onPopped()
 {
-    tokens.setHotLight(-1); // turn off hot light
+    doc.setHotLight(false);
 }
 
 const char *NumberInputMode::name()

@@ -9,6 +9,14 @@ MapAst::MapAst(Type t) :
     assert(t == Type::PAIR);
 }
 
+MapAst *MapAst::clone() const
+{
+    MapAst *ret = new MapAst(type);
+    ret->key.reset(key->clone());
+    ret->value.reset(value->clone());
+    return ret;
+}
+
 size_t MapAst::size() const
 {
     return 2;

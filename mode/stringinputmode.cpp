@@ -1,10 +1,10 @@
+#include "sell/core/editabledoc.h"
 #include "sell/mode/stringinputmode.h"
-#include "sell/core/tokens.h"
 #include "sell/ast/scalarast.h"
 
 #include <cassert>
 
-StringInputMode::StringInputMode(Doc &doc, bool clear) :
+StringInputMode::StringInputMode(EditableDoc &doc, bool clear) :
     Mode(doc),
     clear(clear)
 {
@@ -16,14 +16,12 @@ void StringInputMode::keyboard(char key)
     switch (key) {
     case '\t':
     case '\r':
-        pop();
+        doc.pop();
         break;
     default:
-        assert(Ast::isScalar(outer->at(inner)));
-        ScalarAst &scalar = static_cast<ScalarAst&>(outer->at(inner));
-        scalar.append(key);
-        tokens.updateScalar(outer, inner);
-        tokens.light(&outer->at(inner));
+        assert(Ast::isScalar(doc.innerType()));
+        doc.scalarAppend(key);
+        doc.light();
         break;
     }
 }
@@ -31,19 +29,17 @@ void StringInputMode::keyboard(char key)
 void StringInputMode::onPushed()
 {
     if (clear) {
-        assert(Ast::isScalar(outer->at(inner)));
-        ScalarAst &scalar = static_cast<ScalarAst&>(outer->at(inner));
-        scalar.clear();
-        tokens.updateScalar(outer, inner);
+        assert(Ast::isScalar(doc.innerType()));
+        doc.scalarClear();
     }
 
-    tokens.light(&outer->at(inner));
-    tokens.setHotLight(1); // 1-back to skip quote
+    doc.light();
+    doc.setHotLight(true);
 }
 
 void StringInputMode::onPopped()
 {
-    tokens.setHotLight(-1); // turn off hot light
+    doc.setHotLight(false);
 }
 
 const char *StringInputMode::name()

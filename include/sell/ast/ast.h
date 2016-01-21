@@ -29,9 +29,14 @@ public:
     Ast(Type t);
     virtual ~Ast() = default;
 
+    /**
+     * @brief Recursive value deep copy
+     * @return Ast with same value but parent is null
+     */
+    virtual Ast *clone() const = 0;
+
     Type getType() const;
     Ast &getParent() const;
-    void setParent(Ast *p);
 
     void insert(size_t pos, Ast *child);
     virtual std::unique_ptr<Ast> remove(size_t pos);
@@ -48,7 +53,6 @@ protected:
 protected:
     Type type;
     Ast *parent = nullptr;
-    RootAst *root = nullptr;
 };
 
 #endif // AST_H

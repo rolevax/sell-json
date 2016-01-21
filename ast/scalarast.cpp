@@ -7,6 +7,12 @@ ScalarAst::ScalarAst(Type t, const std::string &text) :
 
 }
 
+ScalarAst *ScalarAst::clone() const
+{
+    ScalarAst *ret = new ScalarAst(type, text);
+    return ret;
+}
+
 const std::string &ScalarAst::getText() const
 {
     return text;

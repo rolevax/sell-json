@@ -1,19 +1,17 @@
 #ifndef DOC_H
 #define DOC_H
 
+#include "sell/core/editabledoc.h"
 #include "sell/core/tokens.h"
-#include "sell/ast/ast.h"
 #include "sell/ast/rootast.h"
-#include "sell/mode/mode.h"
-#include <memory>
 #include <stack>
 
 class PDoc;
 
-class Doc
+class Doc : public EditableDoc
 {
 public:
-    Doc();
+    Doc(PDoc *ob);
 
     Doc(const Doc&) = delete;
     Doc &operator=(const Doc&) = delete;
@@ -23,25 +21,39 @@ public:
     void keyboard(char key);
 
     void registerTokensObserver(TokensObserver *ob);
-    void registerObserver(PDoc *ob);
 
     friend class Mode;
 
 private:
-    void push(Mode *mode);
-    void pop(Mode *nextPush);
+    void push(Mode *mode) override;
+    void pop(Mode *nextPush) override;
 
-    void fallIn();
-    void digOut();
-    void sibling(int step);
-    void jackKick(bool down);
-    void insert(Ast::Type type);
-    std::unique_ptr<Ast> remove();
-    void change(Ast::Type type);
-    void nest(Ast::Type type);
-    void toggleTension(bool b);
+    Ast::Type outerType() override;
+    Ast::Type innerType() override;
+
+    void cursorIn() override;
+    void cursorForward() override;
+
+    void fallIn() override;
+    void digOut() override;
+    void sibling(int step) override;
+    void jackKick(bool down) override;
+    void hackLead(bool right) override;
+    void insert(Ast::Type type) override;
+    std::unique_ptr<Ast> remove() override;
+    void change(Ast::Type type) override;
+    void nest(Ast::Type type) override;
+
+    void scalarAppend(const char *str) override;
+    void scalarAppend(char c) override;
+    void scalarClear() override;
+
+    void light() override;
+    void setHotLight(bool b) override;
+    void toggleTension(bool b) override;
 
     Ast *newTree(Ast::Type type);
+    ScalarAst &getScalar();
 
 private:
     std::stack<std::unique_ptr<Mode>> modes;
@@ -49,7 +61,7 @@ private:
     Tokens tokens;
     Ast *outer = &root;
     size_t inner = 0;
-    PDoc *ob = nullptr;
+    PDoc *ob;
 };
 
 #endif // DOC_H
