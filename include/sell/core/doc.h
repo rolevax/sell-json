@@ -31,8 +31,8 @@ private:
     void push(Mode *mode);
     void pop(Mode *nextPush);
 
-    void fuckIn();
-    void damnOut();
+    void fallIn();
+    void digOut();
     void sibling(int step);
     void jackKick(bool down);
     void insert(Ast::Type type);

@@ -24,8 +24,8 @@ protected:
     void push(Mode *mode);
     void pop(Mode *next = nullptr);
 
-    void fuckIn();
-    void damnOut();
+    void fallIn();
+    void digOut();
     void sibling(int step);
     void jackKick(bool down);
     void insert(Ast::Type type);

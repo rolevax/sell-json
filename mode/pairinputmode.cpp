@@ -12,7 +12,7 @@ PairInputMode::PairInputMode(Doc &doc)
 
 void PairInputMode::onPushed()
 {
-    fuckIn();
+    fallIn();
     stage = Stage::KEY_DONE;
     push(new StringInputMode(doc, true));
 }
@@ -26,7 +26,7 @@ void PairInputMode::onResume()
         push(new MenuMode(doc, MenuMode::Context::CHANGE));
         break;
     case Stage::VALUE_DONE:
-        damnOut();
+        digOut();
         pop();
         break;
     }

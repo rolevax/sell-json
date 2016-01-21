@@ -20,14 +20,14 @@ void Mode::pop(Mode *next)
     doc.pop(next);
 }
 
-void Mode::fuckIn()
+void Mode::fallIn()
 {
-    doc.fuckIn();
+    doc.fallIn();
 }
 
-void Mode::damnOut()
+void Mode::digOut()
 {
-    doc.damnOut();
+    doc.digOut();
 }
 
 void Mode::sibling(int step)

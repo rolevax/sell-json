@@ -21,10 +21,10 @@ void ViewMode::keyboard(char key)
         sibling(-1);
         break;
     case 'f': // fall in
-        fuckIn();
+        fallIn();
         break;
     case 'd': // dig out
-        damnOut();
+        digOut();
         break;
 
     // concrete cursor moving
@@ -51,7 +51,8 @@ void ViewMode::keyboard(char key)
             context = 'o' == key ? MenuMode::Context::APPEND
                                  : MenuMode::Context::INSERT;
             push(new MenuMode(doc, context));
-        } else if (outer->getType() == Ast::Type::ROOT) {
+        } else if (outer->getType() == Ast::Type::ROOT && outer->size() == 0) {
+            // insert to empty document
             push(new MenuMode(doc, MenuMode::Context::INSERT));
         }
         break;

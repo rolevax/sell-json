@@ -72,10 +72,8 @@ void Doc::save(const std::string &filename)
 }
 
 /**
- * @brief Doc::keyboard
- * @param key
- * Accept a key stroke and handle it with the mode on
- * the top of the mode stack.
+ * @brief Accept a key stroke
+ * Handle it with the mode on the top of the mode stack.
  */
 void Doc::keyboard(char key)
 {
@@ -97,10 +95,8 @@ void Doc::registerObserver(PDoc *ob)
 }
 
 /**
- * @brief Doc::push
- * @param mode
- * Push 'mode' onto the mode stack,
- * and trigger the 'onPushed' callback of 'mode'
+ * @brief Push 'mode' onto the mode stack,
+ * Trigger the 'onPushed' callback of 'mode'
  * This will take away the ownership of 'mode'.
  */
 void Doc::push(Mode *mode)
@@ -112,10 +108,11 @@ void Doc::push(Mode *mode)
 }
 
 /**
- * @brief Doc::pop
- * Pop the top of the mode stack,
- * and call the 'onPopped' of that mode.
- * Then call 'onResume' of the new top mode.
+ * @brief Pop the top of the mode stack,
+ * @param nextPush the next mode to push
+ * Call the 'onPopped' of that mode.
+ * Then if nextPush is not null, push that.
+ * Else call 'onResume' of the new top mode.
  * Afterwards that mode object will be destructed.
  */
 void Doc::pop(Mode *nextPush)
@@ -135,7 +132,7 @@ void Doc::pop(Mode *nextPush)
         modes.top()->onResume();
 }
 
-void Doc::fuckIn()
+void Doc::fallIn()
 {
     assert(inner < outer->size());
 
@@ -167,10 +164,9 @@ void Doc::fuckIn()
     }
 }
 
-void Doc::damnOut()
+void Doc::digOut()
 {
     if (outer == &root) {
-        qDebug() << "cannot damnout root";
         return;
     }
 
@@ -193,12 +189,12 @@ void Doc::jackKick(bool down)
 }
 
 /**
- * @brief Doc::insert Create a new subnode
- * @param type The type of the new node
+ * @brief Create an empty subnode
+ * @param type the type of the new node
  * Create a new subnode inside 'outer' at 'inner',
  * with specified type 'type'.
  * The value of the new node is "as empty as possible".
- * ... number and keytal, is "", makes it inconsistent, might be a bad design
+ * TODO number and keytal, is "", makes it inconsistent, might be a bad design
  */
 void Doc::insert(Ast::Type type)
 {
@@ -223,7 +219,7 @@ std::unique_ptr<Ast> Doc::remove()
             if (inner > 0) {
                 --inner;
             } else { // outer became empty
-                damnOut();
+                digOut();
                 // re-insert to generate special empty look
                 tokens.remove(outer, inner);
                 tokens.insert(outer, inner);
@@ -281,7 +277,7 @@ Ast *Doc::newTree(Ast::Type type)
     switch (type) {
     case Ast::Type::PAIR:
         a = new MapAst(Ast::Type::PAIR);
-        a->insert(0, new ScalarAst(Ast::Type::KEY, "key"));
+        a->insert(0, new ScalarAst(Ast::Type::KEY, ""));
         a->insert(1, new ScalarAst(Ast::Type::KEYTAL, "null"));
         break;
     case Ast::Type::STRING:
