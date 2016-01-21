@@ -83,6 +83,7 @@ void Doc::keyboard(char key)
         modes.top()->keyboard(key);
     else
         modes.top()->emptyKeyboard(key);
+    tokens.light(&outer->at(inner));
 }
 
 void Doc::registerTokensObserver(TokensObserver *ob)
@@ -170,7 +171,6 @@ void Doc::fallIn()
     case Ast::Type::ROOT:
         outer = &focus;
         inner = 0;
-        tokens.light(&outer->at(inner));
         break;
     case Ast::Type::KEY:
     case Ast::Type::STRING:
@@ -189,7 +189,6 @@ void Doc::digOut()
 
     Ast *nextOuter = &outer->getParent();
     inner = nextOuter->indexOf(outer);
-    tokens.light(outer);
     outer = nextOuter;
 }
 
@@ -197,7 +196,6 @@ void Doc::sibling(int step)
 {
     size_t size = outer->size();
     inner = (ssize_t(inner + size) + step) % size;
-    tokens.light(&outer->at(inner));
 }
 
 void Doc::jackKick(bool down)
@@ -248,7 +246,6 @@ std::unique_ptr<Ast> Doc::remove()
                 tokens.insert(outer, inner);
             }
         }
-        tokens.light(&outer->at(inner));
     }
 
     return ret;
@@ -266,7 +263,6 @@ void Doc::change(Ast::Type type)
     tokens.remove(outer, inner);
     outer->change(inner, newTree(type));
     tokens.insert(outer, inner);
-    tokens.light(&outer->at(inner));
 }
 
 void Doc::nest(Ast::Type type)
@@ -284,7 +280,6 @@ void Doc::nest(Ast::Type type)
     tokens.remove(outer, inner);
     outer->nest(inner, newTree(type));
     tokens.insert(outer, inner);
-    tokens.light(&outer->at(inner));
 }
 
 void Doc::scalarAppend(const char *str)
@@ -307,15 +302,8 @@ void Doc::scalarClear()
     tokens.updateScalar(outer, inner);
 }
 
-void Doc::light()
-{
-    // TODO: apply this in this cpp
-    tokens.light(&outer->at(inner));
-}
-
 void Doc::setHotLight(bool b)
 {
-    // TODO: move all language-aware things to ast/* or hammer
     if (b) {
         ssize_t back = innerType() == Ast::Type::KEY
                 || innerType() == Ast::Type::STRING ? 1 : 0;

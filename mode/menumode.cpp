@@ -118,7 +118,6 @@ void MenuMode::work(Ast::Type type, const char *keytal)
         /* fall through */
     case Ast::Type::ARRAY:
     case Ast::Type::OBJECT:
-        doc.light();
         doc.pop();
         break;
     default:

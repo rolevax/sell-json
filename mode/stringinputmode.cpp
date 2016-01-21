@@ -21,7 +21,6 @@ void StringInputMode::keyboard(char key)
     default:
         assert(Ast::isScalar(doc.innerType()));
         doc.scalarAppend(key);
-        doc.light();
         break;
     }
 }
@@ -33,7 +32,6 @@ void StringInputMode::onPushed()
         doc.scalarClear();
     }
 
-    doc.light();
     doc.setHotLight(true);
 }
 

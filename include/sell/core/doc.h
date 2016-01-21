@@ -22,9 +22,9 @@ public:
 
     void registerTokensObserver(TokensObserver *ob);
 
-    friend class Mode;
-
 private:
+    /// @name EditableDoc interface
+    ///@{
     void push(Mode *mode) override;
     void pop(Mode *nextPush) override;
 
@@ -48,12 +48,15 @@ private:
     void scalarAppend(char c) override;
     void scalarClear() override;
 
-    void light() override;
     void setHotLight(bool b) override;
     void toggleTension(bool b) override;
+    ///@}
 
+    /// @name "really" private functions
+    ///@{
     Ast *newTree(Ast::Type type);
     ScalarAst &getScalar();
+    ///@}
 
 private:
     std::stack<std::unique_ptr<Mode>> modes;

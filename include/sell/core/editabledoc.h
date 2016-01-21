@@ -35,7 +35,6 @@ public:
     virtual void scalarAppend(char c) = 0;
     virtual void scalarClear() = 0;
 
-    virtual void light() = 0;
     virtual void setHotLight(bool b) = 0;
     virtual void toggleTension(bool b) = 0;
 };

@@ -41,7 +41,6 @@ void NumberInputMode::keyboard(char key)
         return;
 
     doc.scalarAppend(input);
-    doc.light();
 }
 
 void NumberInputMode::onPushed()
@@ -51,7 +50,6 @@ void NumberInputMode::onPushed()
         doc.scalarClear();
     }
 
-    doc.light();
     doc.setHotLight(true);
 }
 
